@@ -12,10 +12,6 @@ var fs = require('fs');
 var _ = require('underscore');
 
 
-
-
-
-
 var options = {
 	source_path: 'reallysimple.csv'
 };
@@ -29,8 +25,28 @@ function fileLines(filename, callback) {
   });
 }
 
+// input:  [String]
+// output: [String]
+function removeTopTwoRows(rows) {
+	return _.rest(rows, 2);
+}
+//input: string
+//output: [string]
+function splitRow(row) {
+	return row.split(',');
+}
+
+function splitRows(rows) {
+	return _.map(rows, splitRow)
+}
+
+
+
 module.exports = {
-	fileLines: fileLines
+	fileLines: fileLines,
+	removeTopTwoRows: removeTopTwoRows,
+	splitRow: splitRow,
+	splitRows: splitRows
 }
 // 	var contents = data.split('\n');
 // 	return contents
@@ -61,7 +77,14 @@ module.exports = {
 
 // }
 
+// []
 
+// var permit = {
+// 	job: array[0]
+// 	doc:
+// 	borough:
+
+// }
 
 
 
