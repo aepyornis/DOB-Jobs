@@ -41,6 +41,26 @@ function splitRows(rows) {
 }
 
 
+//input: i (index of for loop), [[]]
+//output: {}
+function permitConstructor(i, allPermits) {
+	var permit = {}
+	permit.job = allPermits[i][0];
+	permit.doc = allPermits[i][1];
+	permit.borough = allPermits[i][2];
+	permit.house = allPermits[i][3];
+	return permit;
+}
+
+//input: [[]] of all permits
+//does: inserts documents into collection
+//output: nothing
+function dbInsert(allPermits){
+	var len = allPermits.length;
+	for (var i = 0; i < len; i++){
+	db.collection.insert(permitConstructor(i, allPermits));
+	}	
+}
 
 module.exports = {
 	fileLines: fileLines,
@@ -48,6 +68,7 @@ module.exports = {
 	splitRow: splitRow,
 	splitRows: splitRows
 }
+
 // 	var contents = data.split('\n');
 // 	return contents
 
@@ -86,8 +107,23 @@ module.exports = {
 
 // }
 
+// for (var i = 0; i < allPermits.length; i++){
+// 	db.collection.insert(permitConstructor(i));
+// }
 
 
+// function permitConstructor(i) {
+// 	var permit = {}
+// 	permit.job = allPermits[i][0];
+// 	permit.doc = allPermits[i][1];
+// 	permit.borough = allPermits[i][2];
+// 	permit.house = allPermits[i][3];
+// 	return permit;
+// }
 
+// var permit = {
+//  job: getJob(),
+
+// }
 
 
