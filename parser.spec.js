@@ -31,6 +31,20 @@ describe('splitRows', function(){
 	})
 })
 
+describe('permitConstructor', function() {
+	it('works on example', function () {
+		var allPermits = [['893423423','1','MANHATTAN','59', '3rd St.'], ['320853536','1','BROOKLYN','2424', 'HENRY STREET']];	
+		parser.permitConstructor(1, allPermits).should.eql(
+		{
+			job:'320853536',
+			doc: '1',
+			borough: 'BROOKLYN',
+			house: '2424',
+			streetName: 'HENRY STREET'
+		})
+	})
+})
+
 // {
 // 	job: '893423423',
 // 	doc: '1',
