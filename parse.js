@@ -57,19 +57,21 @@ function permitConstructor(i, allPermits) {
 }
 
 
-//input: [[]]
+//input: [[]], 'name of collection'
 //output: writes documents to mongoDB
-function mongoInsert(thePermits) {
+function mongoInsert(thePermits, nameOfCollection, callback) {
 	MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
 		if(err) throw err;
 	
+		//creates write queue
 		var q = async.queue(function(task, callback) {
 			var documentToBeAdded = task.doc;
-	  		db.collection('testing1').insert(documentToBeAdded, function(err, docs) {
+	  		db.collection(nameOfCollection).insert(documentToBeAdded, {w:1}, function(err, docs) {
 				callback();
 			});
 	  	}, 2)
 
+		//pushes documents to the queue
 	  	for (var i = 0; i < thePermits.length; i++) {
 	  		q.push({doc: permitConstructor(i, thePermits)}, function(err){
 	  			if(err) {
@@ -77,9 +79,11 @@ function mongoInsert(thePermits) {
 	  			}
 	  		});
 	  	}
-
+	  	//function called when queue is finished
 	  	q.drain = function() {
 	  		db.close();
+	  		//option callback-used in testing
+	  		typeof callback === 'function' && callback();
 	  	}
 	})
 }

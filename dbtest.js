@@ -4,6 +4,13 @@ var MongoClient = require('mongodb').MongoClient;
 var format = require('util').format;
 var parser = require('./parse');
 
+parser.fileLines('reallysimple.csv', function(lines){
+	var allTheLines = parser.splitRows(lines);
+	parser.mongoInsert(allTheLines, 'testing1');
+
+})
+
+
 //This function works
 // function mongoInsert(documentToBeInserted){
 // 	MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
@@ -14,12 +21,3 @@ var parser = require('./parse');
 // 		);
 // 	})
 // }
-
-
-parser.fileLines('reallysimple.csv', function(lines){
-	var allTheLines = parser.splitRows(lines);
-	parser.mongoInsert(allTheLines);
-
-})
-
-

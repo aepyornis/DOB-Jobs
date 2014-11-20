@@ -1,5 +1,10 @@
 var parser = require('./parse');
 var should = require('should');
+var fs = require('fs');
+var _ = require('underscore');
+var MongoClient = require('mongodb').MongoClient;
+var format = require('util').format;
+var async = require('async');
 
 describe('fileLines', function() {
 
@@ -45,36 +50,27 @@ describe('permitConstructor', function() {
 	})
 })
 
-// {
-// 	job: '893423423',
-// 	doc: '1',
-// 	borough: 'MANHATTAN',
-// 	house: '59'
+describe('mongoInsert', function() {
+	it('works on a test database', function(done) {
+		//two test permits to be inserted
+		var testPermits = [['893423423','1','MANHATTAN','59', '3rd St.'], ['320853536','1','BROOKLYN','2424', 'HENRY STREET']];
+		
+		//inserting into 'testingCollection', which needs to be cleared first in mongoshell
+		parser.mongoInsert(testPermits, 'testingCollection', function() {
+			//the callback to mongoInsert to ensure the writing is complete
+			MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+			should.not.exist(err);
+			db.collection('testingCollection').count(function(err, count){
+				should.not.exist(err);
+				count.should.eql(2);
+				done();
+			});
+		});
+		
+		
+		})
+	})
+})
 
-// }
 
 
-//input [string]
-//output [ [string] ]
-// ['893423423,1,MANHATTAN,59', '320853536,1,BROOKLYN,2424']
-// [['893423423','1','MANHATTAN','59'], ['320853536','1','BROOKLYN','2424']]
-
-
-// ['893423423,1,MANHATTAN,59']
-// ['893423423','1','MANHATTAN','59']
-// //
-// {
-// 	job: '893423423',
-// 	doc: '1',
-// 	borough: 'MANHATTAN',
-// 	house: '59'
-
-// }
-// //some strings converted to numbers
-// {
-// 	job: 893423423,
-// 	doc: 1,
-// 	borough: 'MANHATTAN',
-// 	house: '59' 
-
-// }
