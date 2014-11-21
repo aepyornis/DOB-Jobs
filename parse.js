@@ -8,6 +8,10 @@
 // 	write headers
 // 	create BBL field
 // write each object to mongo collection
+// map
+// filtering capabilities 
+// Select permits where: ... ... 
+
 var fs = require('fs');
 var _ = require('underscore');
 var MongoClient = require('mongodb').MongoClient;
@@ -99,7 +103,7 @@ function permitConstructor(i, allPermits) {
 	permit.house = allPermits[i][3];
 	permit.streetName = allPermits[i][4];
 	permit.block = allPermits[i][5];
-	permit.lot = allPermits[i][6;
+	permit.lot = allPermits[i][6];
 	permit.bin = allPermits[i][7];
 	permit.jobType = allPermits[i][8];
 	permit.jobStatus = allPermits[i][9];
@@ -109,14 +113,74 @@ function permitConstructor(i, allPermits) {
 	permit.CB = allPermits[i][13];
 	permit.cluster = allPermits[i][14];
 	permit.landmark = allPermits[i][15];
-	permit.
+	permit.adultEstab = allPermits[i][16];
+	permit.loftBoard = allPermits[i][17];
+	permit.cityOwned = allPermits[i][18];
+	permit.littleE = allPermits[i][19];
+	permit.PCFiled = allPermits[i][20];
+	permit.eFilingFiled = allPermits[i][21];
+	permit.Plumbing = allPermits[i][22];
+	permit.Mechanical = allPermits[i][23];
+	permit.Boiler = allPermits[i][24];
+	permit.FuelBurning = allPermits[i][25];
+	permit.FuelStorage = allPermits[i][26];
+	permit.Standpipe = allPermits[i][27];
+	permit.Sprinkler = allPermits[i][28];
+	permit.FireAlarm = allPermits[i][29];
+	permit.Equipment = allPermits[i][30]''
+	permit.FireSuppression = allPermits[i][31];
+	permit.Curb Cut = allPermits[i][32];
+	permit.Other = allPermits[i][33];
+	permit.OtherDescript = allPermits[i][34];
+	permit.Applicant.Name =  allPermits[i][35];
+	permit.Applicant.Title = allPermits[i][36];
+	permit.Applicant.License = allPermits[i][37];
+	permit.Professional.Cert = allPermits[i][38];
+	permit.PreFilingDate = allPermits[i][39];
+	permit.Paid = allPermits[i][40];
+	permit.FullyPaid = allPermits[i][41];
+	permit.Assigned = allPermits[i][42];
+	permit.Approved = allPermits[i][43];
+	permit.FullyPermitted = allPermits[i][44];
+	permit.InitialCost = allPermits[i][45];
+	permit.TotalEstFee = allPermits[i][46];
+	permit.FeeStatus = allPermits[i][47];
+	permit.ExistingZoningSqft = allPermits[i][48];
+	permit.ProposedZoningSqft = allPermits[i][49];
+	permit.HorizontalEnlrgmt = allPermits[i][50];
+	permit.VerticalEnlrgmt = allPermits[i][51];
+	permit.EnlargementSQFootage = allPermits[i][52];
+	permit.StreetFrontage = allPermits[i][53];
+	permit.ExistingStories = allPermits[i][54];
+	permit.ProposedStories = allPermits[i][55];
+	permit.ExistingHeight = allPermits[i][56];
+	permit.ProposedHeight = allPermits[i][57];
+	permit.ExistDwellingUnits = allPermits[i][58];
+	permit.ProposedDwellingUnits = allPermits[i][59];
+	permit.ExistingOccupancy = allPermits[i][60];
+	permit.ProposedOccupancy = allPermits[i][61];
+	permit.SiteFill = allPermits[i][62];
+	permit.Zoning.Dist1 = allPermits[i][63];
+	permit.Zoning.Dist2 = allPermits[i][64];
+	permit.Zoning.Dist3 = allPermits[i][65];
+	permit.Zoning.SDistrict1 = allPermits[i][66];
+	permit.Zoning.SDistrict2 = allPermits[i][67];
+	permit.Owner.Type = allPermits[i][68];
+	permit.Owner.NonProfit = allPermits[i][69];
+	permit.Owner.Name = allPermits[i][70]
+	permit.Owner.BusinessName = allPermits[i][71];
+	permit.Owner.HouseStreet = allPermits[i][72];
+	permit.Owner.CityStateZip =  = allPermits[i][73];
+	permit.Owner.Phone = allPermits[i][74];
+	permit.JobDescription = allPermits[i][75];
+	
 	return permit;
 }
 
 
 //input: [[]], 'name of collection'
 //output: writes documents to mongoDB
-function mongoInsert(thePermits, nameOfCollection, callback) {
+function mongoInsert(thePermits, nameOfCollection, done) {
 	MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
 		if(err) throw err;
 	
@@ -140,7 +204,7 @@ function mongoInsert(thePermits, nameOfCollection, callback) {
 	  	q.drain = function() {
 	  		db.close();
 	  		//option callback-used in testing
-	  		typeof callback === 'function' && callback();
+	  		typeof done === 'function' && done();
 	  	}
 	})
 }
@@ -157,7 +221,14 @@ module.exports = {
 	bbl: bbl
 }
 
-Job #,Doc #,Borough,House #,Street Name,Block,Lot,Bin #,Job Type,Job Status,Job Status Descrp,Latest Action Date,Building Type,Community - Board,Cluster ,Landmarked,Adult Estab,Loft Board,City Owned,Little e,PC Filed,eFiling Filed,Plumbing,Mechanical,Boiler,Fuel Burning,Fuel Storage,Standpipe,Sprinkler,Fire Alarm,Equipment,Fire Suppression,Curb Cut,Other,Other Description,Applicant's First/Last Name,Applicant Professional Title,Applicant License #,Professional Cert,Pre- Filing Date,Paid,Fully Paid,Assigned,Approved,Fully Permitted,Initial Cost,Total Est. Fee,Fee Status,Existing Zoning Sqft,Proposed Zoning Sqft,Horizontal Enlrgmt,Vertical Enlrgmt,Enlargement SQ Footage,Street Frontage,ExistingNo. of Stories,Proposed No. of Stories,Existing Height,Proposed Height,Existing Dwelling Units,Proposed Dwelling Units,Existing Occupancy,Proposed Occupancy,Site Fill,Zoning Dist1,Zoning Dist2,Zoning Dist3,Special District 1,Special District 2,Owner Type,Non-Profit,Owner's First & Last Name,Owner's Business Name ,Owner's  House Street,(City, State, Zip),Owners Phone #,Job Description
+// Job #,Doc #,Borough,House #,Street Name,Block,Lot,Bin #,Job Type,Job Status,Job Status Descrp,Latest Action Date,Building Type,Community - Board,Cluster ,Landmarked,Adult Estab,Loft Board,City Owned,Little e,PC Filed,eFiling Filed,Plumbing,Mechanical,Boiler,Fuel Burning,Fuel Storage,Standpipe,Sprinkler,Fire Alarm,Equipment,Fire Suppression,Curb Cut,Other,Other Description,Applicant's First/Last Name,Applicant Professional Title,Applicant License #,Professional Cert,Pre- Filing Date,Paid,Fully Paid,Assigned,Approved,Fully Permitted,Initial Cost,Total Est. Fee,Fee Status,Existing Zoning Sqft,Proposed Zoning Sqft,Horizontal Enlrgmt,Vertical Enlrgmt,Enlargement SQ Footage,Street Frontage,ExistingNo. of Stories,Proposed No. of Stories,Existing Height,Proposed Height,Existing Dwelling Units,Proposed Dwelling Units,Existing Occupancy,Proposed Occupancy,Site Fill,Zoning Dist1,Zoning Dist2,Zoning Dist3,Special District 1,Special District 2,Owner Type,Non-Profit,Owner's First & Last Name,Owner's Business Name ,Owner's  House Street,(City, State, Zip),Owners Phone #,Job Description
 
+// [{},{}]
+
+// [function(){db.collection.insert(docs[i])},function()]
+
+// _.map(docs, function(doc){
+// 	return function(){db.collection.insert(docs[i])};
+// })
 
 
