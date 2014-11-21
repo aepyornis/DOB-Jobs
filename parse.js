@@ -79,7 +79,6 @@ function bbl(borough, block, lot) {
 	} else {
 		while (blk.length < 5) {
 			blk = '0' + blk;
-
 		}
 		while (lt.length < 4) {
 			lt = '0' + lt;
@@ -87,6 +86,7 @@ function bbl(borough, block, lot) {
 		return (bor + blk + lt);
 	}
 }
+
 
 
 //input: i (index of for loop), [[]]
@@ -98,6 +98,18 @@ function permitConstructor(i, allPermits) {
 	permit.borough = allPermits[i][2];
 	permit.house = allPermits[i][3];
 	permit.streetName = allPermits[i][4];
+	permit.block = allPermits[i][5];
+	permit.lot = allPermits[i][6;
+	permit.bin = allPermits[i][7];
+	permit.jobType = allPermits[i][8];
+	permit.jobStatus = allPermits[i][9];
+	permit.jobStatusDescrp = allPermits[i][10];
+	permit.latestActionDate = allPermits[i][11];
+	permit.buildingType = allPermits[i][12];
+	permit.CB = allPermits[i][13];
+	permit.cluster = allPermits[i][14];
+	permit.landmark = allPermits[i][15];
+	permit.
 	return permit;
 }
 
@@ -145,7 +157,7 @@ module.exports = {
 	bbl: bbl
 }
 
-// // Job #,Doc #,Borough,House #,Street Name,Block,Lot,Bin #,Job Type,Job Status,Job Status Descrp,Latest Action Date,Building Type,Community - Board,Cluster ,Landmarked,Adult Estab,Loft Board,City Owned,Little e,PC Filed,eFiling Filed,Plumbing,Mechanical,Boiler,Fuel Burning,Fuel Storage,Standpipe,Sprinkler,Fire Alarm,Equipment,Fire Suppression,Curb Cut,Other,Other Description,Applicant's First/Last Name,Applicant Professional Title,Applicant License #,Professional Cert,Pre- Filing Date,Paid,Fully Paid,Assigned,Approved,Fully Permitted,Initial Cost,Total Est. Fee,Fee Status,Existing Zoning Sqft,Proposed Zoning Sqft,Horizontal Enlrgmt,Vertical Enlrgmt,Enlargement SQ Footage,Street Frontage,ExistingNo. of Stories,Proposed No. of Stories,Existing Height,Proposed Height,Existing Dwelling Units,Proposed Dwelling Units,Existing Occupancy,Proposed Occupancy,Site Fill,Zoning Dist1,Zoning Dist2,Zoning Dist3,Special District 1,Special District 2,Owner Type,Non-Profit,Owner's First & Last Name,Owner's Business Name ,Owner's  House Street,"City, State, Zip",Owner's  Phone #,Job Description
+Job #,Doc #,Borough,House #,Street Name,Block,Lot,Bin #,Job Type,Job Status,Job Status Descrp,Latest Action Date,Building Type,Community - Board,Cluster ,Landmarked,Adult Estab,Loft Board,City Owned,Little e,PC Filed,eFiling Filed,Plumbing,Mechanical,Boiler,Fuel Burning,Fuel Storage,Standpipe,Sprinkler,Fire Alarm,Equipment,Fire Suppression,Curb Cut,Other,Other Description,Applicant's First/Last Name,Applicant Professional Title,Applicant License #,Professional Cert,Pre- Filing Date,Paid,Fully Paid,Assigned,Approved,Fully Permitted,Initial Cost,Total Est. Fee,Fee Status,Existing Zoning Sqft,Proposed Zoning Sqft,Horizontal Enlrgmt,Vertical Enlrgmt,Enlargement SQ Footage,Street Frontage,ExistingNo. of Stories,Proposed No. of Stories,Existing Height,Proposed Height,Existing Dwelling Units,Proposed Dwelling Units,Existing Occupancy,Proposed Occupancy,Site Fill,Zoning Dist1,Zoning Dist2,Zoning Dist3,Special District 1,Special District 2,Owner Type,Non-Profit,Owner's First & Last Name,Owner's Business Name ,Owner's  House Street,(City, State, Zip),Owners Phone #,Job Description
 
 
 
