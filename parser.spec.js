@@ -36,6 +36,13 @@ describe('splitRows', function(){
 	})
 })
 
+describe('removeWhiteSpace', function(){
+	it('works on example', function(){
+		var testPermits = [['893423423','   1','MANHATTAN       ','59', '     3rd St.'], ['320853536          ','1','BROOKLYN','      2424   ', '     HENRY STREET']];
+		parser.removeWhiteSpace(testPermits).should.eql([['893423423','1','MANHATTAN','59', '3rd St.'], ['320853536','1','BROOKLYN','2424', 'HENRY STREET']])
+	})
+})
+
 describe('permitConstructor', function() {
 	it('works on example', function () {
 		var allPermits = [['893423423','1','MANHATTAN','59', '3rd St.'], ['320853536','1','BROOKLYN','2424', 'HENRY STREET']];	
@@ -57,17 +64,15 @@ describe('mongoInsert', function() {
 		
 		//inserting into 'testingCollection', which needs to be cleared first in mongoshell
 		parser.mongoInsert(testPermits, 'testingCollection', function() {
-			//the callback to mongoInsert to ensure the writing is complete
+			//the callback to mongoInsert to ensure the writing is complete before doing count
 			MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
-			should.not.exist(err);
-			db.collection('testingCollection').count(function(err, count){
 				should.not.exist(err);
-				count.should.eql(2);
-				done();
+				db.collection('testingCollection').count(function(err, count){
+					should.not.exist(err);
+					count.should.eql(2);
+					done();
+				});
 			});
-		});
-		
-		
 		})
 	})
 })
