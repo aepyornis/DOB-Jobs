@@ -43,6 +43,14 @@ describe('removeWhiteSpace', function(){
 	})
 })
 
+describe('bbl', function(){
+	it('works on simple', function(){
+		parser.bbl('QUEENS', '35', '703').should.eql('4000350703');
+	})
+
+})
+
+
 describe('permitConstructor', function() {
 	it('works on example', function () {
 		var allPermits = [['893423423','1','MANHATTAN','59', '3rd St.'], ['320853536','1','BROOKLYN','2424', 'HENRY STREET']];	
