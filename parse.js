@@ -12,6 +12,8 @@
 // filtering capabilities 
 // Select permits where: ... ... 
 
+// D:\mongodb\bin\mongod.exe --dbpath D:\code\DOB-Jobs\database
+
 var fs = require('fs');
 var _ = require('underscore');
 var MongoClient = require('mongodb').MongoClient;
@@ -28,6 +30,7 @@ function fileLines(filename, callback) {
 	// var theArray = _.rest(data.split('\r'), 2);
 	fs.readFile(filename, 'utf8', function(err, data) {
 	// console.log(data);
+	if (err) console.log(err);
 	callback(data.split('\n'));
   });
 }
@@ -79,9 +82,10 @@ function bbl(borough, block, lot) {
 		bor = '5';
 	} else { bor = 'err'; console.log("there's a mistake with the borough name");}
 
-	if (block.length > 5 || lot.length > 4) {
+	if (block != undefined || lot != undefined) {
+		if (block.length > 5 || lot.length > 4) {
 		console.log("the block and/or lot are too long")
-	} else {
+		} else {
 		while (blk.length < 5) {
 			blk = '0' + blk;
 		}
@@ -89,7 +93,12 @@ function bbl(borough, block, lot) {
 			lt = '0' + lt;
 		}
 		return (bor + blk + lt);
+		}
+	} else {
+		return 'blk and/or lot is undefined';
 	}
+
+	
 }
 
 
