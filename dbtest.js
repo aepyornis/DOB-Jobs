@@ -4,20 +4,19 @@ var MongoClient = require('mongodb').MongoClient;
 var format = require('util').format;
 var parser = require('./parse');
 
-parser.fileLines('reallysimple.csv', function(lines){
-	var allTheLines = parser.splitRows(lines);
-	parser.mongoInsert(allTheLines, 'testing1');
+// parser.fileLines('reallysimple.csv', function(lines){
+// 	var allTheLines = parser.splitRows(lines);
+// 	parser.mongoInsert(allTheLines, 'testing1');
+
+// })
+
+
+
+parser.fileLines('sample.csv', function(lines) {
+    var allTheLines = parser.splitRows(lines);
+    var removedtop3 = parser.removeTopThreeRows(allTheLines);
+    var permits = parser.removeWhiteSpace(removedtop3);
+    console.log(parser.permitConstructor(0, permits));
+
 
 })
-
-
-//This function works
-// function mongoInsert(documentToBeInserted){
-// 	MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
-// 		if(err) throw err;
-// 		db.collection('testing1').insert(documentToBeInserted, function(err, docs){
-// 				db.close();
-// 			}
-// 		);
-// 	})
-// }
