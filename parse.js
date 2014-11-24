@@ -37,6 +37,7 @@ function fileLines(filename, callback) {
 function removeTopThreeRows(rows) {
 	return _.rest(rows, 3);
 }
+
 //input: string
 //output: [string]
 function splitRow(row) {
@@ -90,7 +91,6 @@ function bbl(borough, block, lot) {
 		return (bor + blk + lt);
 	}
 }
-
 
 
 //input: i (index of for loop), [[]]

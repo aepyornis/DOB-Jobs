@@ -16,7 +16,5 @@ parser.fileLines('sample.csv', function(lines) {
     var allTheLines = parser.splitRows(lines);
     var removedtop3 = parser.removeTopThreeRows(allTheLines);
     var permits = parser.removeWhiteSpace(removedtop3);
-    console.log(parser.permitConstructor(0, permits));
-
-
+    console.log(parser.permitConstructor(1, permits));
 })
