@@ -80,7 +80,7 @@ function bbl(borough, block, lot) {
 		bor = '4';
 	} else if (borough === 'STATEN ISLAND') {
 		bor = '5';
-	} else { bor = 'err'; console.log("there's a mistake with the borough name");}
+	} else { bor = 'err'; console.log("there's a mistake with the borough name: " + borough );}
 
 	if (block != undefined || lot != undefined) {
 		if (block.length > 5 || lot.length > 4) {
