@@ -6,3 +6,12 @@ body {
 a {
   color: #00B7FF;
 }
+
+#jobsTable th {
+    padding: 3px 6x;
+
+}
+
+#jobsTable table {
+    border-collapse: collapse;
+}
