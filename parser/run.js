@@ -6,7 +6,6 @@ var async = require('async');
 var parser = require('./parse');
 
 var list_of_paths = ['D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0114.csv','D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0214.csv', 'D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0314.csv', 'D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0414.csv','D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0514.csv','D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0614.csv','D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0714.csv','D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0814.csv','D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job0914.csv','D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job1014.csv'];
-
 list_of_paths.push('D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job110814week.csv');
 list_of_paths.push('D:\\code\\DOB data\\2014 DOB Jobs\\csv\\job111514week.csv');
 
