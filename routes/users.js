@@ -4,8 +4,7 @@ var router = express.Router();
 /* GET most recent permits */
 router.get('/mostrecent', function(req, res){
     var db = req.db;
-    console.log(db);
-    db.collection('jobs2014').find().limit(10).toArray(function (err, items){
+    db.collection('jobs2014').find({ CB: '304'}).limit(25).toArray(function (err, items){
         res.json(items);
     })
 })
