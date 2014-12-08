@@ -152,8 +152,8 @@ function permitConstructor(i, allPermits) {
 	permit.Assigned = dateParser(allPermits[i][42]);
 	permit.Approved = dateParser(allPermits[i][43]);
 	permit.FullyPermitted = dateParser(allPermits[i][44]);
-	permit.InitialCost = allPermits[i][45];
-	permit.TotalEstFee = allPermits[i][46];
+	permit.InitialCost = removesMoneySign(allPermits[i][45]);
+	permit.TotalEstFee = removesMoneySign(allPermits[i][46]);
 	permit.FeeStatus = allPermits[i][47];
 	permit.ExistingZoningSqft = allPermits[i][48];
 	permit.ProposedZoningSqft = allPermits[i][49];
@@ -231,12 +231,27 @@ function dateParser(date) {
 		return 0;
 	} else {
 		var date_array = date.split('/');
+		
+		//console logs when date doesn't start to a number to catch errors in the data
+		if (/[a-z]/.test(data)) {
+			console.log('error in a date field: ' + permit.Job);
+		}
+
 		var year = date_array[2];
 		var month = parseInt(date_array[0], 10) - 1;
 		var day = date_array[1];
 		return new Date(year, month, day);
 	}	
 }
+
+//input: string
+//output: string
+function removesMoneySign(money) {
+	return money.replace('$', '');
+}
+
+/[a-z]/
+
 
 
 
@@ -249,7 +264,8 @@ module.exports = {
 	mongoInsert: mongoInsert,
 	removeWhiteSpace: removeWhiteSpace,
 	bbl: bbl,
-	dateParser: dateParser
+	dateParser: dateParser, 
+	removesMoneySign: removesMoneySign
 }
 
 

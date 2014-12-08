@@ -72,6 +72,10 @@ describe('parser', function(){
                             testPermit.Owner.Phone.should.eql('(800) 920-4700');
                         }) 
 
+                        it('removes money signs', function(){
+                            testPermit.InitialCost.should.eql('0.00');
+                        })
+
                         describe('dateParser', function(){
 
                             it('creates date on simple example', function(){
@@ -124,6 +128,16 @@ describe('parser', function(){
         })
     })
 })
+
+describe('removesMoneySign', function(){
+
+    it('works on example', function(){
+        parser.removesMoneySign('$5020.53').should.eql('5020.53');
+    })
+
+})
+
+
 
 //testing variables 
 
