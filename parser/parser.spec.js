@@ -80,9 +80,16 @@ describe('parser', function(){
 
                             })
 
+                            it('outputs 0 if input is 0 or "0"', function(){
+                                parser.dateParser(0).should.eql(0);
+                                parser.dateParser("0").should.eql(0);
+                                  
+                            })
+
                             it('works on test permit', function(){
                                 var theDate = new Date(2014, 5, 17);
                                 testPermit.LatestActionDate.should.eql(theDate);
+                                testPermit.Approved.should.eql(0);
                             })
 
                             describe('bbl', function(){

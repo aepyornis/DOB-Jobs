@@ -146,12 +146,12 @@ function permitConstructor(i, allPermits) {
 	permit.Applicant.Title = allPermits[i][36];
 	permit.Applicant.License = allPermits[i][37];
 	permit.Applicant.ProfessionalCert = allPermits[i][38];
-	permit.PreFilingDate = allPermits[i][39];
-	permit.Paid = allPermits[i][40];
-	permit.FullyPaid = allPermits[i][41];
-	permit.Assigned = allPermits[i][42];
-	permit.Approved = allPermits[i][43];
-	permit.FullyPermitted = allPermits[i][44];
+	permit.PreFilingDate = dateParser(allPermits[i][39]);
+	permit.Paid = dateParser(allPermits[i][40]);
+	permit.FullyPaid = dateParser(allPermits[i][41]);
+	permit.Assigned = dateParser(allPermits[i][42]);
+	permit.Approved = dateParser(allPermits[i][43]);
+	permit.FullyPermitted = dateParser(allPermits[i][44]);
 	permit.InitialCost = allPermits[i][45];
 	permit.TotalEstFee = allPermits[i][46];
 	permit.FeeStatus = allPermits[i][47];
@@ -225,14 +225,17 @@ function mongoInsert(thePermits, nameOfCollection, done) {
 //parses date
 //input: string, example: 6/17/2014 OR 10/1/2014 month/day/year
 //output: date in date format 
-//date(year, month, day)
+//Date(year, month, day)
 function dateParser(date) {
-	var date_array = date.split('/');
-	var year = date_array[2];
-	var month = parseInt(date_array[0], 10) - 1;
-	var day = date_array[1];
-
-	return new Date(year, month, day);
+	if (date === 0 || date === '0') {
+		return 0;
+	} else {
+		var date_array = date.split('/');
+		var year = date_array[2];
+		var month = parseInt(date_array[0], 10) - 1;
+		var day = date_array[1];
+		return new Date(year, month, day);
+	}	
 }
 
 
