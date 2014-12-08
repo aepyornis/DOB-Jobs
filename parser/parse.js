@@ -152,23 +152,23 @@ function permitConstructor(i, allPermits) {
 	permit.Assigned = dateParser(allPermits[i][42]);
 	permit.Approved = dateParser(allPermits[i][43]);
 	permit.FullyPermitted = dateParser(allPermits[i][44]);
-	permit.InitialCost = removesMoneySign(allPermits[i][45]);
-	permit.TotalEstFee = removesMoneySign(allPermits[i][46]);
+	permit.InitialCost = parseInt(removesMoneySign(allPermits[i][45]));
+	permit.TotalEstFee = parseInt(removesMoneySign(allPermits[i][46]));
 	permit.FeeStatus = allPermits[i][47];
-	permit.ExistingZoningSqft = allPermits[i][48];
-	permit.ProposedZoningSqft = allPermits[i][49];
-	permit.HorizontalEnlrgmt = allPermits[i][50];
-	permit.VerticalEnlrgmt = allPermits[i][51];
-	permit.EnlargementSQFootage = allPermits[i][52];
+	permit.ExistingZoningSqft = parseInt(allPermits[i][48]);
+	permit.ProposedZoningSqft = parseInt(allPermits[i][49]);
+	permit.HorizontalEnlrgmt = parseInt(allPermits[i][50]);
+	permit.VerticalEnlrgmt = parseInt(allPermits[i][51]);
+	permit.EnlargementSQFootage = parseInt(allPermits[i][52]);
 	permit.StreetFrontage = allPermits[i][53];
-	permit.ExistingStories = allPermits[i][54];
-	permit.ProposedStories = allPermits[i][55];
-	permit.ExistingHeight = allPermits[i][56];
-	permit.ProposedHeight = allPermits[i][57];
-	permit.ExistingDwellingUnits = allPermits[i][58];
-	permit.ProposedDwellingUnits = allPermits[i][59];
-	permit.ExistingOccupancy = allPermits[i][60];
-	permit.ProposedOccupancy = allPermits[i][61];
+	permit.ExistingStories = parseInt(allPermits[i][54]);
+	permit.ProposedStories = parseInt(allPermits[i][55]);
+	permit.ExistingHeight = parseInt(allPermits[i][56]);
+	permit.ProposedHeight = parseInt(allPermits[i][57]);
+	permit.ExistingDwellingUnits = parseInt(allPermits[i][58]);
+	permit.ProposedDwellingUnits = parseInt(allPermits[i][59]);
+	permit.ExistingOccupancy = parseInt(allPermits[i][60]);
+	permit.ProposedOccupancy = parseInt(allPermits[i][61]);
 	permit.SiteFill = allPermits[i][62];
 	permit.Zoning = {};
 	permit.Zoning.Dist1 = allPermits[i][63];
@@ -227,14 +227,19 @@ function mongoInsert(thePermits, nameOfCollection, done) {
 //output: date in date format 
 //Date(year, month, day)
 function dateParser(date) {
-	if (date === 0 || date === '0') {
+
+
+	if (typeof date === 'undefined') {
+		return 'no date';
+	}
+	else if (date === 0 || date === '0') {
 		return 0;
 	} else {
 		var date_array = date.split('/');
 		
 		//console logs when date doesn't start to a number to catch errors in the data
-		if (/[a-z]/.test(data)) {
-			console.log('error in a date field: ' + permit.Job);
+		if (/[a-z]/.test(date)) {
+			console.log('error in the date field:');
 		}
 
 		var year = date_array[2];
@@ -247,11 +252,13 @@ function dateParser(date) {
 //input: string
 //output: string
 function removesMoneySign(money) {
-	return money.replace('$', '');
+	if (typeof money != 'undefined') {
+		return money.replace('$', '');
+	} else {
+		console.log('a field is undefined');
+		return 'undefined';
+	}
 }
-
-/[a-z]/
-
 
 
 

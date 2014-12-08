@@ -73,8 +73,10 @@ describe('parser', function(){
                         }) 
 
                         it('removes money signs', function(){
-                            testPermit.InitialCost.should.eql('0.00');
+                            testPermit.InitialCost.should.eql(0);
                         })
+
+                
 
                         describe('dateParser', function(){
 
@@ -94,6 +96,12 @@ describe('parser', function(){
                                 var theDate = new Date(2014, 5, 17);
                                 testPermit.LatestActionDate.should.eql(theDate);
                                 testPermit.Approved.should.eql(0);
+                            })
+
+                            it('console logs if there\'s an letter in the date', function(){
+                                parser.dateParser('11/a2/12');
+                                parser.dateParser('11/22/12');
+                                
                             })
 
                             describe('bbl', function(){

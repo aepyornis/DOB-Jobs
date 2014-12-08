@@ -18,10 +18,11 @@ function getMostCurrentJobs () {
         //for each item in JSON, add table row
         $.each(data, function(){
 
+         
             tableContent += '<tr>';
             tableContent += '<td>' + this.House + ' ' + this.StreetName +'</td>';
             tableContent += '<td>' + this.bbl + '</td>';
-            tableContent += '<td>' + this.LatestActionDate + '</td>';
+            tableContent += '<td>' + this.LatestActionDate.slice(0,10) + '</td>';
             tableContent += '<td>' + this.JobType +'</td>';
             tableContent += '<td>' + this.Owner.Name + '</td>';
             tableContent += '</tr>';
@@ -32,3 +33,7 @@ function getMostCurrentJobs () {
         $('#jobsTable table tbody').html(tableContent);
     });
 }
+
+// var dateToString = "" + currentdate.getDate() + "/"
+//                 + (currentdate.getMonth()+1)  + "/" 
+//                 + currentdate.getFullYear();
