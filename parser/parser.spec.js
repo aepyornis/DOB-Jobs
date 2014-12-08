@@ -71,29 +71,43 @@ describe('parser', function(){
                             testPermit.bbl.should.eql('1010967501');
                             testPermit.Owner.Phone.should.eql('(800) 920-4700');
                         }) 
-                        
-                        describe('bbl', function(){
-                            it('works on simple example', function(){
-                                parser.bbl('QUEENS', '35', '703').should.eql('4000350703');
+
+                        describe('dateParser', function(){
+
+                            it('creates date on simple example', function(){
+                                var theDate = new Date(2014, 9, 1);
+                                parser.dateParser('10/1/2014').should.eql(theDate);
+
                             })
 
-                            describe('mongoInsert', function() {
+                            it('works on test permit', function(){
+                                var theDate = new Date(2014, 5, 17);
+                                testPermit.LatestActionDate.should.eql(theDate);
+                            })
 
-                                before(function(done){
-                                    parser.mongoInsert(withoutWhiteSpace, 'testingCollection', function(){
-                                        done();
-                                    });
+                            describe('bbl', function(){
+                                it('works on simple example', function(){
+                                    parser.bbl('QUEENS', '35', '703').should.eql('4000350703');
                                 })
 
-                                it('works on a test database', function(done) {
-                                        MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
-                                            should.not.exist(err);
-                                            db.collection('testingCollection').count(function(err, count){
-                                                should.not.exist(err);
-                                                count.should.eql(3);
-                                                done();
-                                             });
+                                describe('mongoInsert', function() {
+
+                                    before(function(done){
+                                        parser.mongoInsert(withoutWhiteSpace, 'testingCollection', function(){
+                                            done();
                                         });
+                                    })
+
+                                    it('works on a test database', function(done) {
+                                            MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+                                                should.not.exist(err);
+                                                db.collection('testingCollection').count(function(err, count){
+                                                    should.not.exist(err);
+                                                    count.should.eql(3);
+                                                    done();
+                                            });
+                                        });
+                                    })
                                 })
                             })
                         })

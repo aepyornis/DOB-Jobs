@@ -117,7 +117,7 @@ function permitConstructor(i, allPermits) {
 	permit.JobType = allPermits[i][8];
 	permit.JobStatus = allPermits[i][9];
 	permit.JobStatusDescrp = allPermits[i][10];
-	permit.LatestActionDate = allPermits[i][11];
+	permit.LatestActionDate = dateParser(allPermits[i][11]);
 	permit.BuildingType = allPermits[i][12];
 	permit.CB = allPermits[i][13];
 	permit.Cluster = allPermits[i][14];
@@ -222,6 +222,20 @@ function mongoInsert(thePermits, nameOfCollection, done) {
 	})
 }
 
+//parses date
+//input: string, example: 6/17/2014 OR 10/1/2014 month/day/year
+//output: date in date format 
+//date(year, month, day)
+function dateParser(date) {
+	var date_array = date.split('/');
+	var year = date_array[2];
+	var month = parseInt(date_array[0], 10) - 1;
+	var day = date_array[1];
+
+	return new Date(year, month, day);
+}
+
+
 
 module.exports = {
 	fileLines: fileLines,
@@ -231,16 +245,9 @@ module.exports = {
 	permitConstructor: permitConstructor,
 	mongoInsert: mongoInsert,
 	removeWhiteSpace: removeWhiteSpace,
-	bbl: bbl
+	bbl: bbl,
+	dateParser: dateParser
 }
 
-// Job #,Doc #,Borough,House #,Street Name,Block,Lot,Bin #,Job Type,Job Status,Job Status Descrp,Latest Action Date,Building Type,Community - Board,Cluster ,Landmarked,Adult Estab,Loft Board,City Owned,Little e,PC Filed,eFiling Filed,Plumbing,Mechanical,Boiler,Fuel Burning,Fuel Storage,Standpipe,Sprinkler,Fire Alarm,Equipment,Fire Suppression,Curb Cut,Other,Other Description,Applicant's First/Last Name,Applicant Professional Title,Applicant License #,Professional Cert,Pre- Filing Date,Paid,Fully Paid,Assigned,Approved,Fully Permitted,Initial Cost,Total Est. Fee,Fee Status,Existing Zoning Sqft,Proposed Zoning Sqft,Horizontal Enlrgmt,Vertical Enlrgmt,Enlargement SQ Footage,Street Frontage,ExistingNo. of Stories,Proposed No. of Stories,Existing Height,Proposed Height,Existing Dwelling Units,Proposed Dwelling Units,Existing Occupancy,Proposed Occupancy,Site Fill,Zoning Dist1,Zoning Dist2,Zoning Dist3,Special District 1,Special District 2,Owner Type,Non-Profit,Owner's First & Last Name,Owner's Business Name ,Owner's  House Street,(City, State, Zip),Owners Phone #,Job Description
 
-// [{},{}]
-
-// [function(){db.collection.insert(docs[i])},function()]
-
-// _.map(docs, function(doc){
-// 	return function(){db.collection.insert(docs[i])};
-// })
 
