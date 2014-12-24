@@ -4,13 +4,13 @@ var map = L.map('map', {
 
 //basemaps
 
-var osmMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'open street map'
-        });
+  var osmMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: 'open street map'
+          });
 
-var toner = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
-        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>,<a href="http://creativecommons.org/licenses/by/3.0"> CC BY 3.0</a> &mdash; Map data: OSM',
-        }).addTo(map);
+  var toner = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
+          attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>,<a href="http://creativecommons.org/licenses/by/3.0"> CC BY 3.0</a> &mdash; Map data: OSM',
+          }).addTo(map);
 
 var styles = {  
   blank: {
@@ -23,6 +23,42 @@ var styles = {
         fillOpacity: 0.9
     }
 
+}
+
+
+
+//running
+$( document).ready(function(){
+  addControl();
+  addCostSlider();
+  addJobTypeMenu();
+  addDateSlider();
+  ajaxRequest(2000, 'type', 'todaysdate', function(data) {
+    console.log(data);
+  })
+});
+
+//ajax request
+function ajaxRequest(cost, type, date, callback) {
+
+    var requestURL = 'http://localhost:3000/request';
+    var requestData = {};
+    requestData.bounds = mapBounds();
+    requestData.cost = cost;
+    requestData['type'] = type;
+    requestData.date = date;
+
+    $.ajax({
+        url: requestURL,
+        error: function() {
+             console.log('theres an error');
+          },
+        // dataType: 'json',
+        data: requestData,
+        //callback function 
+        success: callback,
+        type: 'POST'
+    });
 }
 
 //layer control
@@ -40,40 +76,7 @@ function addControl() {
 
 }
 
-//running
-$( document).ready(function(){
-  addControl();
-  addCostSlider();
-  addJobTypeMenu();
-  addDateSlider();
-});
-
-//ajax request
-
-function ajaxRequest(cost, type, date, callback) {
-
-    var requestURL = 'http://localhost:3000';
-    var requestData = {};
-    requestData.bounds = mapBounds();
-    requestData.cost = cost;
-    requestData['type'] = type;
-    requestData.date = date;
-
-    $.ajax({
-        url: requestURL,
-        error: function() {
-             console.log('theres an error');
-          },
-        dataType: 'json',
-        data: requestData,
-        //callback function 
-        success: callback,
-        type: 'POST'
-    });
-}
-
 //get latlngBounds
-
 function mapBounds () {
   var bounds = {
     SW: {},
@@ -96,29 +99,29 @@ function mapBounds () {
 
 
 //jQueryUI functions
-function addCostSlider() {
-  $("#cost_slider").slider({
-      min: 0,
-      max: 1000000,
-      range: "max",
-     
-  });
-  
-}
-function addDateSlider(){
-  $("#date_slider").slider({
-      min: 0,
-      max: 11,
-      range: "max",
+  function addCostSlider() {
+    $("#cost_slider").slider({
+        min: 0,
+        max: 1000000,
+        range: "max",
+       
+    });
+    
+  }
+  function addDateSlider(){
+    $("#date_slider").slider({
+        min: 0,
+        max: 11,
+        range: "max",
 
-  })
-}
+    })
+  }
 
-function addJobTypeMenu(){
-  $("#job_type").selectmenu();
-}
+  function addJobTypeMenu(){
+    $("#job_type").selectmenu();
+  }
 
 //exports for testing
-module.exports {
-  ajaxRequest: ajaxRequest;
-}
+// module.exports = {
+//   ajaxRequest: ajaxRequest
+// };

@@ -1,0 +1,21 @@
+{
+  "name": "dob-jobs",
+  "version": "0.0.1",
+  "description": "Mapping NYC Department of Building's Jobs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aepyornis/DOB-Jobs.git"
+  },
+  "author": "ziggy",
+  "license": "GPLv3",
+  "bugs": {
+    "url": "https://github.com/aepyornis/DOB-Jobs/issues"
+  },
+  "dependencies": {
+    "express": "~4.10.6"
+  }
+}
