@@ -2,6 +2,7 @@
   height: 600px;
   width: 80%;
   margin: 0 auto;
+  clear: both; 
 }
 
 #mapContainer {
@@ -11,10 +12,50 @@
   margin-top: 25px;
 }
 
+#controls {
+  margin: 0 auto;
+  width: 80%;
+   
+
+
+}
+
+.controlsContainer {
+    float: left;
+    padding-top: 10px;
+}
+
 .slider {
-  left: 20%;
   width: 200px;
-  height: 20px;
- /* border-style: solid;
-  border-color: #98bf21;*/
+  height: 12px;
+  
+}
+
+fieldset {
+  border: 0;
+  float: left;
+  padding: 0 4% 0 4%;
+
+}
+
+label {
+ 
+}
+
+select {
+  width: 150px;
+  font-size: 
+}
+
+.ui-selectmenu-text, .ui-menu-item {
+  font-size: .8em;
+  text-align: left;
+
+/*    text-align: left;
+    padding: 0.4em 2.1em 0.4em 1em;
+    display: block;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;*/
 }

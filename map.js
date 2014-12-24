@@ -44,12 +44,31 @@ function addControl() {
 $( document).ready(function(){
   addControl();
   addCostSlider();
+  addJobTypeMenu();
+  addDateSlider();
 });
 
 //slider
 
 function addCostSlider() {
   $("#cost_slider").slider({
+      min: 0,
+      max: 1000000,
+      range: "max",
+     
   });
-  console.log("cost slider added?");
+  
+}
+
+function addDateSlider(){
+  $("#date_slider").slider({
+      min: 0,
+      max: 11,
+      range: "max",
+
+  })
+}
+
+function addJobTypeMenu(){
+  $("#job_type").selectmenu();
 }

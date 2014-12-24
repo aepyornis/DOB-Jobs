@@ -13,10 +13,27 @@
         <div class="title">
             <h1>DOB J0BS</h1>
         </div>
-        <div class="controls">
+        <div id="controls">
             
             <!-- Cost Slider -->
-            <div id="cost_slider" class="slider"></div>
+            <div id="costSliderContainer" class="controlsContainer">
+                <div id="cost_slider" class="slider"></div>
+            </div>
+            <!-- Job Type -->
+            <fieldset id="dropDown">
+<!--                 <label for="job_type">Select a job type</label>
+ -->                <select name="job_type" id="job_type">
+                    <option value="NB">New Buildings</option>
+                    <option value="A1">Major Alterations (A1)</option>
+                    <option value="minor">Minor Alterations (A2 & A3)</option>
+                    <option value="other">Other</option>
+                    <option value="all">All Jobs</option>
+                </select>
+            </fieldset>
+
+            <div id="dateSliderContainer" class="controlsContainer">
+                <div id="date_slider" class="slider"></div>
+            </div>
            
         </div>
 
