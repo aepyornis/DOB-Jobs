@@ -48,8 +48,54 @@ $( document).ready(function(){
   addDateSlider();
 });
 
-//slider
+//ajax request
 
+function ajaxRequest(cost, type, date, callback) {
+
+    var requestURL = 'http://localhost:3000';
+    var requestData = {};
+    requestData.bounds = mapBounds();
+    requestData.cost = cost;
+    requestData['type'] = type;
+    requestData.date = date;
+
+    $.ajax({
+        url: requestURL,
+        error: function() {
+             console.log('theres an error');
+          },
+        dataType: 'json',
+        data: requestData,
+        //callback function 
+        success: callback,
+        type: 'POST'
+    });
+}
+
+//get latlngBounds
+
+function mapBounds () {
+  var bounds = {
+    SW: {},
+    NE: {},
+    NW: {},
+    SE: {}
+  };
+  var mapBounds = map.getBounds();
+  bounds.SW.lat = mapBounds.getSouthWest().lat;
+  bounds.SW.lng = mapBounds.getSouthWest().lng;
+  bounds.NE.lat = mapBounds.getNorthEast().lat;
+  bounds.NE.lng = mapBounds.getNorthEast().lng;
+  bounds.NW.lat = mapBounds.getNorthWest().lat;
+  bounds.NW.lng = mapBounds.getNorthWest().lng;
+  bounds.SE.lat = mapBounds.getSouthEast().lat;
+  bounds.SE.lng = mapBounds.getSouthEast().lng;
+
+  return bounds;
+}
+
+
+//jQueryUI functions
 function addCostSlider() {
   $("#cost_slider").slider({
       min: 0,
@@ -59,7 +105,6 @@ function addCostSlider() {
   });
   
 }
-
 function addDateSlider(){
   $("#date_slider").slider({
       min: 0,
@@ -71,4 +116,9 @@ function addDateSlider(){
 
 function addJobTypeMenu(){
   $("#job_type").selectmenu();
+}
+
+//exports for testing
+module.exports {
+  ajaxRequest: ajaxRequest;
 }
