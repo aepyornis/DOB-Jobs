@@ -252,13 +252,17 @@ function dateParser(date) {
 //input: string
 //output: string
 function removesMoneySign(money) {
-	if (typeof money != 'undefined') {
+	if (typeof money === 'string') {
 		return money.replace('$', '');
-	} else {
-		console.log('a field is undefined');
+	} else if (typeof money === 'number') {
+		return money;
+	}
+	else {
+		console.log('the money is not a string or a number');
 		return 'undefined';
 	}
 }
+
 
 
 

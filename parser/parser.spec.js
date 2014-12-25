@@ -139,8 +139,11 @@ describe('parser', function(){
 
 describe('removesMoneySign', function(){
 
-    it('works on example', function(){
+    it('works on example: string', function(){
         parser.removesMoneySign('$5020.53').should.eql('5020.53');
+    })
+    it('works on example: number', function(){
+        parser.removesMoneySign(42).should.eql(42);
     })
 
 })
