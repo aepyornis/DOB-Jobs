@@ -1,6 +1,3 @@
-//assume one large CSV or one file
-//stream reading, split on ['/']
-
 var fs = require('fs');
 var mongo = require('mongoskin');
 var split = require('split')
@@ -11,22 +8,31 @@ var db = mongo.db("mongodb://localhost:27017/test", {native_parser:true});
 
 
 function putInMongo(filePath, collectionName, done) {
+  var counter = 0;
   fs.createReadStream(filePath)
       .pipe(split())
       .on('data', function (line) {
-        
-        //removes white space from strings
-        var rowInArray = line.split(',');
-        for (var i = 0;i <rowInArray.length; i++) {
-          rowInArray[i] = removeWhiteSpace(rowInArray[i]);
+        console.log(typeof line);
+      
+       //removes first three lines
+       if (counter < 3) {
+        counter =  counter + 1;
+        console.log(counter);
+        console.log(line);
+       } else {
+
+          //removes white space from strings
+          var rowInArray = line.split(',');
+          for (var i = 0;i <rowInArray.length; i++) {
+            rowInArray[i] = removeWhiteSpace(rowInArray[i]);
+          }
+          //creates job
+          var job = jobConstructor(rowInArray);
+          //inserts into collection
+          db.collection(collectionName).insert(job, function(err, result){
+            if (err) { console.log (err); }
+          })
         }
-        //creates job
-        var job = jobConstructor(rowInArray);
-        //inserts into collection
-        db.collection(collectionName).insert(job, function(err, result){
-          if (err) { console.log (err); }
-        })
-        
       })
       .on('end', function(){
         console.log('end');
@@ -210,3 +216,4 @@ module.exports = {
   putInMongo: putInMongo,
   removeWhiteSpace: removeWhiteSpace
 }
+
