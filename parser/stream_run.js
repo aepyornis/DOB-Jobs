@@ -12,13 +12,10 @@ function putInMongo(filePath, collectionName, done) {
   fs.createReadStream(filePath)
       .pipe(split())
       .on('data', function (line) {
-        console.log(typeof line);
       
        //removes first three lines
        if (counter < 3) {
         counter =  counter + 1;
-        console.log(counter);
-        console.log(line);
        } else {
 
           //removes white space from strings
@@ -199,8 +196,6 @@ function bbl(borough, block, lot) {
   } 
 }
 
-//
-//
 function removeWhiteSpace(field) {
   if (typeof field === 'string') {
     var noMoreWhite = field.replace(/^\s+|\s+$/g,'');
