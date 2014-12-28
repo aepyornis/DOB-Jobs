@@ -14,9 +14,9 @@ describe('putInMongo', function(){
     });
   })
 
-  it('has 2 documents in collection', function(done){
+  it('has 3 documents in collection', function(done){
     db.collection('jobTest').count(function(err, count) {
-      count.should.eql(2);
+      count.should.eql(3);
       done();
     });
   })
@@ -24,8 +24,8 @@ describe('putInMongo', function(){
   describe('remove white space', function(){
 
     it('removed white space correctly in db', function(done){
-      db.collection('jobTest').findOne({Job: 121810255}, function(err, job) {
-        job.JobDescription.should.eql('STRUCTURAL PLANS FILED IN CONJUNCTION WITH ALT 1 APPLICATION # 121810255.');
+      db.collection('jobTest').findOne({Job: 121235252}, function(err, job) {
+        job.JobDescription.should.eql('FILING HEREWITH MECHANICAL AND PLUMBING WORK IN CONJUNCTION WITH VERTICAL ENLARGEMENT AND RENOVATION.');
         done();
       })
       

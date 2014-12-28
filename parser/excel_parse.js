@@ -14,10 +14,3 @@ fs.writeFile('testXLS.csv', toCsv, function(err) {
   console.log('converted!');
 });
 
-
-// writeStream.write(Sheet1, function(){
-//   console.log("converted!");
-//   writeStream.end();
-// });
-
-// sheet_to_csv()

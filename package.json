@@ -16,6 +16,13 @@
     "url": "https://github.com/aepyornis/DOB-Jobs/issues"
   },
   "dependencies": {
-    "express": "~4.10.6"
+    "express": "~4.10.6",
+    "mongoskin": "~1.4.4",
+    "JSONStream": "~0.10.0",
+    "mocha": "~2.1.0",
+    "async": "~0.9.0",
+    "should": "~4.4.1",
+    "split": "~0.3.2",
+    "xlsjs": "~0.7.2"
   }
 }
