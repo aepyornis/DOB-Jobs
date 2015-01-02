@@ -96,9 +96,7 @@ function bbl(borough, block, lot) {
 		}
 	} else {
 		return 'blk and/or lot is undefined';
-	}
-
-	
+	}	
 }
 
 
@@ -152,23 +150,23 @@ function permitConstructor(i, allPermits) {
 	permit.Assigned = dateParser(allPermits[i][42]);
 	permit.Approved = dateParser(allPermits[i][43]);
 	permit.FullyPermitted = dateParser(allPermits[i][44]);
-	permit.InitialCost = parseInt(removesMoneySign(allPermits[i][45]));
-	permit.TotalEstFee = parseInt(removesMoneySign(allPermits[i][46]));
-	permit.FeeStatus = allPermits[i][47];
-	permit.ExistingZoningSqft = parseInt(allPermits[i][48]);
-	permit.ProposedZoningSqft = parseInt(allPermits[i][49]);
-	permit.HorizontalEnlrgmt = parseInt(allPermits[i][50]);
-	permit.VerticalEnlrgmt = parseInt(allPermits[i][51]);
-	permit.EnlargementSQFootage = parseInt(allPermits[i][52]);
+	permit.InitialCost = Number(removesMoneySign(allPermits[i][45]));
+	permit.TotalEstFee = Number(removesMoneySign(allPermits[i][46]));
+	permit.FeeStatus = Number(removesMoneySign(allPermits[i][47]));
+	permit.ExistingZoningSqft = Number(allPermits[i][48]);
+	permit.ProposedZoningSqft = Number(allPermits[i][49]);
+	permit.HorizontalEnlrgmt = Number(allPermits[i][50]);
+	permit.VerticalEnlrgmt = Number(allPermits[i][51]);
+	permit.EnlargementSQFootage = Number(allPermits[i][52]);
 	permit.StreetFrontage = allPermits[i][53];
-	permit.ExistingStories = parseInt(allPermits[i][54]);
-	permit.ProposedStories = parseInt(allPermits[i][55]);
-	permit.ExistingHeight = parseInt(allPermits[i][56]);
-	permit.ProposedHeight = parseInt(allPermits[i][57]);
-	permit.ExistingDwellingUnits = parseInt(allPermits[i][58]);
-	permit.ProposedDwellingUnits = parseInt(allPermits[i][59]);
-	permit.ExistingOccupancy = parseInt(allPermits[i][60]);
-	permit.ProposedOccupancy = parseInt(allPermits[i][61]);
+	permit.ExistingStories = Number(allPermits[i][54]);
+	permit.ProposedStories = Number(allPermits[i][55]);
+	permit.ExistingHeight = Number(allPermits[i][56]);
+	permit.ProposedHeight = Number(allPermits[i][57]);
+	permit.ExistingDwellingUnits = Number(allPermits[i][58]);
+	permit.ProposedDwellingUnits = Number(allPermits[i][59]);
+	permit.ExistingOccupancy = Number(allPermits[i][60]);
+	permit.ProposedOccupancy = Number(allPermits[i][61]);
 	permit.SiteFill = allPermits[i][62];
 	permit.Zoning = {};
 	permit.Zoning.Dist1 = allPermits[i][63];
@@ -252,12 +250,13 @@ function dateParser(date) {
 //input: string
 //output: string
 function removesMoneySign(money) {
-	if (typeof money === 'string') {
-		return money.replace('$', '');
+	if (money === 0 || money === '0') {
+		return 0;
 	} else if (typeof money === 'number') {
 		return money;
-	}
-	else {
+	} else if (typeof money === 'string') {
+		return money.replace('$', '');
+	} else {
 		console.log('the money is not a string or a number');
 		return 'undefined';
 	}

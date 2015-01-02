@@ -145,6 +145,9 @@ describe('removesMoneySign', function(){
     it('works on example: number', function(){
         parser.removesMoneySign(42).should.eql(42);
     })
+    it('works on zero', function(){
+        parser.removesMoneySign('0').should.eql(0);
+    })
 
 })
 
