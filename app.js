@@ -1,5 +1,10 @@
-var express = require('express')
+var express = require('express');
+var mongo = require('mongoskin');
+
+//imitate app
 var app = express()
+//database  connection
+var db = mongo.db("mongodb://localhost:27017/test", {native_parser: true});
 
 //required for ajax to work//CORS
 app.use(function(req, res, next) {
@@ -30,3 +35,12 @@ var server = app.listen(3000, function () {
   console.log('Example app listening at http://%s:%s', host, port)
 
 })
+
+
+//functions
+
+function mongoQuery () {
+  db.collection('jobs2014').find({}).limit(2).toArray(function(err, items){
+    if (err) { console.log(err); }
+  })
+}
