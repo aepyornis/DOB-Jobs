@@ -1,11 +1,38 @@
 var fs = require('fs');
 var mongo = require('mongoskin');
-var split = require('split')
-
+var split = require('split');
+var async = require('async');
 
 // open database connection
 var db = mongo.db("mongodb://localhost:27017/test", {native_parser:true});
 
+//array to stores functions
+var arrayOfFunctions = [];
+
+//puts functions in array. one function for each file. 
+for (var i = 0; i < 12; i++) {
+  
+  var months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+  var filePath = 'job' + months[i] + '14.csv';
+
+  arrayOfFunctions.push(getSeriesFunction(filePath, 'jobs2014'));
+
+}
+
+//runs the functions in series
+async.series(arrayOfFunctions, function(err) {
+  if (err) console.log(err);
+  console.log('all done!')
+  db.close();
+});
+
+function getSeriesFunction(filePath, collectionName) {
+  return function(callback) {
+    putInMongo(filePath, collectionName, function(){
+      callback();
+    })
+  }
+}
 
 function putInMongo(filePath, collectionName, done) {
   var counter = 0;
@@ -32,8 +59,9 @@ function putInMongo(filePath, collectionName, done) {
         }
       })
       .on('end', function(){
-        console.log('end');
-        db.close();
+        console.log(filePath + ' is done');
+        // don't close database when using with async series
+        // db.close();
         typeof done === 'function' && done();
       })
 }
