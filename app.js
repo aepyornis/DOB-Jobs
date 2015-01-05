@@ -10,7 +10,7 @@ var db = mongo.db("mongodb://localhost:27017/test", {native_parser: true});
 //exposes ajax data in req.body
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//required for ajax to work//CORS
+//required for ajax to work CORS
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -29,10 +29,13 @@ app.post('/request', function(req, res) {
   var requestData = JSON.parse(req.body.json);
   var bounds = requestData.bounds;
   console.log(bounds);
-  boundsQuery(bounds);
+  mongoQuery(bounds, 'NB', function(responce){
+    res.send(responce);
+
+  });
 
 
-  res.send('right back at ya');
+  // res.send('right back at ya');
 })
 
 
@@ -49,15 +52,9 @@ var server = app.listen(3000, function () {
 
 //functions
 
-function mongoQuery () {
-  db.collection('jobs').find({}).limit(2).toArray(function(err, items){
-    if (err) { console.log(err); }
-  })
-}
-
 // input: bounds
 // output: items
-function boundsQuery (bounds) {
+function mongoQuery (bounds, jobType, callback) {
   db.collection('jobs').find({
     loc: {
       $geoWithin: {
@@ -65,10 +62,13 @@ function boundsQuery (bounds) {
         coordinates: boundsToCoordArray(bounds) 
         }
       }
-    }
-  }).limit(20).toArray(function(err, items){
+    },
+    JobType: jobType
+  }).sort({LatestActionDate: -1}).limit(20).toArray(function(err, items){
     if (err) throw err;
-    console.log(items);
+    var featureCollection = toFeatureCollection(items);
+    console.log("feature Collection: " + featureCollection);
+    callback(featureCollection);
   })
 }
 
@@ -82,6 +82,34 @@ function boundsToCoordArray (b) {
   var SW_arr = [b.SW.lng, b.SW.lat];
   var coordinates = [[NW_arr, NE_arr, SE_arr, SW_arr, NW_arr]];
   return coordinates;
+}
+
+//generates geoJSON Feature Collections
+//input: array of polygons
+//output: geoJSON object
+function toFeatureCollection(arrayOfPolygons) {
+    var featureCollection = {
+        "type": "FeatureCollection",
+        "features": []
+    };
+
+    for (var i = 0; i < arrayOfPolygons.length; i++) {
+      featureCollection.features.push(assembleFeature(arrayOfPolygons[i]));
+    };    
+    return featureCollection;
+}
+
+//assembles one feature. used by toFeatureCollection
+function assembleFeature(polygon) {
+    var feature = {};
+    feature['type'] = "Feature";
+    feature.properties = polygon;
+    // feature.properties._id = polygon._id;
+    feature.geometry = {};
+    feature.geometry['type'] = polygon.loc['type'];
+    feature.geometry.coordinates = polygon.loc.coordinates;
+
+    return feature;
 }
 
 

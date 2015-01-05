@@ -33,7 +33,13 @@ $( document).ready(function(){
   addJobTypeMenu();
   addDateSlider();
   ajaxRequest(2000, 'type', 'todaysdate', function(data) {
-    console.log(data);
+
+  console.log(data);
+  var myLayer = L.geoJson(data, {
+
+  }).addTo(map);
+  
+
   })
 });
 
