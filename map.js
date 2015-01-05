@@ -32,6 +32,7 @@ $( document).ready(function(){
   addCostSlider();
   addJobTypeMenu();
   addDateSlider();
+  addSubmitButton();
   ajaxRequest(2000, 'type', 'todaysdate', function(data) {
 
   console.log(data);
@@ -125,6 +126,13 @@ function mapBounds () {
 
   function addJobTypeMenu(){
     $("#job_type").selectmenu();
+  }
+
+  function addSubmitButton(){
+    $("#submitButton").button().click(function(){
+      //function to excute when button is clicked
+      alert('hi!');
+    })
   }
 
 //exports for testing
