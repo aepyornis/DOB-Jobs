@@ -12,6 +12,10 @@ var toner = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>,<a href="http://creativecommons.org/licenses/by/3.0"> CC BY 3.0</a> &mdash; Map data: OSM',
         }).addTo(map);
 
+//layergroup
+var mylayerGroup = L.layerGroup().addTo(map);
+
+
 var styles = {  
   blank: {
         fillOpacity: 0,
@@ -33,16 +37,28 @@ $( document).ready(function(){
   addJobTypeMenu();
   addDateSlider();
   addSubmitButton();
-  ajaxRequest(2000, 'type', 'todaysdate', function(data) {
 
-  console.log(data);
-  var myLayer = L.geoJson(data, {
-
-  }).addTo(map);
-  
-
-  })
 });
+
+function updateMap() {
+      
+      //remove old layer
+      mylayerGroup.clearLayers();
+
+      //get data for new layer
+      ajaxRequest(2000, $("#job_type").val(), 'todaysdate', function(data) {
+        console.log(data);
+
+        //create new layer
+        var newLayer = L.geoJson(data, {});
+        //add to map
+        mylayerGroup.addLayer(newLayer);    
+      
+      })
+
+
+}
+
 
 //ajax request
 function ajaxRequest(cost, type, date, callback) {
@@ -51,7 +67,7 @@ function ajaxRequest(cost, type, date, callback) {
     var requestData = {};
     requestData.bounds = mapBounds();
     requestData.cost = cost;
-    requestData['type'] = type;
+    requestData.jobType = type;
     requestData.date = date;
 
     $.ajax({
@@ -120,7 +136,6 @@ function mapBounds () {
         min: 0,
         max: 11,
         range: "max",
-
     })
   }
 
@@ -131,11 +146,14 @@ function mapBounds () {
   function addSubmitButton(){
     $("#submitButton").button().click(function(){
       //function to excute when button is clicked
-      alert('hi!');
+      updateMap();
     })
   }
+
+  
 
 //exports for testing
 // module.exports = {
 //   ajaxRequest: ajaxRequest
 // };
+

@@ -26,12 +26,16 @@ app.get('/', function (req, res) {
 //PUT request
 app.post('/request', function(req, res) {
   console.log('requst in');
+  //extact requestData from request
   var requestData = JSON.parse(req.body.json);
-  var bounds = requestData.bounds;
-  console.log(bounds);
-  mongoQuery(bounds, 'NB', function(responce){
-    res.send(responce);
 
+  //variables for query
+  var bounds = requestData.bounds;
+  var jobType = requestData.jobType;
+
+  //run Query
+  mongoQuery(bounds, jobType, function(responce){
+    res.send(responce);
   });
 
 
@@ -63,8 +67,8 @@ function mongoQuery (bounds, jobType, callback) {
         }
       }
     },
-    JobType: jobType
-  }).sort({LatestActionDate: -1}).limit(20).toArray(function(err, items){
+    JobType: selectMenuFormatedForMongo(jobType)
+  }).sort({LatestActionDate: -1, }).limit(20).toArray(function(err, items){
     if (err) throw err;
     var featureCollection = toFeatureCollection(items);
     console.log("feature Collection: " + featureCollection);
@@ -110,6 +114,21 @@ function assembleFeature(polygon) {
     feature.geometry.coordinates = polygon.loc.coordinates;
 
     return feature;
+}
+
+//decodes type from major selectMenu
+//input: 'NB', 'A1', 'minor', 'other', 'all'
+//ouput:[ {jobType: } ]
+function selectMenuFormatedForMongo(input) {
+  if (input === 'NB' || input === 'A1') {
+    return input;
+  } else if (input === 'minor') {
+    return {$in: ['A2', 'A3']}
+  } else if (input === 'other'){
+    return {$not: {$in: ['A1', 'A2','A3', 'NB']}}
+  } else {
+    return {$exists: true}
+  }
 }
 
 
