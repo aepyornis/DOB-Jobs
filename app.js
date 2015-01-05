@@ -26,10 +26,11 @@ app.get('/', function (req, res) {
 //PUT request
 app.post('/request', function(req, res) {
   console.log('requst in');
-  console.log(req.body);
   var requestData = JSON.parse(req.body.json);
-  console.log(requestData);
+  var bounds = requestData.bounds;
   console.log(bounds);
+  boundsQuery(bounds);
+
 
   res.send('right back at ya');
 })
@@ -54,21 +55,36 @@ function mongoQuery () {
   })
 }
 
+// input: bounds
+// output: items
+function boundsQuery (bounds) {
+  db.collection('jobs').find({
+    loc: {
+      $geoWithin: {
+        $geometry: {'type': 'Polygon',
+        coordinates: boundsToCoordArray(bounds) 
+        }
+      }
+    }
+  }).limit(20).toArray(function(err, items){
+    if (err) throw err;
+    console.log(items);
+  })
+}
+
+
 //input: bounds object
 //output: array
 function boundsToCoordArray (b) {
   var NW_arr = [b.NW.lng, b.NW.lat];
   var NE_arr = [b.NE.lng, b.NE.lat]; 
   var SE_arr = [b.SE.lng, b.SE.lat];
-  var SW_arr = [b.SW.lng, b.SQ.lat];
-  var coordinates = [NW_arr, NE_arr, SE_arr, SW_arr, NW_arr];
-
+  var SW_arr = [b.SW.lng, b.SW.lat];
+  var coordinates = [[NW_arr, NE_arr, SE_arr, SW_arr, NW_arr]];
   return coordinates;
 }
 
-var bounds = {
-    SW: {},
-    NE: {},
-    NW: {},
-    SE: {}
-  };
+
+module.exports = {
+  boundsToCoordArray: boundsToCoordArray
+}
