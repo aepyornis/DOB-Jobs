@@ -1,10 +1,14 @@
 var express = require('express');
 var mongo = require('mongoskin');
+var bodyParser = require('body-parser');
 
 //imitate app
 var app = express()
 //database  connection
 var db = mongo.db("mongodb://localhost:27017/test", {native_parser: true});
+
+//exposes ajax data in req.body
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //required for ajax to work//CORS
 app.use(function(req, res, next) {
@@ -22,6 +26,11 @@ app.get('/', function (req, res) {
 //PUT request
 app.post('/request', function(req, res) {
   console.log('requst in');
+  console.log(req.body);
+  var requestData = JSON.parse(req.body.json);
+  console.log(requestData);
+  console.log(bounds);
+
   res.send('right back at ya');
 })
 
@@ -40,7 +49,26 @@ var server = app.listen(3000, function () {
 //functions
 
 function mongoQuery () {
-  db.collection('jobs2014').find({}).limit(2).toArray(function(err, items){
+  db.collection('jobs').find({}).limit(2).toArray(function(err, items){
     if (err) { console.log(err); }
   })
 }
+
+//input: bounds object
+//output: array
+function boundsToCoordArray (b) {
+  var NW_arr = [b.NW.lng, b.NW.lat];
+  var NE_arr = [b.NE.lng, b.NE.lat]; 
+  var SE_arr = [b.SE.lng, b.SE.lat];
+  var SW_arr = [b.SW.lng, b.SQ.lat];
+  var coordinates = [NW_arr, NE_arr, SE_arr, SW_arr, NW_arr];
+
+  return coordinates;
+}
+
+var bounds = {
+    SW: {},
+    NE: {},
+    NW: {},
+    SE: {}
+  };

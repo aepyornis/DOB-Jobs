@@ -4,13 +4,13 @@ var map = L.map('map', {
 
 //basemaps
 
-  var osmMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: 'open street map'
-          });
+var osmMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'open street map'
+        });
 
-  var toner = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
-          attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>,<a href="http://creativecommons.org/licenses/by/3.0"> CC BY 3.0</a> &mdash; Map data: OSM',
-          }).addTo(map);
+var toner = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>,<a href="http://creativecommons.org/licenses/by/3.0"> CC BY 3.0</a> &mdash; Map data: OSM',
+        }).addTo(map);
 
 var styles = {  
   blank: {
@@ -22,7 +22,6 @@ var styles = {
         fillColor: '#ff0000',
         fillOpacity: 0.9
     }
-
 }
 
 
@@ -54,7 +53,8 @@ function ajaxRequest(cost, type, date, callback) {
              console.log('theres an error');
           },
         // dataType: 'json',
-        data: requestData,
+        data: {json: JSON.stringify(requestData)},
+        // contentType :'application/json',
         //callback function 
         success: callback,
         type: 'POST'
