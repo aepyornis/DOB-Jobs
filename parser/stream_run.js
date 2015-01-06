@@ -45,11 +45,14 @@ function putInMongo(filePath, collectionName, done) {
         counter =  counter + 1;
        } else {
 
-          //removes white space from strings
+          //create array of fields
           var rowInArray = line.split(',');
+
+           //removes white space from strings
           for (var i = 0;i <rowInArray.length; i++) {
             rowInArray[i] = removeWhiteSpace(rowInArray[i]);
           }
+
           //creates job
           var job = jobConstructor(rowInArray);
           //inserts into collection
@@ -224,15 +227,26 @@ function bbl(borough, block, lot) {
   } 
 }
 
+// function removeWhiteSpace(field) {
+//   if (typeof field === 'string') {
+//     var noMoreWhite = field.replace(/^\s+|\s+$/g,'');
+//     return noMoreWhite;
+//   } else {
+//     return field;
+//   }
+// }
+
 function removeWhiteSpace(field) {
   if (typeof field === 'string') {
-    var noMoreWhite = field.replace(/^\s+|\s+$/g,'');
-    return noMoreWhite;
+    return field.trim();
   } else {
     return field;
   }
 }
 
+function addslashes( str ) {
+    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+}
 
 
 module.exports = {
