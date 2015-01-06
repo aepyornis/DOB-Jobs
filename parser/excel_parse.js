@@ -29,8 +29,11 @@ function csvToExcel (filePath) {
     var csvFileName = filePath.replace('.xls', '.csv');
     // var writeStream = fs.createWriteStream(csvFileName);
     var toCsv = XLS.utils.sheet_to_csv(Sheet1);
+    
+    //escape '
+    var csvWithSlashes = escapeSingleApostrophe(toCsv);
 
-    fs.writeFile(csvFileName, toCsv, function(err) {
+    fs.writeFile(csvFileName, csvWithSlashes, function(err) {
       if (err) throw err;
       console.log('converted!');
       callback();
@@ -38,3 +41,7 @@ function csvToExcel (filePath) {
   }
 }
 
+
+function escapeSingleApostrophe( str ) {
+    return (str + '').replace(/[\\']/g, '\\$&').replace(/\u0000/g, '\\0');
+}
