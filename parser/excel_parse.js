@@ -25,12 +25,21 @@ function csvToExcel (filePath) {
     var workbook = XLS.readFile(filePath);
     var sheet_name_list = workbook.SheetNames;
     var Sheet1 = workbook.Sheets[sheet_name_list[0]];
-
-    var csvFileName = filePath.replace('.xls', '.csv');
-    // var writeStream = fs.createWriteStream(csvFileName);
-    var toCsv = XLS.utils.sheet_to_csv(Sheet1);
     
-    //escape '
+    //go over every object (cell)
+    for (var key in Sheet1) {
+        //if the field exists
+        if (typeof Sheet1[key].w != 'undefined') {
+          //remove the commas
+          Sheet1[key].w = removeCommas(Sheet1[key].w);
+        }
+    }
+
+    //change fileName to .csv
+    var csvFileName = filePath.replace('.xls', '.csv');
+    //convert to csv
+    var toCsv = XLS.utils.sheet_to_csv(Sheet1);
+    //escape all '
     var csvWithSlashes = escapeSingleApostrophe(toCsv);
 
     fs.writeFile(csvFileName, csvWithSlashes, function(err) {
@@ -45,3 +54,14 @@ function csvToExcel (filePath) {
 function escapeSingleApostrophe( str ) {
     return (str + '').replace(/[\\']/g, '\\$&').replace(/\u0000/g, '\\0');
 }
+
+function removeCommas ( str ) {
+  return (str + '').replace(/[,]/g, '');
+}
+
+
+    // for (var key in Sheet1) {
+    //     if (key.search(/^BS|^BT|^BU|^BV|^BX/g) !== -1) {
+    //       Sheet1[key].w = escapeCommas(Sheet1[key].w);
+    //     }
+    // }

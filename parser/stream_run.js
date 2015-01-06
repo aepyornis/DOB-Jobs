@@ -69,6 +69,92 @@ function putInMongo(filePath, collectionName, done) {
       })
 }
 
+//input: string
+//ouput: date object
+function dateParser(date) {
+  if (typeof date === 'undefined') {
+    return 'no date';
+  }
+  else if (date === 0 || date === '0') {
+    return 0;
+  } else {
+    var date_array = date.split('/');
+    
+    //console logs when date doesn't start to a number to catch errors in the data
+    if (/[a-z]/.test(date)) {
+      console.log('error in the date field:');
+    }
+
+    var year = date_array[2];
+    var month = parseInt(date_array[0], 10) - 1;
+    var day = date_array[1];
+    return new Date(year, month, day);
+  } 
+}
+
+//input: string
+//output: string
+function removesMoneySign(money) {
+  if (money === 0 || money === '0') {
+    return 0;
+  } else if (typeof money === 'number') {
+    return money;
+  } else if (typeof money === 'string') {
+    return money.replace('$', '');
+  } else {
+    console.log('the money is not a string or a number');
+    return 'undefined';
+  }
+}
+
+//input: string, string, string
+//output: string (10 char)
+function bbl(borough, block, lot) {
+  var bor;
+  var blk = block;
+  var lt = lot;
+  if (borough === 'MANHATTAN') {
+    bor = '1';
+  } else if (borough === 'BRONX') {
+    bor = '2';
+  } else if (borough === 'BROOKLYN') {
+    bor = '3';
+  } else if (borough === 'QUEENS') {
+    bor = '4';
+  } else if (borough === 'STATEN ISLAND') {
+    bor = '5';
+  } else { bor = 'err'; console.log("there's a mistake with the borough name: " + borough );}
+
+  if (block != undefined || lot != undefined) {
+    if (block.length > 5 || lot.length > 4) {
+    console.log("the block and/or lot are too long")
+    } else {
+    while (blk.length < 5) {
+      blk = '0' + blk;
+    }
+    while (lt.length < 4) {
+      lt = '0' + lt;
+    }
+    return (bor + blk + lt);
+    }
+  } else {
+    return 'blk and/or lot is undefined';
+  } 
+}
+
+function removeWhiteSpace(field) {
+  if (typeof field === 'string') {
+    return field.trim();
+  } else {
+    return field;
+  }
+}
+
+//not used currently. slashes are escaped in excel_parse
+function addslashes( str ) {
+    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+}
+
 function jobConstructor(jobArray) {
   var job = {}
   job.Job = parseInt(jobArray[0]);
@@ -155,94 +241,8 @@ function jobConstructor(jobArray) {
   return job;
 }
 
-//input: string
-//ouput: date object
-function dateParser(date) {
-  if (typeof date === 'undefined') {
-    return 'no date';
-  }
-  else if (date === 0 || date === '0') {
-    return 0;
-  } else {
-    var date_array = date.split('/');
-    
-    //console logs when date doesn't start to a number to catch errors in the data
-    if (/[a-z]/.test(date)) {
-      console.log('error in the date field:');
-    }
-
-    var year = date_array[2];
-    var month = parseInt(date_array[0], 10) - 1;
-    var day = date_array[1];
-    return new Date(year, month, day);
-  } 
-}
-//input: string
-//output: string
-function removesMoneySign(money) {
-  if (money === 0 || money === '0') {
-    return 0;
-  } else if (typeof money === 'number') {
-    return money;
-  } else if (typeof money === 'string') {
-    return money.replace('$', '');
-  } else {
-    console.log('the money is not a string or a number');
-    return 'undefined';
-  }
-}
-
-//input: string, string, string
-//output: string (10 char)
-function bbl(borough, block, lot) {
-  var bor;
-  var blk = block;
-  var lt = lot;
-  if (borough === 'MANHATTAN') {
-    bor = '1';
-  } else if (borough === 'BRONX') {
-    bor = '2';
-  } else if (borough === 'BROOKLYN') {
-    bor = '3';
-  } else if (borough === 'QUEENS') {
-    bor = '4';
-  } else if (borough === 'STATEN ISLAND') {
-    bor = '5';
-  } else { bor = 'err'; console.log("there's a mistake with the borough name: " + borough );}
-
-  if (block != undefined || lot != undefined) {
-    if (block.length > 5 || lot.length > 4) {
-    console.log("the block and/or lot are too long")
-    } else {
-    while (blk.length < 5) {
-      blk = '0' + blk;
-    }
-    while (lt.length < 4) {
-      lt = '0' + lt;
-    }
-    return (bor + blk + lt);
-    }
-  } else {
-    return 'blk and/or lot is undefined';
-  } 
-}
-
-function removeWhiteSpace(field) {
-  if (typeof field === 'string') {
-    return field.trim();
-  } else {
-    return field;
-  }
-}
-
-//not used currently. slashes are escaped in excel_parse
-function addslashes( str ) {
-    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
-}
-
-
 module.exports = {
   putInMongo: putInMongo,
-  removeWhiteSpace: removeWhiteSpace
+  removeWhiteSpace: removeWhiteSpace,
 }
 

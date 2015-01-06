@@ -43,3 +43,12 @@ describe('putInMongo', function(){
 
 })
 
+describe('escapeCommas', function(){
+
+  it('adds slashses', function(){
+
+    parser.escapeCommas('DUMBO HOTEL, LLC').should.eql('DUMBO HOTEL\, LLC');
+    parser.escapeCommas(',,,').should.eql('\,\,\,');
+
+  })
+})
