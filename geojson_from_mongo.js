@@ -14,8 +14,7 @@ db.collection('jobs').find({CB: "304"}).toArray(function (err, items) {
     var stringCollection = JSON.stringify(featureCollection);
     fs.writeFile('bushwick_jobs_2014.geojson', stringCollection, function(err){
       if (err) throw err;
-      db.close();
-      console.log('done writing file');
+      db.close(); console.log('done writing file');
     });
   }
 })
@@ -39,12 +38,11 @@ function toFeatureCollection(arrayOfPolygons) {
 }
 
 //assembles one feature. used by toFeatureCollection
+//watch out because it doesn't work well with nested properites
 function assembleFeature(polygon) {
     var feature = {};
     feature['type'] = "Feature";
     feature.properties = polygon;
-    feature.properties.OwnerName = polygon.Owner.Name;
-    feature.properties.OwnerBis = polygon.Owner.BusinessName;
     // feature.properties._id = polygon._id;
     feature.geometry = {};
     feature.geometry['type'] = polygon.loc['type'];
