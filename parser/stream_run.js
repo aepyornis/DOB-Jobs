@@ -227,15 +227,6 @@ function bbl(borough, block, lot) {
   } 
 }
 
-// function removeWhiteSpace(field) {
-//   if (typeof field === 'string') {
-//     var noMoreWhite = field.replace(/^\s+|\s+$/g,'');
-//     return noMoreWhite;
-//   } else {
-//     return field;
-//   }
-// }
-
 function removeWhiteSpace(field) {
   if (typeof field === 'string') {
     return field.trim();
@@ -244,6 +235,7 @@ function removeWhiteSpace(field) {
   }
 }
 
+//not used currently. slashes are escaped in excel_parse
 function addslashes( str ) {
     return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
 }

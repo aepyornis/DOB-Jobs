@@ -34,6 +34,12 @@ describe('putInMongo', function(){
       var test = parser.removeWhiteSpace('  corp 32    ');
       test.should.eql('corp 32');
     })
+
+    it('keeps a number a number', function(){
+      var test  = parser.removeWhiteSpace(4352);
+      test.should.eql(4352);
+    })
   })
 
 })
+
