@@ -3,7 +3,6 @@ var map = L.map('map', {
 }).setView([40.669126, -73.918670], 12);
 
 //basemaps
-
 var osmMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'open street map'
         });
@@ -28,6 +27,14 @@ var styles = {
     }
 }
 
+//variable to hold control values
+var sliderValues = {
+
+  cost: null,
+  jobType: null,
+  date: null
+
+}
 
 
 //running
@@ -37,25 +44,23 @@ $( document).ready(function(){
   addJobTypeMenu();
   addDateSlider();
   addSubmitButton();
-
 });
 
 function updateMap() {
       
-      //remove old layer
-      mylayerGroup.clearLayers();
+  //remove old layer
+  mylayerGroup.clearLayers();
 
-      //get data for new layer
-      ajaxRequest(2000, $("#job_type").val(), 'todaysdate', function(data) {
-        console.log(data);
+  //get data for new layer
+  ajaxRequest(2000, $("#job_type").val(), 'todaysdate', function(data) {
+    // console.log(data);
 
-        //create new layer
-        var newLayer = L.geoJson(data, {});
-        //add to map
-        mylayerGroup.addLayer(newLayer);    
-      
-      })
-
+    //create new layer
+    var newLayer = L.geoJson(data, {});
+    //add to map
+    mylayerGroup.addLayer(newLayer);    
+  
+  })
 
 }
 
@@ -83,6 +88,16 @@ function ajaxRequest(cost, type, date, callback) {
         type: 'POST'
     });
 }
+
+//update values of controls
+function updateValues () {
+
+  sliderValues.cost = $( "#cost_slider" ).slider( "value" );
+  sliderValues.jobType = $("#job_type").val();
+  sliderValues.date = $("#date_slider").slider( "value" );
+
+}
+
 
 //layer control
 //adds Control to map-> must happen in Ajax callback
@@ -124,10 +139,11 @@ function mapBounds () {
 //jQueryUI functions
   function addCostSlider() {
     $("#cost_slider").slider({
-        min: 0,
-        max: 1000000,
-        range: "max",
-       
+      min: 0,
+      max: 10000000,
+      step: 1000,
+      range: "max"
+      }
     });
     
   }
@@ -151,7 +167,6 @@ function mapBounds () {
   }
 
   
-
 //exports for testing
 // module.exports = {
 //   ajaxRequest: ajaxRequest

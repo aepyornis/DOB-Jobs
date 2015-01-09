@@ -4,7 +4,7 @@ var mongo = require('mongoskin');
 var db = mongo.db('mongodb://localhost:27017/test', {native_parser:true});
 
 
-db.collection('jobs').find({CB: "304"}).toArray(function (err, items) {
+db.collection('jobs').find({CB: "304", JobType: "NB"  }).toArray(function (err, items) {
   if (err) {
     console.log(err); 
   } else {
@@ -12,7 +12,7 @@ db.collection('jobs').find({CB: "304"}).toArray(function (err, items) {
       //turns polygon into featureCollection 
     var featureCollection = toFeatureCollection(items);
     var stringCollection = JSON.stringify(featureCollection);
-    fs.writeFile('bushwick_jobs_2014.geojson', stringCollection, function(err){
+    fs.writeFile('bushwick_jobs_2014_nb.geojson', stringCollection, function(err){
       if (err) throw err;
       db.close(); console.log('done writing file');
     });
@@ -43,6 +43,12 @@ function assembleFeature(polygon) {
     var feature = {};
     feature['type'] = "Feature";
     feature.properties = polygon;
+    feature.properties.address = polygon.House + ' ' + polygon.StreetName;
+    feature.properties.jobdescript = polygon.JobDescript;
+    feature.properties.ownerbusin = polygon.OwnerBis;
+    feature.properties.ownerphone = polygon.OwnerPhone;
+    feature.properties.existingst = polygon.ExistingStories;
+    feature.properties.proposedst = polygon.ProposedStories;
     // feature.properties._id = polygon._id;
     feature.geometry = {};
     feature.geometry['type'] = polygon.loc['type'];
@@ -50,5 +56,3 @@ function assembleFeature(polygon) {
 
     return feature;
 }
-
-

@@ -116,9 +116,9 @@ function assembleFeature(polygon) {
     return feature;
 }
 
-//decodes type from major selectMenu
+//prepares JobType for mongo
 //input: 'NB', 'A1', 'minor', 'other', 'all'
-//ouput:[ {jobType: } ]
+//ouput: '' or {}
 function selectMenuFormatedForMongo(input) {
   if (input === 'NB' || input === 'A1') {
     return input;
