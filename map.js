@@ -11,6 +11,7 @@ var toner = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>,<a href="http://creativecommons.org/licenses/by/3.0"> CC BY 3.0</a> &mdash; Map data: OSM',
         }).addTo(map);
 
+
 //layergroup
 var mylayerGroup = L.layerGroup().addTo(map);
 
@@ -29,11 +30,9 @@ var styles = {
 
 //variable to hold control values
 var sliderValues = {
-
   cost: null,
   jobType: null,
   date: null
-
 }
 
 
@@ -44,6 +43,8 @@ $( document).ready(function(){
   addJobTypeMenu();
   addDateSlider();
   addSubmitButton();
+  changeLabel();
+
 });
 
 function updateMap() {
@@ -63,7 +64,6 @@ function updateMap() {
   })
 
 }
-
 
 //ajax request
 function ajaxRequest(cost, type, date, callback) {
@@ -142,16 +142,23 @@ function mapBounds () {
       min: 0,
       max: 10000000,
       step: 1000,
-      range: "max"
+      range: "max",
+      create: function(e, ui) {
+         var costHTML = '<p>Initial Cost from $0 to $10million</p>';
+          $("#cost_label").html(costHTML)
       }
-    });
-    
+    })
   }
+
   function addDateSlider(){
     $("#date_slider").slider({
         min: 0,
         max: 11,
         range: "max",
+        create: function(e, ui) {
+            var dateHTML = '<p>From January 2014 to December 2014</p>';
+            $('#date_label').html(dateHTML);
+        }
     })
   }
 
@@ -165,6 +172,26 @@ function mapBounds () {
       updateMap();
     })
   }
+
+//jQuery label functions 
+
+function changeLabel () {
+
+  $("#cost_slider").on("slide", function (event, ui){
+    var costHTML = '<p>Initialcost from $' + ui.value + ' to $10million</p>';
+    $("#cost_label").html(costHTML);
+  })
+
+  $('#date_slider').on("slide", function (event, ui) {
+
+    var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var dateHTML = '<p>From ' + months[ui.value] + ' 2014 to December 2014</p>';
+    $('#date_label').html(dateHTML);
+  })
+
+}
+
+
 
   
 //exports for testing

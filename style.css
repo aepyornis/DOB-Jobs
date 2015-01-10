@@ -1,55 +1,55 @@
 #map {
   height: 600px;
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
   clear: both; 
 }
 
 #mapContainer {
-
   height: 100%;
   width: 100%;
   margin-top: 25px;
 }
 
-#controls {
-  margin: 0 auto;
-  width: 80%;
-   
-
-
+#controls { 
+  text-align: center;
+  margin: 0 auto; 
 }
 
 .controlsContainer {
-    float: left;
-    padding-top: 10px;
-}
-
-.slider {
-  width: 200px;
-  height: 12px;
+  display: inline-block; 
+  margin-right: 3px;
+  vertical-align: bottom;
   
 }
 
-fieldset {
-  border: 0;
-  float: left;
-  padding: 0 4% 0 4%;
+#dropDownContainer {
+
+}
+.slider {
+  width: 160px;
+  height: 12px;
+}
+
+#submitButton {
 
 }
 
-label {
- 
+fieldset {
+  border: none;
+  vertical-align: bottom;
+}
+.ui-button-text {
+  font-size: 12px;
 }
 
 select {
-  width: 150px;
-  font-size: 
+  width: 125px;
+  font-size: 12px;
 }
 
 .ui-selectmenu-text, .ui-menu-item {
-  font-size: .8em;
-  text-align: left;
+  font-size: 12px;
 
 /*    text-align: left;
     padding: 0.4em 2.1em 0.4em 1em;
@@ -58,4 +58,11 @@ select {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;*/
+}
+
+/*labels*/
+
+.label p {
+  font-size: 10px;
+  text-align: center;
 }

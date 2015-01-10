@@ -24,3 +24,26 @@ db.jobs.find(
     }
   }
 )
+
+db.jobs.ensureIndex( { loc : "2dsphere" } )
+
+
+examples of testing mongo
+deal with NaN for cost query
+
+best way to have variables in mongo query
+
+This won't work. why?
+
+what the deal with client pools
+
+function removeWhiteSpace(field) {
+  if (typeof field === 'string') {
+    return field.trim();
+  } else {
+    var string = String(field);
+    removeWhiteSpace(string);
+  }
+}
+
+db.collection('jobs').find({CB: "304", $or: [ { JobType: "A2"}, { JobType: "A3" } ] })

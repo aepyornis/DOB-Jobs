@@ -17,24 +17,27 @@
             
             <!-- Cost Slider -->
             <div id="costSliderContainer" class="controlsContainer">
+                <div id="cost_label" class="label"></div>
                 <div id="cost_slider" class="slider"></div>
             </div>
             <!-- Job Type -->
-            <fieldset id="dropDown">
-<!--                 <label for="job_type">Select a job type</label>
- -->                <select name="job_type" id="job_type">
-                    <option value="NB">New Buildings</option>
-                    <option value="A1">Major Alterations (A1)</option>
-                    <option value="minor">Minor Alterations (A2 & A3)</option>
-                    <option value="other">Other</option>
-                    <option value="all">All Jobs</option>
-                </select>
-            </fieldset>
-
+            <div id="dropDownContainer" class="controlsContainer">
+                <fieldset id="dropDown">
+                    <select name="job_type" id="job_type">
+                        <option value="NB">New Buildings</option>
+                        <option value="A1">Major Alterations (A1)</option>
+                        <option value="minor">Minor Alterations (A2 & A3)</option>
+                        <option value="other">Other</option>
+                        <option value="all">All Jobs</option>
+                    </select>
+                </fieldset>
+            </div>
+            <!-- date slider -->
             <div id="dateSliderContainer" class="controlsContainer">
+                <div id="date_label" class="label"></div>
                 <div id="date_slider" class="slider"></div>
             </div>
-
+            <!-- Submit button -->
             <div class="controlsContainer">
                 <button id="submitButton">Submit</button>
             </div>
