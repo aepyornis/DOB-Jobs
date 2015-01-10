@@ -32,9 +32,13 @@ app.post('/request', function(req, res) {
   //variables for query
   var bounds = requestData.bounds;
   var jobType = requestData.jobType;
+  var month = requestData.date;
+  var cost = requestData.cost;
 
+  console.log(requestData);
+  
   //run Query
-  mongoQuery(bounds, jobType, function(responce){
+  mongoQuery(bounds, jobType, cost, month, function(responce){
     res.send(responce);
   });
 
@@ -58,7 +62,7 @@ var server = app.listen(3000, function () {
 
 // input: bounds
 // output: items
-function mongoQuery (bounds, jobType, callback) {
+function mongoQuery (bounds, jobType, cost, month, callback) {
   db.collection('jobs').find({
     loc: {
       $geoWithin: {
@@ -67,8 +71,10 @@ function mongoQuery (bounds, jobType, callback) {
         }
       }
     },
-    JobType: selectMenuFormatedForMongo(jobType)
-  }).sort({LatestActionDate: -1, }).limit(20).toArray(function(err, items){
+    JobType: selectMenuFormatedForMongo(jobType),
+    LatestActionDate: {$gte: new Date (2014, month, 1)},
+    InitialCost: {$gte: cost}
+  }).sort({LatestActionDate: -1, }).limit(50).toArray(function(err, items){
     if (err) throw err;
     var featureCollection = toFeatureCollection(items);
     console.log("feature Collection: " + featureCollection);
@@ -131,6 +137,11 @@ function selectMenuFormatedForMongo(input) {
   }
 }
 
+function dateFormatedForMongo(month) {
+
+  return  
+
+}
 
 module.exports = {
   boundsToCoordArray: boundsToCoordArray

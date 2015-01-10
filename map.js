@@ -43,6 +43,7 @@ $( document).ready(function(){
   addJobTypeMenu();
   addDateSlider();
   addSubmitButton();
+  updateValues();
   changeLabel();
 
 });
@@ -53,7 +54,7 @@ function updateMap() {
   mylayerGroup.clearLayers();
 
   //get data for new layer
-  ajaxRequest(2000, $("#job_type").val(), 'todaysdate', function(data) {
+  ajaxRequest(sliderValues.cost, sliderValues.jobType, sliderValues.date, function(data) {
     // console.log(data);
 
     //create new layer
@@ -146,7 +147,8 @@ function mapBounds () {
       create: function(e, ui) {
          var costHTML = '<p>Initial Cost from $0 to $10million</p>';
           $("#cost_label").html(costHTML)
-      }
+      },
+      change: updateValues
     })
   }
 
@@ -158,12 +160,15 @@ function mapBounds () {
         create: function(e, ui) {
             var dateHTML = '<p>From January 2014 to December 2014</p>';
             $('#date_label').html(dateHTML);
-        }
+        },
+        change: updateValues
     })
   }
 
   function addJobTypeMenu(){
-    $("#job_type").selectmenu();
+    $("#job_type").selectmenu({
+      change: updateValues
+    });
   }
 
   function addSubmitButton(){
