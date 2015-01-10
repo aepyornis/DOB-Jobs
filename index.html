@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Dob jobs</title>
+<link rel="stylesheet" href="js/jquery-ui-1.11.2/jquery-ui.min.css" />
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<link rel="stylesheet" href="style.css" />
+</head>   
+<body>
+    <div id="wrapper">
+        <div class="title">
+            <h1>DOB J0BS</h1>
+        </div>
+        <div id="controls">
+            
+            <!-- Cost Slider -->
+            <div id="costSliderContainer" class="controlsContainer">
+                <div id="cost_label" class="label"></div>
+                <div id="cost_slider" class="slider"></div>
+            </div>
+            <!-- Job Type -->
+            <div id="dropDownContainer" class="controlsContainer">
+                <fieldset id="dropDown">
+                    <select name="job_type" id="job_type">
+                        <option value="NB">New Buildings</option>
+                        <option value="A1">Major Alterations (A1)</option>
+                        <option value="minor">Minor Alterations (A2 & A3)</option>
+                        <option value="other">Other</option>
+                        <option value="all">All Jobs</option>
+                    </select>
+                </fieldset>
+            </div>
+            <!-- date slider -->
+            <div id="dateSliderContainer" class="controlsContainer">
+                <div id="date_label" class="label"></div>
+                <div id="date_slider" class="slider"></div>
+            </div>
+            <!-- Submit button -->
+            <div class="controlsContainer">
+                <button id="submitButton">Submit</button>
+            </div>
+         
+        </div>
+
+        <div id="mapContainer">
+            <div id="map"></div>
+        </div>
+
+        <div class="sidebar">
+        </div>
+
+        <div class="mainText">
+        </div>
+
+    </div>
+</body>
+<!-- libraries -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.11.2/jquery-ui.min.js"></script>
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<!-- map -->
+<script src="map.js"></script>
+
+</html>
