@@ -47,3 +47,5 @@ function removeWhiteSpace(field) {
 }
 
 db.collection('jobs').find({CB: "304", $or: [ { JobType: "A2"}, { JobType: "A3" } ] })
+
+

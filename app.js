@@ -2,7 +2,7 @@ var express = require('express');
 var mongo = require('mongoskin');
 var bodyParser = require('body-parser');
 
-//imitate app
+//initiate app
 var app = express()
 //database  connection
 var db = mongo.db("mongodb://localhost:27017/test", {native_parser: true});
@@ -26,7 +26,7 @@ app.get('/', function (req, res) {
 //PUT request
 app.post('/request', function(req, res) {
   console.log('requst in');
-  //extact requestData from request
+  //extract requestData from request
   var requestData = JSON.parse(req.body.json);
 
   //variables for query
@@ -37,13 +37,10 @@ app.post('/request', function(req, res) {
 
   console.log(requestData);
 
-  //run Query
+  //run Query, send geojson as responce
   mongoQuery(bounds, jobType, cost, month, function(responce){
     res.send(responce);
   });
-
-
-  // res.send('right back at ya');
 })
 
 
@@ -61,7 +58,7 @@ var server = app.listen(3000, function () {
 //functions
 
 // input: bounds
-// output: items
+// output: callback with feature-collection
 function mongoQuery (bounds, jobType, cost, month, callback) {
   db.collection('jobs').find({
     loc: {
@@ -76,15 +73,15 @@ function mongoQuery (bounds, jobType, cost, month, callback) {
     InitialCost: {$gte: cost}
   }).sort({LatestActionDate: -1, }).limit(50).toArray(function(err, items){
     if (err) throw err;
+    //create feature collection
     var featureCollection = toFeatureCollection(items);
-    console.log("feature Collection: " + featureCollection);
     callback(featureCollection);
   })
 }
 
-
 //input: bounds object
 //output: array
+//used by mongoQuery
 function boundsToCoordArray (b) {
   var NW_arr = [b.NW.lng, b.NW.lat];
   var NE_arr = [b.NE.lng, b.NE.lat]; 
@@ -98,23 +95,24 @@ function boundsToCoordArray (b) {
 //input: array of polygons
 //output: geoJSON object
 function toFeatureCollection(arrayOfPolygons) {
+    //shell of featureCollection
     var featureCollection = {
         "type": "FeatureCollection",
         "features": []
     };
 
+    //for each polygon return from mongo, push into them into the features array
     for (var i = 0; i < arrayOfPolygons.length; i++) {
       featureCollection.features.push(assembleFeature(arrayOfPolygons[i]));
     };    
     return featureCollection;
 }
 
-//assembles one feature. used by toFeatureCollection
+//assembles one feature; used by toFeatureCollection
 function assembleFeature(polygon) {
     var feature = {};
     feature['type'] = "Feature";
     feature.properties = polygon;
-    // feature.properties._id = polygon._id;
     feature.geometry = {};
     feature.geometry['type'] = polygon.loc['type'];
     feature.geometry.coordinates = polygon.loc.coordinates;
@@ -135,12 +133,6 @@ function selectMenuFormatedForMongo(input) {
   } else {
     return {$exists: true}
   }
-}
-
-function dateFormatedForMongo(month) {
-
-  return  
-
 }
 
 module.exports = {
