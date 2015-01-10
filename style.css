@@ -1,0 +1,80 @@
+#map {
+  height: 600px;
+  width: 90%;
+  margin: 0 auto;
+  clear: both; 
+}
+
+#mapContainer {
+  height: 100%;
+  width: 100%;
+  margin-top: 25px;
+}
+
+#controls { 
+  text-align: center;
+  margin: 0 auto; 
+}
+
+.controlsContainer {
+  display: inline-block; 
+  margin-right: 3px;
+  vertical-align: bottom;
+  
+}
+
+#dropDownContainer {
+
+}
+.slider {
+  width: 160px;
+  height: 12px;
+}
+
+#submitButton {
+
+}
+
+fieldset {
+  border: none;
+  vertical-align: bottom;
+}
+.ui-button-text {
+  font-size: 12px;
+}
+
+select {
+  width: 125px;
+  font-size: 12px;
+}
+
+.ui-selectmenu-text, .ui-menu-item {
+  font-size: 12px;
+
+/*    text-align: left;
+    padding: 0.4em 2.1em 0.4em 1em;
+    display: block;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;*/
+}
+
+/*labels*/
+
+.label p {
+  font-size: 10px;
+  text-align: center;
+}
+
+/*pop up text*/
+.infoPopup p {
+  font-size: 11px;
+  line-height: 0;
+
+}
+
+/*pop up box*/
+.leaflet-popup-content {
+  margin: 5px 10px;
+}
