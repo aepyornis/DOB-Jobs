@@ -66,3 +66,15 @@ select {
   font-size: 10px;
   text-align: center;
 }
+
+/*pop up text*/
+.infoPopup p {
+  font-size: 11px;
+  line-height: 20%;
+
+}
+
+/*pop up box*/
+.leaflet-popup-content {
+  margin: 5px 10px;
+}

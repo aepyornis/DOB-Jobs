@@ -36,7 +36,7 @@ app.post('/request', function(req, res) {
   var cost = requestData.cost;
 
   console.log(requestData);
-  
+
   //run Query
   mongoQuery(bounds, jobType, cost, month, function(responce){
     res.send(responce);
@@ -72,7 +72,7 @@ function mongoQuery (bounds, jobType, cost, month, callback) {
       }
     },
     JobType: selectMenuFormatedForMongo(jobType),
-    LatestActionDate: {$gte: new Date (2014, month, 1)},
+    LatestActionDate: {$gte: new Date(2014, month, 1)},
     InitialCost: {$gte: cost}
   }).sort({LatestActionDate: -1, }).limit(50).toArray(function(err, items){
     if (err) throw err;

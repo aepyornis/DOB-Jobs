@@ -38,14 +38,10 @@ var sliderValues = {
 
 //running
 $( document).ready(function(){
-  addControl();
-  addCostSlider();
-  addJobTypeMenu();
-  addDateSlider();
-  addSubmitButton();
+  addLayerControl();
+  createControls();
   updateValues();
   changeLabel();
-
 });
 
 function updateMap() {
@@ -58,7 +54,9 @@ function updateMap() {
     // console.log(data);
 
     //create new layer
-    var newLayer = L.geoJson(data, {});
+    var newLayer = L.geoJson(data, {
+      onEachFeature: popUp
+    });
     //add to map
     mylayerGroup.addLayer(newLayer);    
   
@@ -92,17 +90,14 @@ function ajaxRequest(cost, type, date, callback) {
 
 //update values of controls
 function updateValues () {
-
   sliderValues.cost = $( "#cost_slider" ).slider( "value" );
   sliderValues.jobType = $("#job_type").val();
   sliderValues.date = $("#date_slider").slider( "value" );
-
 }
 
-
 //layer control
-//adds Control to map-> must happen in Ajax callback
-function addControl() {
+//adds Control to map
+function addLayerControl() {
     var baseMaps = {
         "Open Street Map": osmMap,
         "Black and White": toner
@@ -138,6 +133,13 @@ function mapBounds () {
 
 
 //jQueryUI functions
+function createControls() {
+  addCostSlider();
+  addDateSlider();
+  addJobTypeMenu();
+  addSubmitButton();
+}
+
   function addCostSlider() {
     $("#cost_slider").slider({
       min: 0,
@@ -179,7 +181,6 @@ function mapBounds () {
   }
 
 //jQuery label functions 
-
 function changeLabel () {
 
   $("#cost_slider").on("slide", function (event, ui){
@@ -196,9 +197,65 @@ function changeLabel () {
 
 }
 
+//leaflet design
+function popUp(feature, layer) {
 
-
+  var html = '<div class="infoPopup">';
+  html += '<p><strong>Address:</strong> ' + address(feature.properties.House, feature.properties.StreetName) + '</p>';
+  html += '<p><strong>Job Type:</strong> ' + jobtype(feature.properties.JobType) + '</p>';
   
+  if (feature.properties.ProposedStories > feature.properties.ExistingStories) {
+    html += '<p><strong>Existing Stories: </strong>' + feature.properties.ExistingStories + '</p>';
+    html += '<p><strong>Proposed Stories: </strong>' + feature.properties.ProposedStories + '</p>';
+  }
+
+  html += '<p><strong>Owner:</strong> ' + feature.properties.OwnerName + '</p>';
+  html += '<p><strong>Owner Business:</strong> ' + feature.properties.OwnerBis + '</p>';
+
+  html += '</div>';
+
+  layer.bindPopup(html);
+}
+
+//popup functions
+
+
+function address (house, street) {
+  return house + ' ' + street;
+}
+
+function jobtype (type) {
+  switch (type) {
+    case 'A1':
+      return 'Major Alteration (A1)';
+      break;
+    case 'A2':
+      return 'Minor Alteration (A2)';
+      break;
+    case 'A3':
+      return 'Minor Alteration (A3)';
+      break;
+    case 'NB':
+      return 'New Building';
+      break;
+    default:
+      return type;
+      break;
+  }
+}
+
+function acrisLink(bbl) {
+    var link = '<a target="_blank" href="http://a836-acris.nyc.gov/bblsearch/bblsearch.asp?borough=3&block='
+        + bbl.slice(1, 6) + '&lot=' + bbl.slice(6, 10) + '">Click here for ACRIS information</a>';
+    return link;    
+}
+
+function bisLink(bbl) {
+        var link = '<a target="_blank" href="http://a810-bisweb.nyc.gov/bisweb/PropertyProfileOverviewServlet?boro=3&block='
+        + bbl.slice(1, 6) + '&lot=' + bbl.slice(6, 10) + '&go3=+GO+&requestid=0">Click here for DOB information</a>';
+    return link;    
+}
+
 //exports for testing
 // module.exports = {
 //   ajaxRequest: ajaxRequest
