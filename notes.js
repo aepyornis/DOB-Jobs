@@ -48,4 +48,20 @@ function removeWhiteSpace(field) {
 
 db.collection('jobs').find({CB: "304", $or: [ { JobType: "A2"}, { JobType: "A3" } ] })
 
+explain beforeEach()
+why does this work again:  typeof callback === 'function' && callback();
+
+
+describe('writeCSV', function(){
+
+    before(function(done){
+        db.collection('testing').drop(function(){
+            done();
+        })
+    })
+
+    it('should')
+
+})
+
 
