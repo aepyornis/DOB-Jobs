@@ -1,27 +1,27 @@
 var fs = require('fs');
-var mongo = require('mongoskin');
-// var _ = require('underscore');
 var should = require('should');
-var util = require('./util');
+var utils = require('./util');
+// var db = mongojs('mongodb://localhost:27017/test', ['jobs']);
 
-var db = mongo.db('mongodb://localhost:27017/test', {native_parser:true});
+describe('writeCSV', function(){
+  this.timeout(0);
 
-util.writeCSV(['BuildingType', 'ExistingStories', 'OwnerName'], 'test3', null);
+    before(function(done){
+       this.timeout(0);
+      utils.writeCSV(['BuildingType', 'ExistingStories', 'OwnerName'], 'testme', {'CB': '304'}, function(){
+              done()
+        })
+    })
 
-// describe('writeCSV', function(){
+    it('works on three variables', function(){
+       this.timeout(0);
+            var test_csv = fs.readFileSync('testme.csv').toString();
+            var lines = test_csv.split(/\n/);
+            lines[0].should.eql('BuildingType,ExistingStories,OwnerName');
+            var lineLength = lines[1].split(',').length;
+            lineLength.should.eql(3);
+    })
+          
+})
 
-//     it('works on three variables', function(){
-//         util.writeCSV(['BuildingType', 'ExistingStories', 'OwnerName'], 'test3', null, function(){
-//           var test_csv = fs.readFileSync('test3.txt').toString();
-//           var lines = test_csv.split(/\n/);
-//           lines[0].should.eql('BuildingType, ExistingStories, OwnerName');
-//           lines[1].length.should.eql(3);
-//         })
-//     })
 
-//     after(function(done){
-//       // fs.unlink('test3.txt', function(err){
-//         done();
-//     })
-
-// })
