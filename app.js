@@ -2,6 +2,7 @@ var express = require('express');
 var mongo = require('mongoskin');
 var bodyParser = require('body-parser');
 
+
 //initiate app
 var app = express()
 //database  connection
@@ -10,20 +11,14 @@ var db = mongo.db("mongodb://localhost:27017/test", {native_parser: true});
 //exposes ajax data in req.body
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//required for ajax to work CORS
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+//serve index.html from public folder
+app.use(express.static(__dirname + '/public'));
+//allow index.html to use js & css folders
+app.use("/js", express.static(__dirname + '/js'));
+app.use("/css", express.static(__dirname + '/css'));
 
-//GET requests
-app.get('/', function (req, res) {
-  console.log('someone\'s here');
-  res.send('welcome to the dob-jobs map maddness!')
-})
 
-//PUT request
+//POST request
 app.post('/request', function(req, res) {
   console.log('requst in');
   //extract requestData from request
@@ -46,12 +41,9 @@ app.post('/request', function(req, res) {
 
 //start listening
 var server = app.listen(3000, function () {
-
-  var host = server.address().address
-  var port = server.address().port
-
+  var host = server.address().address;
+  var port = server.address().port;
   console.log('Example app listening at http://%s:%s', host, port)
-
 })
 
 

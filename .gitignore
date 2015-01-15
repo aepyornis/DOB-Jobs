@@ -2,3 +2,4 @@ node_modules
 database
 data
 geojson
+.DS_Store
