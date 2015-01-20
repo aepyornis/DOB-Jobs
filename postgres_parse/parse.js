@@ -9,6 +9,17 @@ function main (){
     var client = new pg.Client('postgres://mrbuttons@localhost/dob');
 }
 
+
+function createDobTable(client, tableName, callback) {
+
+    CREATE TABLE dob_jobs (
+        job integer
+    )
+
+}
+
+
+
 //this function excutes sql
 function do_some_SQL (client, sql, callback) {
 
@@ -44,7 +55,7 @@ function create_excel_files_arr(filePath) {
 
 
 
-
+// typeof callback === 'function' && callback();
 
 
 
