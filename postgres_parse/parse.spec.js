@@ -16,7 +16,7 @@ describe('create_excel_files_arr', function(){
 describe('do_some_SQL', function(){
 
     it('should execute some SQL', function(done){
-        var client = new pg.Client('postgres://mrbuttons@localhost/dob');
+        var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dob');
         parser.do_some_SQL(client, 'SELECT NOW() As "theTime"', function(result){
             var num_of_rows = result.rows.length;
             num_of_rows.should.eql(1)
@@ -25,5 +25,17 @@ describe('do_some_SQL', function(){
     })
 
 })
+
+describe('read_excel_file', function(){
+
+    it('should be an array', function(done) {
+        parser.read_excel_file('test.xls', function(records){
+            records.should.be.an.Array.and.an.Object;
+            done();
+        })
+    })
+
+})
+
 
 
