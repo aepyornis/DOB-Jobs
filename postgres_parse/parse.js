@@ -5,14 +5,13 @@ var pg = require('pg');
 
 
 //connect to postgres
-var client = new pg.Client('postgres://mrbuttons@localhost/dob');
-
-do_some_SQL('SELECT NOW() As "theTime"', function(result){
-    console.log(result.rows[0]);
-});
+function main (){
+    var client = new pg.Client('postgres://mrbuttons@localhost/dob');
+}
 
 //this function excutes sql
-function do_some_SQL (sql, callback) {
+function do_some_SQL (client, sql, callback) {
+
     client.connect(function(err){
         if (err) {
             return console.error('could not connect to postgres', err);
@@ -27,7 +26,6 @@ function do_some_SQL (sql, callback) {
         })
     })
 }
-
 
 
 function create_excel_files_arr(filePath) {
@@ -51,5 +49,6 @@ function create_excel_files_arr(filePath) {
 
 
 module.exports = {
-    create_excel_files_arr: create_excel_files_arr
+    create_excel_files_arr: create_excel_files_arr,
+    do_some_SQL: do_some_SQL
 }
