@@ -15,6 +15,10 @@ for (var i = 0; i < 12; i++) {
 
 }
 
+client.query('SELECT NOW() AS "theTime"', function(err, result) {
+    if(err) {
+      return console.error('error running query', err);
+    }
 async.series(arrayOfFunctions, function(err) {
   console.log('all done!');
 });
