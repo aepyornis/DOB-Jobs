@@ -2,12 +2,15 @@
 var fs = require('fs');
 var pg = require('pg');
 var async = require('async');
+//to use excel-parser python must be installed
+//and you need to have these two python modules: argparse, xlrd. Do:
+//pip install argparse
+//pip install xlrd
 var excelParser = require('excel-parser');
-//my module with sql
+//my sql file
 var sql = require('./sql');
-//75 columns
 
-//connect to postgres
+
 function main (){
     //create postgres client
     var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dob');
@@ -98,7 +101,6 @@ function do_some_SQL (client, sql, callback) {
         })
     })
 }
-
 
 function bbl(borough, block, lot) {
   var bor;
