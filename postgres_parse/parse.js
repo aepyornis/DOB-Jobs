@@ -1,69 +1,81 @@
 //node parse from excel to to postgres
 var fs = require('fs');
-var pg = require('pg');
 var async = require('async');
+var _ = require('underscore');
 //to use excel-parser python must be installed
 //and you need to have these two python modules: argparse, xlrd. Do:
 //pip install argparse
 //pip install xlrd
 var excelParser = require('excel-parser');
+var pg = require('pg');
+//default settings
+    pg.defaults.database = 'dobtest';
+    pg.defaults.host = 'localhost';
+    pg.defaults.user = 'mrbuttons';
+    // pg.defaults.poolSize
 //my sql file
 var sql = require('./sql');
+var type_cast = require('./type_casting');
 
-
+//connect to postgres
 function main (){
-    //create postgres client
-    var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dob');
     var filePath = '';
-    
+    var query_array;
     read_excel_file(filePath, function(records){
-
-
-
+        query_array = create_queries_array(records);
+        async.parallel(query_array, function(err){
+            if (err) console.error(err);
+            console.log('done!')
+            pg.end();
+        })
     })
-
-    var query_array = create_queries_array()
-
-    async.parllel(queryFunctionArray, function(err) {
-        if (err) console.error(err);
-        client.end();
-    })
-
-
 }
 
 
-
-
-function create_queries_array(records, client) {
+function create_queries_array(records) {
     var queries = [];
+    //records = [[],[]]
     //each record is an array containing all values in one excel row
-    records.forEach(function(v, i){
+    _.each(records, function(record, i){
         if (i > 2) {
-            var row = 
-
+            //type-cast & remove white space
+            var row = _.map(record, function(field ,i){ 
+                var update_field = removeWhiteSpace(field);
+                update_field = type_cast(update_field, i)
+                return update_field;
+            });
             row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
             var query = "INSERT INTO dob_jobs ("
-            query += row.join();
-            console.log(row);
-            query += ")";
+            
+            _.each(row, function(row, i){
 
+                
+                
+            })
+
+            query += ")";
+            console.log(query);
             //push function to array for user with asnyc.parallel
             queries.push(function(callback){
-                client.query(query, function(err, results){
-                    //if error pass that error to the callback
-                    if (err) {
-                        console.log(err);
-                        callback(err);
-                    //otherwise call the callback with no error. see async doc    
-                    } else {
-                        callback(null);
-                    }
-                })
+               do_query(query, callback);
             })
         }
     })
+
     return queries;   
+}
+
+function do_query(sql, whenDone) {
+    pg.connect(function(err, client, done){
+        if (err) {
+            return console.error('error fetching client from pool', err)
+        }
+        client.query(sql, function(err, result){
+            if (err) console.error('error executing query', err);
+            done();
+            whenDone();
+        })
+    })
 }
 
 
