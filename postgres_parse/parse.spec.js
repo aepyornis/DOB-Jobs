@@ -11,10 +11,8 @@ var type_cast = require('./type_casting');
     pg.defaults.password = 'mrbuttons'
     // pg.defaults.poolSize
 
-
-
 describe('the whole damn thing', function(){
-    this.timeout(20000)
+    this.timeout(10000)
     var parsed_records;
     var query_function_array;
 
@@ -47,6 +45,7 @@ describe('the whole damn thing', function(){
             query_function_array.should.have.lengthOf(4);
 
         })
+
         describe('insert into db', function(){
 
             before(function(done){
@@ -59,88 +58,90 @@ describe('the whole damn thing', function(){
 
             it('should have the records', function(done){
 
-                pg.connect(function(err, client, done){
+                pg.connect(function(err, client, finished){
                     should.not.exist(err);
-                    client.query('SELECT * FROM dobtest', function(err, result){
+                    client.query('SELECT * FROM dob_jobs', function(err, result){
+                        should.not.exist(err);
                         result.rows.should.have.lengthOf(4);
-                        done()
+                        finished();
+                        done();
                     })
-
                 })
-
             })
-
-
         })
 
         
     after(function(){
-        pg.end();
+        pg.connect(function(err, client, finished){
+            client.query('TRUNCATE TABLE dob_jobs', function(err, result){
+                finished();
+                pg.end();
+            })
+        })  
     })
 
 })
 
 
-// describe('create_excel_files_arr', function(){
+describe('create_excel_files_arr', function(){
 
-//     it('removes non-xls files and returns array', function(){
-//         var excel_array = parser.create_excel_files_arr('../data');
-//         excel_array.should.have.lengthOf(12);
-//     })
+    it('removes non-xls files and returns array', function(){
+        var excel_array = parser.create_excel_files_arr('../data');
+        excel_array.should.have.lengthOf(12);
+    })
 
-// })
+})
 
-// describe('do_some_SQL', function(){
+describe('do_some_SQL', function(){
 
-//     it('should execute some SQL', function(done){
-//         var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dobtest');
-//         parser.do_some_SQL(client, 'SELECT NOW() As "theTime"', function(result){
-//             result.rows.should.have.lengthOf(1)
-//             client.end()
-//             done()
-//         }) 
-//     })
+    it('should execute some SQL', function(done){
+        var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dobtest');
+        parser.do_some_SQL(client, 'SELECT NOW() As "theTime"', function(result){
+            result.rows.should.have.lengthOf(1)
+            client.end()
+            done()
+        }) 
+    })
 
-// })
+})
 
-// describe('read_excel_file', function(){
-//     this.timeout(10000)
-//     it('should be an array', function(done) {
-//         parser.read_excel_file('test.xls', function(records){
-//             records.should.be.an.Array.and.an.Object;
-//             done();
-//         })
-//     })
-// })
+describe('read_excel_file', function(){
+    this.timeout(10000)
+    it('should be an array', function(done) {
+        parser.read_excel_file('test.xls', function(records){
+            records.should.be.an.Array.and.an.Object;
+            done();
+        })
+    })
+})
 
 
+describe('type_cast', function(){
 
-// describe('type_cast', function(){
+    it('should work with integers', function(){
+        type_cast('34', 1).should.eql(34)
+        type_cast('122208789.0', 0).should.eql(122208789);
+    })
 
-//     it('should work with integers', function(){
-//         type_cast('34', 1).should.eql(34)
-//         type_cast('122208789.0', 0).should.eql(122208789);
-//     })
+    it('should work with booleans', function(){
+        type_cast('', 20).should.be.a.Boolean;
+        type_cast(null, 20).should.not.be.ok;
+        type_cast('Y', 20).should.be.true;
+        type_cast('X', 20).should.be.true;
+    })
 
-//     it('should work with booleans', function(){
-//         type_cast('', 20).should.be.a.Boolean;
-//         type_cast(null, 20).should.not.be.ok;
-//         type_cast('Y', 20).should.be.true;
-//         type_cast('X', 20).should.be.true;
-//     })
+    it('should work with varchar()', function(){
+        type_cast('lessThan15', 2).should.eql('"lessThan15"');
+        type_cast('this is more than 15', 2).should.eql('"this is more th"');
+    })
 
-//     it('should work with varchar()', function(){
-//         type_cast('lessThan15', 2).should.eql('"lessThan15"');
-//         type_cast('this is more than 15', 2).should.eql('"this is more th"');
-//     })
-
-//     it('should work with date', function(){
-//         type_cast('2014-12-01 00:00:00', 11).should.eql('2014-12-01');
-//         should.not.exist(type_cast('', 11))
-//         should.not.exist(type_cast(0, 11))
-//         should.not.exist(type_cast('0', 11))
-//     })
-// })
+    it('should work with date', function(){
+        type_cast('2014-12-01 00:00:00', 11).should.eql('2014-12-01');
+        should.not.exist(type_cast('', 11))
+        should.not.exist(type_cast(0, 11))
+        should.not.exist(type_cast('0', 11))
+    })
+})
 
 
 
