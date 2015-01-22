@@ -12,6 +12,7 @@ var pg = require('pg');
     pg.defaults.database = 'dobtest';
     pg.defaults.host = 'localhost';
     pg.defaults.user = 'mrbuttons';
+    pg.defaults.password = 'mrbuttons'
     // pg.defaults.poolSize
 //my sql file
 var sql = require('./sql');
@@ -38,17 +39,16 @@ function create_queries_array(records) {
     //each record is an array containing all values in one excel row
     _.each(records, function(record, i){
         if (i > 2) {
-            //type-cast & remove white space
+            //remove white space and commas
             var row = _.map(record, function(field ,i){ 
-                var update_field = removeWhiteSpace(field);
-                update_field = type_cast(update_field, i)
-                return update_field;
+                var noCommas = removeCommas(field);
+                return removeWhiteSpace(noCommas);
             });
+            //add bbl
             row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
-            var query = "INSERT INTO dob_jobs ("
-            query += row.join();
-            query += ")";
-            console.log(query);
+            
+            var query = generate_sql_query(row);
+
             //push function to array for user with asnyc.parallel
             queries.push(function(callback){
                do_query(query, callback);
@@ -58,6 +58,27 @@ function create_queries_array(records) {
 
     return queries;   
 }
+
+function generate_sql_query(row) {
+    var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupany','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
+    var column_names = [];
+    var values = [];
+    _.each(row, function(field, i){
+
+        //get value of field
+        var value = type_cast(field, i);
+        //if it exists add it to the sql statement
+        if (value) {
+            column_names.push(fields_in_order[i]);
+            values.push("'" + value + "'");
+        }
+
+    })
+    var sql = "INSERT INTO dob_jobs (" + column_names.join() + ") VALUES (" + values.join() + ")";
+
+    return sql;
+}
+
 
 function do_query(sql, whenDone) {
     pg.connect(function(err, client, done){
@@ -110,35 +131,41 @@ function do_some_SQL (client, sql, callback) {
 
 function bbl(borough, block, lot) {
   var bor;
-  var blk = block;
-  var lt = lot;
-  if (borough === '"MANHATTAN"') {
-    bor = '1';
-  } else if (borough === '"BRONX"') {
-    bor = '2';
-  } else if (borough === '"BROOKLYN"') {
-    bor = '3';
-  } else if (borough === '"QUEENS"') {
-    bor = '4';
-  } else if (borough === '"STATEN ISLAND"') {
-    bor = '5';
-  } else { bor = 'err'; console.log("there's a mistake with the borough name: " + borough );}
+  var blk = '' + block;
+  var lt = '' + lot;
+  var bbl = '';
 
-  if (block != undefined || lot != undefined) {
+  if (borough === 'MANHATTAN') {
+    bor = '1';
+  } else if (borough === 'BRONX') {
+    bor = '2';
+  } else if (borough === 'BROOKLYN') {
+    bor = '3';
+  } else if (borough === 'QUEENS') {
+    bor = '4';
+  } else if (borough === 'STATEN ISLAND') {
+    bor = '5';
+  } else { 
+        bor = 'err'; console.log("there's a mistake with the borough name: " + borough);
+    }
+
+  if (block != undefined && lot != undefined) {
     if (block.length > 5 || lot.length > 4) {
     console.log("the block and/or lot are too long")
     } else {
-    while (blk.length < 5) {
-      blk = '0' + blk;
-    }
-    while (lt.length < 4) {
-      lt = '0' + lt;
-    }
-    return (bor + blk + lt);
+        while (blk.length !== 5) {
+          blk = '0' + blk;
+        }
+        while (lt.length !== 4) {
+          lt = '0' + lt;
+        }
+        bbl = bor + blk + lt;
     }
   } else {
-    return 'undefined';
+    return 'err';
   } 
+
+  return bbl;
 }
 
 function removeWhiteSpace(field) {
@@ -147,6 +174,15 @@ function removeWhiteSpace(field) {
   } else {
     return field;
   }
+}
+
+function removeCommas ( str ) {
+    if (typeof str === 'string') {
+        return (str + '').replace(/[,]/g, '')
+    } else {
+        return str
+    }
+        
 }
 
 function create_excel_files_arr(filePath) {
@@ -160,9 +196,14 @@ function create_excel_files_arr(filePath) {
         return onlyExcel;
 }
 
-function createDobTable(client, callback) {
-    do_some_SQL(client, sql.dobTable, callback);
+function createDobTable(callback) {
+    var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dobtest');
+    do_some_SQL(client, sql.dobTable, function(result){
+            client.end()
+            typeof callback === 'function' && callback();
+    }) 
 }
+
 
 // typeof callback === 'function' && callback();
 

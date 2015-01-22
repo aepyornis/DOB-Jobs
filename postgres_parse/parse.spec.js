@@ -8,6 +8,7 @@ var type_cast = require('./type_casting');
     pg.defaults.database = 'dobtest';
     pg.defaults.host = 'localhost';
     pg.defaults.user = 'mrbuttons';
+    pg.defaults.password = 'mrbuttons'
     // pg.defaults.poolSize
 
 
@@ -24,7 +25,7 @@ describe('the whole damn thing', function(){
             })
         })
 
-        it('connection should work ', function(done) {
+        it('connection should work', function(done) {
             pg.connect(function(err, client, finished){
                 should.not.exist(err)
                 finished()
@@ -35,6 +36,7 @@ describe('the whole damn thing', function(){
         it('should read excel file', function(){
             parsed_records.should.be.an.Array.and.an.Object;
             parsed_records.should.have.lengthOf(7);
+            parsed_records[4].should.have.lengthOf[75];
 
         })
 

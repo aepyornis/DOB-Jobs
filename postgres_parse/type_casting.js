@@ -2,7 +2,7 @@ var _ = require('underscore')
  
 module.exports = function type_cast(field, i) {
     // var types_in_order = ['integer','integer',varchar(15),varchar(50),varchar(100),'integer','integer','integer',varchar(10),varchar(50),varchar(50),'date',varchar(20),char(3),'boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean','boolean', varchar(50), varchar(50),varchar(50),varchar(20),'date','date','date','date','date','date','money','money',varchar(10),'integer','integer','boolean','boolean','integer','integer','integer','integer','integer','integer','integer','integer','integer','integer',varchar(50),varchar(50),varchar(50),varchar(50),varchar(50),varchar(50),varchar(25),'boolean',varchar(50),varchar(75),varchar(50),varchar(50),varchar(25),'text',char(10)]
-    var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescription','applicantName','applicantTitle','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupany','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
+    var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupany','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
     var types = {
         job: 'integer',
         doc: 'integer',
@@ -38,10 +38,11 @@ module.exports = function type_cast(field, i) {
         fireSuppresion: 'boolean',
         curbCut: 'boolean',
         other: 'boolean',
-        otherDescription: varchar(50),
+        otherDescript: varchar(50),
         applicantName: varchar(50),
         applicantTitle: varchar(50),
-        professionalCert: varchar(20),
+        professionalLicense: varchar(25),
+        professionalCert: 'boolean',
         preFilingDate: 'date',
         paidDate: 'date',
         fullyPaidDate: 'date',
@@ -79,7 +80,7 @@ module.exports = function type_cast(field, i) {
         ownerCityStateZip: varchar(50),
         ownerPhone: varchar(25),
         jobDescription: 'text',
-        bbl: char(10)
+        bbl: varchar(12)
     }
     //all possible types: integer, money, boolean, varchar(), char(), text, date, 
     
@@ -92,32 +93,34 @@ module.exports = function type_cast(field, i) {
         return removesMoneySign(field);
     } else if (type === 'boolean') {
         if (field) {
-            return true;
+            if (field === ' ') {
+                return 'false';
+            }
+            return 'true';
         } else {
-            return false;
+            return 'false';
         }
     } else if (type === 'date') {
-
         if (field) {
-            if (field === '0') {
-                return null;
+            if (field === '0' || field === '0.0') {
+                return false;
             } else {
             return field.slice(0, 10);
             }
         }
         else {
-            return null;
+            return false;
         }
     } else if (type === 'text') {
-        return '"' + field + '"';
+        return field;
     }  else if (typeof type === 'number') {
         if (field.length <= type) {
-            return '"' + field + '"';
+            return field;
         } else {
-            return '"' + field.slice(0,type) + '"';
+            return field.slice(0,type);
         }
     } else {
-        return console.error('typcasting error' + field + ',' + i);
+        return console.error('typcasting error - ' + field + ' - ' + i);
     }
 
 
@@ -139,7 +142,17 @@ module.exports = function type_cast(field, i) {
             return 'undefined';
           }
     }
+    function removeWhiteSpace(field) {
+      if (typeof field === 'string') {
+        return field.trim();
+      } else {
+        return field;
+      }
+    }
 }
+
+
+
 
 
 // function get_type(field, i) {
