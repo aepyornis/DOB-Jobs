@@ -1,62 +1,57 @@
-//node parse from excel to to postgres
+//DOB excel data to postgres
+//note: to use excel-parser python must be installed and you need to have these two python modules: argparse, xlrd run: pip install argparse & pip install xlrd
 var fs = require('fs');
 var async = require('async');
 var _ = require('underscore');
-//to use excel-parser python must be installed
-//and you need to have these two python modules: argparse, xlrd. Do:
-//pip install argparse
-//pip install xlrd
 var excelParser = require('excel-parser');
 var pg = require('pg');
-//default settings
-    pg.defaults.database = 'dobtest';
-    pg.defaults.host = 'localhost';
-    pg.defaults.user = 'mrbuttons';
-    pg.defaults.password = 'mrbuttons'
-    // pg.defaults.poolSize
-//my sql file
+  pg.defaults.database = 'dobtest';
+  pg.defaults.host = 'localhost';
+  pg.defaults.user = 'mrbuttons';
+  pg.defaults.password = 'mrbuttons';
+  // pg.defaults.poolSize
+//my modules
 var sql = require('./sql');
 var type_cast = require('./type_casting');
 
 //connect to postgres
 function main (){
-    var filePath = '';
-    var query_array;
-    read_excel_file(filePath, function(records){
-        query_array = create_queries_array(records);
-        async.parallel(query_array, function(err){
-            if (err) console.error(err);
-            console.log('done!')
-            pg.end();
-        })
-    })
+  var filePath = '';
+  var query_array;
+  read_excel_file(filePath, function(records){
+      query_array = create_queries_array(records);
+      async.parallel(query_array, function(err){
+          if (err) console.error(err);
+          console.log('done!')
+          pg.end();
+      })
+  })
 }
 
-
 function create_queries_array(records) {
-    var queries = [];
-    //records = [[],[]]
-    //each record is an array containing all values in one excel row
-    _.each(records, function(record, i){
-        if (i > 2) {
-            //remove white space and commas
-            var row = _.map(record, function(field ,i){ 
-                var noCommas = removeCommas(field);
-                return removeWhiteSpace(noCommas);
-            });
-            //add bbl
-            row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
-            
-            var query = generate_sql_query(row);
+  var queries = [];
+  //records = [[],[]]
+  //each record is an array containing all values in one excel row
+  _.each(records, function(record, i){
+    if (i > 2) {
+      //remove white space and commas
+      var row = _.map(record, function(field ,i){ 
+          var noCommas = removeCommas(field);
+          return removeWhiteSpace(noCommas);
+      });
+      //add bbl
+      row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
+      
+      var query = generate_sql_query(row);
 
-            //push function to array for user with asnyc.parallel
-            queries.push(function(callback){
-               do_query(query, callback);
-            })
-        }
-    })
+      //push function to array for user with asnyc.parallel
+      queries.push(function(callback){
+         do_query(query, callback);
+      })
+    }
+  })
 
-    return queries;   
+  return queries;   
 }
 
 function generate_sql_query(row) {
@@ -79,27 +74,23 @@ function generate_sql_query(row) {
     return sql;
 }
 
-
 function do_query(sql, whenDone) {
-    pg.connect(function(err, client, done){
-        if (err) {
-            return console.error('error fetching client from pool', err)
-        }
-        client.query(sql, function(err, result){
-            if (err) console.error('error executing query', err);
-            done();
-            whenDone();
-        })
+  pg.connect(function(err, client, done){
+    if (err) {
+        return console.error('error fetching client from pool', err)
+    }
+    client.query(sql, function(err, result){
+        if (err) console.error('error executing query', err);
+        done();
+        whenDone();
     })
+  })
 }
-
-
 
 //input: filePath of excel file
 //callback(records)
 //records is array of arrays
 function read_excel_file(filePath, callback){
-
     excelParser.parse({
         inFile: filePath,
         worksheet: 1,
@@ -107,25 +98,6 @@ function read_excel_file(filePath, callback){
     },function(err, records){
         if (err) console.error(err);
         typeof callback === 'function' && callback(records);
-    })
-
-}
-
-//this function excutes sql
-function do_some_SQL (client, sql, callback) {
-
-    client.connect(function(err){
-        if (err) {
-            return console.error('could not connect to postgres', err);
-        }
-        client.query(sql, function(err, result){
-            if (err) {
-                return console.error('query error', err)
-            }
-            //this disconnects from the database
-            // client.end();
-            typeof callback === 'function' && callback(result);
-        })
     })
 }
 
@@ -146,7 +118,8 @@ function bbl(borough, block, lot) {
   } else if (borough === 'STATEN ISLAND') {
     bor = '5';
   } else { 
-        bor = 'err'; console.log("there's a mistake with the borough name: " + borough);
+        bor = 'err'; 
+        console.log("there's a mistake with the borough name: " + borough);
     }
 
   if (block != undefined && lot != undefined) {
@@ -204,10 +177,25 @@ function createDobTable(callback) {
     }) 
 }
 
+//this function excutes sql
+//used by createDobTable()
+function do_some_SQL (client, sql, callback) {
+  client.connect(function(err){
+    if (err) {
+        return console.error('could not connect to postgres', err);
+    }
+    client.query(sql, function(err, result){
+        if (err) {
+            return console.error('query error', err)
+        }
+        //this disconnects from the database
+        // client.end();
+        typeof callback === 'function' && callback(result);
+    })
+  })
+}
 
-// typeof callback === 'function' && callback();
-
-
+//testing
 module.exports = {
     create_excel_files_arr: create_excel_files_arr,
     do_some_SQL: do_some_SQL,
