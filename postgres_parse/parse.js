@@ -46,13 +46,7 @@ function create_queries_array(records) {
             });
             row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
             var query = "INSERT INTO dob_jobs ("
-            
-            _.each(row, function(row, i){
-
-                
-                
-            })
-
+            query += row.join();
             query += ")";
             console.log(query);
             //push function to array for user with asnyc.parallel
@@ -118,15 +112,15 @@ function bbl(borough, block, lot) {
   var bor;
   var blk = block;
   var lt = lot;
-  if (borough === 'MANHATTAN') {
+  if (borough === '"MANHATTAN"') {
     bor = '1';
-  } else if (borough === 'BRONX') {
+  } else if (borough === '"BRONX"') {
     bor = '2';
-  } else if (borough === 'BROOKLYN') {
+  } else if (borough === '"BROOKLYN"') {
     bor = '3';
-  } else if (borough === 'QUEENS') {
+  } else if (borough === '"QUEENS"') {
     bor = '4';
-  } else if (borough === 'STATEN ISLAND') {
+  } else if (borough === '"STATEN ISLAND"') {
     bor = '5';
   } else { bor = 'err'; console.log("there's a mistake with the borough name: " + borough );}
 

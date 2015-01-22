@@ -128,8 +128,8 @@ describe('the whole damn thing', function(){
 //     })
 
 //     it('should work with varchar()', function(){
-//         type_cast('lessThan15', 2).should.eql('lessThan15');
-//         type_cast('this is more than 15', 2).should.eql('this is more th');
+//         type_cast('lessThan15', 2).should.eql('"lessThan15"');
+//         type_cast('this is more than 15', 2).should.eql('"this is more th"');
 //     })
 
 //     it('should work with date', function(){

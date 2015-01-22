@@ -33,6 +33,7 @@ CREATE TABLE dob_jobs (
         fireSuppresion boolean,
         curbCut boolean,
         other boolean,
+        otherDescription varchar(50),
         applicantName varchar(50),
         applicantTitle varchar(50),
         professionalCert varchar(20),
@@ -75,3 +76,6 @@ CREATE TABLE dob_jobs (
         jobDescription text,
         bbl char(10)
 )
+
+[job,doc,borough,house,streetName,block,lot,bin,jobType,jobStatus,jobStatusDescrp,latestActionDate,buildingType,CB,cluster,landmark,adultEstab,loftBoard,cityOwned,littleE,PCFiled,eFiling,plumbing,mechanical,boiler,fuelBurning,fuelStorage,standPipe,sprinkler,fireAlarm,equipment,fireSuppresion,curbCut,other,otherDescription,applicantName,applicantTitle,professionalCert,preFilingDate,paidDate,fullyPaidDate,assignedDate,approvedDate,fullyPermitted,initialCost,totalEstFee,feeStatus,existZoningSqft,proposedZoningSqft,horizontalEnlrgmt,verticalEnlrgmt,enlrgmtSqft,streetFrontage,existStories,proposedStories,existHeight,proposedHeight,existDwellUnits,proposedDwellUnits,existOccupancy,proposedOccupany,siteFill,zoneDist1,zoneDist2,zoneDist3,zoneSpecial1,zoneSpecial2,ownerType,nonProfit,ownerName,ownerBusinessName,ownerHouseStreet,ownerCityStateZip,ownerPhone,jobDescription,bbl]
+
