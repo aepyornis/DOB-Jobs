@@ -5,7 +5,7 @@ var async = require('async');
 var _ = require('underscore');
 var excelParser = require('excel-parser');
 var pg = require('pg');
-  pg.defaults.database = 'dobtest';
+  pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
   pg.defaults.user = 'mrbuttons';
   pg.defaults.password = 'mrbuttons';
@@ -13,17 +13,38 @@ var pg = require('pg');
 //my modules
 var sql = require('./sql');
 var type_cast = require('./type_casting');
+//error counter
+var errors = 0;
+//this function creates the table, if that's needed
+// createDobTable(console.log('done'));
 
-//connect to postgres
-function main (){
-  var filePath = '';
-  var query_array;
+//the magic function that does everything
+insertAllTheFiles('../data');
+
+function insertAllTheFiles (dirPath) {
+
+  var filePaths = create_excel_files_arr(dirPath);
+  var arr_of_insert_functions = _.map(filePaths, function(filePath){
+    return function(callback) {
+      insertOneFile(filePath, callback);
+    }
+  })
+  async.series(arr_of_insert_functions, function(err) {
+    if (err) console.error(err);
+    console.log('my god - they are done');
+    console.log('total errors: ' + errors);
+    pg.end();
+  })
+
+}
+
+function insertOneFile (filePath, callback){
   read_excel_file(filePath, function(records){
-      query_array = create_queries_array(records);
+      var query_array = create_queries_array(records);
       async.parallel(query_array, function(err){
           if (err) console.error(err);
-          console.log('done!')
-          pg.end();
+          console.log(filePath + ' is done!')
+          callback(null);
       })
   })
 }
@@ -34,10 +55,11 @@ function create_queries_array(records) {
   //each record is an array containing all values in one excel row
   _.each(records, function(record, i){
     if (i > 2) {
-      //remove white space and commas
+      //remove white space commas
       var row = _.map(record, function(field ,i){ 
           var noCommas = removeCommas(field);
-          return removeWhiteSpace(noCommas);
+          var doubledUp = doubleUp(noCommas);
+          return removeWhiteSpace(doubledUp);
       });
       //add bbl
       row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
@@ -59,16 +81,15 @@ function generate_sql_query(row) {
     var column_names = [];
     var values = [];
     _.each(row, function(field, i){
-
-        //get value of field
-        var value = type_cast(field, i);
-        //if it exists add it to the sql statement
-        if (value) {
-            column_names.push(fields_in_order[i]);
-            values.push("'" + value + "'");
-        }
-
+      //get value of field
+      var value = type_cast(field, i);
+      //if it exists add it to the sql statement
+      if (value) {
+          column_names.push(fields_in_order[i]);
+          values.push("'" + value + "'");
+      }
     })
+
     var sql = "INSERT INTO dob_jobs (" + column_names.join() + ") VALUES (" + values.join() + ")";
 
     return sql;
@@ -80,7 +101,10 @@ function do_query(sql, whenDone) {
         return console.error('error fetching client from pool', err)
     }
     client.query(sql, function(err, result){
-        if (err) console.error('error executing query', err);
+        if (err) {
+          console.error('error executing query', err);
+          errors += 1;
+        }
         done();
         whenDone();
     })
@@ -150,31 +174,39 @@ function removeWhiteSpace(field) {
 }
 
 function removeCommas ( str ) {
-    if (typeof str === 'string') {
-        return (str + '').replace(/[,]/g, '')
-    } else {
-        return str
-    }
-        
+  if (typeof str === 'string') {
+      return (str + '').replace(/[,]/g, '')
+  } else {
+      return str
+  }     
 }
 
-function create_excel_files_arr(filePath) {
-        var allFiles = fs.readdirSync(filePath);
-        //remove any non excel files
-        var onlyExcel = allFiles.filter(function(v){
-            if (/(\.xls)$/.test(v)) {
-                return v;
-            }
-        })
-        return onlyExcel;
+function doubleUp ( str ) {
+  if (typeof str === 'string') {
+    return str.replace(/'/g, "''");
+  } else {
+    return str;
+  }
+}
+
+function create_excel_files_arr(dirPath) {
+  var allFiles = fs.readdirSync(dirPath);
+  //remove any non excel files
+  var onlyExcel = _.filter(allFiles, function(v){
+      return (/(\.xls)$/.test(v))
+  })
+  return _.map(onlyExcel, function(filePath) {
+    return dirPath + '/' + filePath;
+  })
 }
 
 function createDobTable(callback) {
-    var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dobtest');
-    do_some_SQL(client, sql.dobTable, function(result){
-            client.end()
-            typeof callback === 'function' && callback();
-    }) 
+  var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dob');
+  do_some_SQL(client, sql.dobTable, function(result){
+      client.end()
+      console.log('table created!');
+      typeof callback === 'function' && callback();
+  }) 
 }
 
 //this function excutes sql
@@ -200,5 +232,6 @@ module.exports = {
     create_excel_files_arr: create_excel_files_arr,
     do_some_SQL: do_some_SQL,
     read_excel_file: read_excel_file,
-    create_queries_array: create_queries_array
+    create_queries_array: create_queries_array,
+    doubleUp: doubleUp
 }

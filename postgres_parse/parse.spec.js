@@ -140,4 +140,11 @@ describe('type_cast', function(){
 })
 
 
+describe('doubleUp', function(){
 
+  it('should double the apostrophes', function(){
+    parser.doubleUp("her's").should.eql("her''s")
+    parser.doubleUp("her's, jenny's").should.eql("her''s, jenny''s")
+  })
+
+})
