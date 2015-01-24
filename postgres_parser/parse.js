@@ -19,7 +19,7 @@ var errors = 0;
 // createDobTable(console.log('done'));
 
 //the magic function that does everything
-insertAllTheFiles('../data');
+insertAllTheFiles('./data');
 
 function insertAllTheFiles (dirPath) {
 

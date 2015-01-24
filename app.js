@@ -22,18 +22,15 @@ app.use("/css", express.static(__dirname + '/css'));
 //get request
 app.get('/query', function(req, res){
   console.log('requst in');
-  var sql = "SELECT * FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'";
+  var sql = "SELECT house, streetName, bbl, latestActionDate, buildingType, existStories, proposedStories, ownerName, ownerBusinessName, jobDescription FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'";
   do_query(sql)
     .then(function(result){
       var stringified = JSON.stringify(result);
       res.send(stringified);
+      // res.send('hi there')
     })
     .then(null, console.error);
-
 })
-
-
-
 
 function do_query(sql) {
   var def = q.defer();
@@ -53,23 +50,6 @@ function do_query(sql) {
   return def.promise;
 }
 
-// function do_query(sql) {
-//   pg.connect(function(err, client, done){
-//     if (err) {
-//         console.log(err);
-//     } else {
-//         client.query(sql, function(err, result){
-//           if (err) {
-//             console.log(err);
-//           }
-//           console.log(result);
-//           done();
-//         })
-//       }
-//   })
-// }
-
-// do_query("SELECT * FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'");
 
 //start listening
 var server = app.listen(3000, function () {
@@ -77,10 +57,6 @@ var server = app.listen(3000, function () {
   var port = server.address().port;
   console.log('Example app listening at http://%s:%s', host, port)
 })
-
-
-
-
 
 
 //graveyard
