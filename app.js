@@ -2,6 +2,10 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var pg = require('pg');
 var q = require('q');
+  pg.defaults.database = 'dob';
+  pg.defaults.host = 'localhost';
+  pg.defaults.user = 'mrbuttons';
+  pg.defaults.password = 'mrbuttons';
 
 //initiate app
 var app = express()
@@ -18,23 +22,30 @@ app.use("/css", express.static(__dirname + '/css'));
 //get request
 app.get('/query', function(req, res){
   console.log('requst in');
-  var sql = "SELECT * FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%')";
+  var sql = "SELECT * FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'";
   do_query(sql)
-    .then(app.res(JSON.stringify(result)));
+    .then(function(result){
+      var stringified = JSON.stringify(result);
+      res.send(stringified);
+    })
+    .then(null, console.error);
 
 })
+
+
+
 
 function do_query(sql) {
   var def = q.defer();
   pg.connect(function(err, client, done){
     if (err) {
-        def.reject(new Error('error fetching client from pool'));
+        def.reject(err);
     } else {
         client.query(sql, function(err, result){
           if (err) {
-            def.reject(new Error('error executing query'));
+            def.reject(err);
           }
-          def.resolve(result.rows[0])
+          def.resolve(result.rows)
           done();
         })
       }
@@ -42,8 +53,23 @@ function do_query(sql) {
   return def.promise;
 }
 
+// function do_query(sql) {
+//   pg.connect(function(err, client, done){
+//     if (err) {
+//         console.log(err);
+//     } else {
+//         client.query(sql, function(err, result){
+//           if (err) {
+//             console.log(err);
+//           }
+//           console.log(result);
+//           done();
+//         })
+//       }
+//   })
+// }
 
-
+// do_query("SELECT * FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'");
 
 //start listening
 var server = app.listen(3000, function () {
