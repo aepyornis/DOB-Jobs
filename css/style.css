@@ -1,0 +1,10 @@
+#table {
+   
+}
+
+#table td {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 250px;
+}
