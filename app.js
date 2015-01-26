@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var pg = require('pg');
 var q = require('q');
+var _ = require('underscore');
   pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
   pg.defaults.user = 'mrbuttons';
@@ -32,6 +33,38 @@ app.get('/query', function(req, res){
     .then(null, console.error);
 })
 
+//post request
+app.post('/datatables', function(req, res){
+
+  console.log('requst in');
+  
+  var response = {};
+  response.draw = req.body.draw;
+  response.recordsTotal = 106569; 
+  
+  var sql = "SELECT house, streetName, bbl, latestActionDate, buildingType, existStories, proposedStories, ownerName, ownerBusinessName, jobDescription FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'";
+  var countQuery = "SELECT COUNT (*) as c FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'";
+
+  var count_promise = do_query(countQuery);
+  count_promise.then(function(result){
+      response.recordsFiltered = result[0].c;
+  })
+  
+  var sql_promise = do_query(sql);
+  sql_promise.then(function(result){
+    response.data = result;
+  })
+    
+  q.all([count_promise, sql_promise])
+    .then(function(){
+      res.send(JSON.stringify(response));
+    })
+        
+
+          
+})
+
+
 function do_query(sql) {
   var def = q.defer();
   pg.connect(function(err, client, done){
@@ -42,7 +75,7 @@ function do_query(sql) {
           if (err) {
             def.reject(err);
           }
-          def.resolve(result.rows)
+          def.resolve(result.rows); 
           done();
         })
       }
@@ -51,7 +84,9 @@ function do_query(sql) {
 }
 
 
-//start listening
+
+
+//start listening 
 var server = app.listen(3000, function () {
   var host = server.address().address;
   var port = server.address().port;
