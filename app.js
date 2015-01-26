@@ -1,8 +1,9 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var pg = require('pg');
 var q = require('q');
 var _ = require('underscore');
+var pg = require('pg');
+var Cursor = require('pg-cursor');
   pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
   pg.defaults.user = 'mrbuttons';
@@ -20,23 +21,12 @@ app.use(express.static(__dirname + '/public'));
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
 
-//get request
-app.get('/query', function(req, res){
-  console.log('requst in');
-  var sql = "SELECT house, streetName, bbl, latestActionDate, buildingType, existStories, proposedStories, ownerName, ownerBusinessName, jobDescription FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'";
-  do_query(sql)
-    .then(function(result){
-      var stringified = JSON.stringify(result);
-      res.send(stringified);
-      // res.send('hi there')
-    })
-    .then(null, console.error);
-})
 
 //post request
 app.post('/datatables', function(req, res){
 
   console.log('requst in');
+  console.log(req.body);
   
   var response = {};
   response.draw = req.body.draw;
@@ -59,8 +49,6 @@ app.post('/datatables', function(req, res){
     .then(function(){
       res.send(JSON.stringify(response));
     })
-        
-
           
 })
 
@@ -84,7 +72,16 @@ function do_query(sql) {
 }
 
 
+function sql_query_builder (dt_obj) {
+  var select = "SELECT house, streetName, bbl, latestActionDate, buildingType, existStories, proposedStories, ownerName, ownerBusinessName, jobDescription FROM dob_jobs";
 
+  _.each(dt_obj, function(value, key, list){
+      //write regex that match each type requested to generate query
+      if (key )
+
+  })
+
+}
 
 //start listening 
 var server = app.listen(3000, function () {
@@ -101,3 +98,17 @@ var server = app.listen(3000, function () {
 //   //extract requestData from request
 //   var requestData = JSON.parse(req.body.json);
 // })
+
+//get request
+// app.get('/query', function(req, res){
+//   console.log('requst in');
+//   var sql = "SELECT house, streetName, bbl, latestActionDate, buildingType, existStories, proposedStories, ownerName, ownerBusinessName, jobDescription FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'";
+//   do_query(sql)
+//     .then(function(result){
+//       var stringified = JSON.stringify(result);
+//       res.send(stringified);
+//       // res.send('hi there')
+//     })
+//     .then(null, console.error);
+// })
+
