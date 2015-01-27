@@ -21,7 +21,7 @@ describe('sql_query_builder', function(){
 
   it('should produce correct statment', function(){
 
-    var correctSQL = "SELECT house,streetname,bbl,latestactiondate,jobtype,existstories,proposedstories,ownername,ownerbusinessname,jobdescription FROM dob_jobs WHERE jobtype = 'A1' ORDER BY house asc"
+    var correctSQL = "SELECT house,streetname,bbl,latestactiondate,jobtype,existstories,proposedstories,ownername,ownerbusinessname,jobdescription FROM dob_jobs WHERE jobtype = 'A1' ORDER BY house asc LIMIT 10 OFFSET 30"
     var correct_count = "SELECT COUNT (*) as c FROM dob_jobs WHERE jobtype = 'A1'";
     var appSQL = app.sql_query_builder(sample_request)[0];
     var app_count = app.sql_query_builder(sample_request)[1];
@@ -95,7 +95,7 @@ describe('sql_query_builder', function(){
   'columns[9][search][regex]': 'false',
   'order[0][column]': '0',
   'order[0][dir]': 'asc',
-  start: '0',
+  start: '30',
   length: '10',
   'search[value]': '',
   'search[regex]': 'false' };

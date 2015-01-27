@@ -3,7 +3,6 @@ var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
 var pg = require('pg');
-var Cursor = require('pg-cursor');
   pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
   pg.defaults.user = 'mrbuttons';
@@ -20,6 +19,8 @@ app.use(express.static(__dirname + '/public'));
 // allow index.html to use js & css folders
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
+
+//previous SQL statement 
 
 
 //post request
@@ -92,7 +93,7 @@ function sql_query_builder(dt_req) {
     //get column names
     if (/columns\[\d\]\[data\]/.test(key)) {
         columns.push(value);
-    //get where values
+    //get wheres
     } else if (/columns\[\d\]\[search\]\[value\]/.test(key)){
         if (value){
           var column_num = /columns\[(\d)\]\[search\]\[value\]/.exec(key)[1];
@@ -100,6 +101,7 @@ function sql_query_builder(dt_req) {
           var sql =  obj[field_name] + " = " + "'" + value + "'";
           wheres.push(sql);
         }
+    //get orders
     } else if (/order\[\d\]\[column\]/.test(key)) {
         var field_name = 'columns[' + value + '][data]';
         var order_num = /order\[(\d)\]\[column\]/.exec(key)[1];
@@ -116,21 +118,30 @@ function sql_query_builder(dt_req) {
 
   })
 
+  //no wheres or orders
   if (_.isEmpty(wheres) && _.isEmpty(orders)) {
       sql = "SELECT " + columns.join() + " FROM dob_jobs";
       count = "SELECT COUNT (*) as c FROM dob_jobs ";
+  //orders but not wheres
   } else if (_.isEmpty(wheres) && orders) {
       sql = "SELECT " + columns.join() + " FROM dob_jobs ORDER BY " + orders.join();
       count = "SELECT COUNT (*) as c FROM dob_jobs "; 
+  //wheres but no orders
   } else if (_.isEmpty(orders) && wheres) {
       sql = "SELECT " + columns.join() + " FROM dob_jobs WHERE " + wheres.join();
       count = "SELECT COUNT (*) as c FROM dob_jobs WHERE " + wheres.join(); 
+  //orders and wheres
   }  else if (orders && wheres) {
       sql = "SELECT " + columns.join() + " FROM dob_jobs WHERE " + wheres.join() + " ORDER BY " + orders.join();
       count = "SELECT COUNT (*) as c FROM dob_jobs WHERE " + wheres.join();
+  //this shouldn't happen
   } else {
     console.log('error with request input');
   }
+
+  //add LIMIT and OFFSET
+  sql += " LIMIT " + dt_req.length;
+  sql += " OFFSET " + dt_req.start;
 
   return [sql, count];
 
