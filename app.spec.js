@@ -21,15 +21,17 @@ describe('sql_query_builder', function(){
 
   it('should produce correct statment', function(){
 
-    var correctSQL = "SELECT house, streetname, latestactiondate, buildingtype, existstories, proposedstories, ownername, ownerbusinessname, jobdescription FROM dob_jobs WHERE buildingtype = 'A1' ORDER BY house ASC"
-    app.sql_query_builder(sample_request).should.eql(correctSQL);
-
+    var correctSQL = "SELECT house,streetname,bbl,latestactiondate,jobtype,existstories,proposedstories,ownername,ownerbusinessname,jobdescription FROM dob_jobs WHERE jobtype = 'A1' ORDER BY house asc"
+    var correct_count = "SELECT COUNT (*) as c FROM dob_jobs WHERE jobtype = 'A1'";
+    var appSQL = app.sql_query_builder(sample_request)[0];
+    var app_count = app.sql_query_builder(sample_request)[1];
+    appSQL.should.eql(correctSQL);
+    app_count.should.eql(correct_count);
+    
   })
 })
 
-
-
-var sample_request = { 
+  var sample_request = { 
     draw: '1',
   'columns[0][data]': 'house',
   'columns[0][name]': '',
@@ -55,7 +57,7 @@ var sample_request = {
   'columns[3][orderable]': 'true',
   'columns[3][search][value]': '',
   'columns[3][search][regex]': 'false',
-  'columns[4][data]': 'buildingtype',
+  'columns[4][data]': 'jobtype',
   'columns[4][name]': '',
   'columns[4][searchable]': 'true',
   'columns[4][orderable]': 'true',
