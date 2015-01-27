@@ -21,14 +21,24 @@ describe('sql_query_builder', function(){
 
   it('should produce correct statment', function(){
 
-    var correctSQL = "SELECT house,streetname,bbl,latestactiondate,jobtype,existstories,proposedstories,ownername,ownerbusinessname,jobdescription FROM dob_jobs WHERE jobtype = 'A1' ORDER BY house asc LIMIT 10 OFFSET 30"
-    var correct_count = "SELECT COUNT (*) as c FROM dob_jobs WHERE jobtype = 'A1'";
+    var correctSQL = "SELECT house,streetname,bbl,latestactiondate,jobtype,existstories,proposedstories,ownername,ownerbusinessname,jobdescription FROM dob_jobs WHERE jobtype = 'A1'  ORDER BY house asc LIMIT 10 OFFSET 30"
+    var correct_count = "SELECT COUNT (*) as c FROM dob_jobs WHERE jobtype = 'A1' ";
     var appSQL = app.sql_query_builder(sample_request)[0];
     var app_count = app.sql_query_builder(sample_request)[1];
     appSQL.should.eql(correctSQL);
     app_count.should.eql(correct_count);
     
   })
+
+  it('should work with small request', function(){
+
+    var correctSQL = "SELECT house,streetname,bbl,ownerbusinessname FROM dob_jobs WHERE house LIKE '%LLC%' OR streetname LIKE '%LLC%' OR bbl LIKE '%LLC%' OR ownerbusinessname LIKE '%LLC%' AND house = '20'  ORDER BY bbl asc LIMIT 10 OFFSET 30";
+    var appSQL = app.sql_query_builder(small_sample_request)[0];
+    appSQL.should.eql(correctSQL);
+
+
+  })
+
 })
 
   var sample_request = { 
@@ -107,7 +117,7 @@ var small_sample_request = {
   'columns[0][name]': '',
   'columns[0][searchable]': 'true',
   'columns[0][orderable]': 'true',
-  'columns[0][search][value]': '',
+  'columns[0][search][value]': '20',
   'columns[0][search][regex]': 'false',
   'columns[1][data]': 'streetname',
   'columns[1][name]': '',
@@ -121,9 +131,15 @@ var small_sample_request = {
   'columns[2][orderable]': 'true',
   'columns[2][search][value]': '',
   'columns[2][search][regex]': 'false',
+  'columns[3][data]': 'ownerbusinessname',
+  'columns[3][name]': '',
+  'columns[3][searchable]': 'true',
+  'columns[3][orderable]': 'true',
+  'columns[3][search][value]': '',
+  'columns[3][search][regex]': 'false',
   'order[0][column]': '2',
   'order[0][dir]': 'asc',
   start: '30',
   length: '10',
-  'search[value]': '',
+  'search[value]': 'LLC',
   'search[regex]': 'false' };

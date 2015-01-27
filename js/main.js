@@ -9,11 +9,19 @@ $( document ).ready(function() {
     columns: [
         { data: 'house' },
         { data: 'streetname' },
-        { data: 'bbl' },
-        { data: 'latestactiondate' },
+        { data: 'bbl', 
+          "searchable": false
+        },
+        { data: 'latestactiondate',
+          "searchable": false
+         },
         { data: 'buildingtype' },
-        { data: 'existstories' },
-        { data: 'proposedstories' },
+        { data: 'existstories', 
+          "searchable": false
+        },
+        { data: 'proposedstories',
+          "searchable": false
+         },
         { data: 'ownername' },
         { data: 'ownerbusinessname' },
         { data: 'jobdescription' }
@@ -21,17 +29,3 @@ $( document ).ready(function() {
   });
 
 })
-
-
-//graveyard
-  // $.ajax({
-  //   url: 'http://localhost:3000/query',
-  //   // dataType: 'json',
-  //   type: 'GET',
-  // })
-  // .then(function(data){
-  //   createTable(JSON.parse(data));
-  // })
-  // .fail(function(jqXHR, status){
-  //   console.log(status)
-  //   });

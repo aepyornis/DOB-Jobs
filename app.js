@@ -20,31 +20,29 @@ app.use(express.static(__dirname + '/public'));
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
 
-
 //post request
 app.post('/datatables', function(req, res){
 
-  console.log('request in');
-  // console.log(req.body);
-  
+  //create response object
   var response = {};
   response.draw = req.body.draw;
+  //total number of records in database. hard-coded for now.
   response.recordsTotal = 106569; 
   
+  //create SQL query and count query
   var sql = sql_query_builder(req.body)[0];
   var countQuery = sql_query_builder(req.body)[1];
   console.log(sql);
-  console.log(countQuery);
 
-  var count_promise = do_query(countQuery);
-  count_promise.then(function(result){
+  var count_promise = do_query(countQuery)
+    .then(function(result){
       response.recordsFiltered = result[0].c;
   })
 
   
-  var sql_promise = do_query(sql);
-  sql_promise.then(function(result){
-    response.data = result;
+  var sql_promise = do_query(sql)
+    .then(function(result){
+      response.data = result;
   })
     
   q.all([count_promise, sql_promise])
@@ -88,8 +86,8 @@ function sql_query_builder(dt_req) {
   var count;
   //global search
   var global_search;
-  if (dt['search[value]']) {
-    global_search = dt['search[value]'];
+  if (dt_req['search[value]']) {
+    global_search = dt_req['search[value]'];
   }  else {
     global_search = false;
   }
@@ -154,7 +152,7 @@ function sql_query_builder(dt_req) {
   //assemble WHERE part
   function assemble_wheres(wheres, global_wheres, global_search){
       //both are empty, do nothing
-      if(_.isEmpty(wheres) && _.isEmpty(global_search) {
+      if(_.isEmpty(wheres) && _.isEmpty(global_search)) {
          return;
       }
       var where_statment = 'WHERE ';
@@ -166,7 +164,7 @@ function sql_query_builder(dt_req) {
             text += 'OR '
           }
           return text;
-        })
+        }, '')
       }
       //if wheres is not empty
       if (!_.isEmpty(wheres)) {
