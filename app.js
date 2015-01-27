@@ -20,8 +20,6 @@ app.use(express.static(__dirname + '/public'));
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
 
-//previous SQL statement 
-
 
 //post request
 app.post('/datatables', function(req, res){
@@ -83,16 +81,33 @@ function sql_query_builder(dt_req) {
   //arrays to hold columns, conditions, and order by
   var columns = [];
   var wheres = [];
+  var global_wheres = [];
   var orders = [];
   //return strings
   var sql;
   var count;
+  //global search
+  var global_search;
+  if (dt['search[value]']) {
+    global_search = dt['search[value]'];
+  }  else {
+    global_search = false;
+  }
 
   //iterate over the request object
   _.each(dt_req, function(value, key, obj){
-    //get column names
+    //get column names and do global search
     if (/columns\[\d\]\[data\]/.test(key)) {
+        //get current column number
+        var column_num = /columns\[(\d)\]\[data\]/.exec(key)[1];
+        //find out if the column is searchable
+        var searchable_field = 'columns[' + column_num + '][searchable]';
         columns.push(value);
+        //if there's a global search field and the column is searchable, then create a where clause
+        if (global_search && obj[searchable_field] === 'true') {
+          var global_sql = value + " LIKE '%" + global_search + "%'";
+          global_wheres.push(global_sql);
+        }
     //get wheres
     } else if (/columns\[\d\]\[search\]\[value\]/.test(key)){
         if (value){
@@ -112,38 +127,59 @@ function sql_query_builder(dt_req) {
 
     } else if (key === 'length') {
 
+    } else if (key === 'search[value]') {
+
     } else {
 
     }
 
   })
-
-  //no wheres or orders
-  if (_.isEmpty(wheres) && _.isEmpty(orders)) {
-      sql = "SELECT " + columns.join() + " FROM dob_jobs";
-      count = "SELECT COUNT (*) as c FROM dob_jobs ";
-  //orders but not wheres
-  } else if (_.isEmpty(wheres) && orders) {
-      sql = "SELECT " + columns.join() + " FROM dob_jobs ORDER BY " + orders.join();
-      count = "SELECT COUNT (*) as c FROM dob_jobs "; 
-  //wheres but no orders
-  } else if (_.isEmpty(orders) && wheres) {
-      sql = "SELECT " + columns.join() + " FROM dob_jobs WHERE " + wheres.join();
-      count = "SELECT COUNT (*) as c FROM dob_jobs WHERE " + wheres.join(); 
-  //orders and wheres
-  }  else if (orders && wheres) {
-      sql = "SELECT " + columns.join() + " FROM dob_jobs WHERE " + wheres.join() + " ORDER BY " + orders.join();
-      count = "SELECT COUNT (*) as c FROM dob_jobs WHERE " + wheres.join();
-  //this shouldn't happen
-  } else {
-    console.log('error with request input');
+  
+  //start sql
+  sql = "SELECT " + columns.join() + " FROM dob_jobs ";
+  count = "SELECT COUNT (*) as c FROM dob_jobs ";
+  //if no wheres exist, assemble_where will return nothing.
+  sql += assemble_wheres(wheres, global_wheres, global_search);
+  count += assemble_wheres(wheres, global_wheres, global_search);
+  //orders
+  if (!_.isEmpty(orders)) {
+    sql += " ORDER BY " + orders.join();
   }
-
   //add LIMIT and OFFSET
   sql += " LIMIT " + dt_req.length;
   sql += " OFFSET " + dt_req.start;
-
+  
   return [sql, count];
+
+  //assemble WHERE part
+  function assemble_wheres(wheres, global_wheres, global_search){
+      //both are empty, do nothing
+      if(_.isEmpty(wheres) && _.isEmpty(global_search) {
+         return;
+      }
+      var where_statment = 'WHERE ';
+      //add global search clauses
+      if (global_search) {
+        where_statment += _.reduce(global_wheres, function(memo, value, i, list){
+          var text = memo + value + " ";
+          if (i < (list.length - 1) ) {
+            text += 'OR '
+          }
+          return text;
+        })
+      }
+      //if wheres is not empty
+      if (!_.isEmpty(wheres)) {
+        //if global_serach exists a "AND" is needed
+        if (global_search) {
+          where_statment += 'AND '
+        }
+
+        where_statment += wheres.join();
+        where_statment += " ";
+      }
+      return where_statment;
+  }
 
 }
 

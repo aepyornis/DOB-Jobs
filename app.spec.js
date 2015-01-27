@@ -99,3 +99,31 @@ describe('sql_query_builder', function(){
   length: '10',
   'search[value]': '',
   'search[regex]': 'false' };
+
+
+var small_sample_request = { 
+    draw: '1',
+  'columns[0][data]': 'house',
+  'columns[0][name]': '',
+  'columns[0][searchable]': 'true',
+  'columns[0][orderable]': 'true',
+  'columns[0][search][value]': '',
+  'columns[0][search][regex]': 'false',
+  'columns[1][data]': 'streetname',
+  'columns[1][name]': '',
+  'columns[1][searchable]': 'true',
+  'columns[1][orderable]': 'true',
+  'columns[1][search][value]': '',
+  'columns[1][search][regex]': 'false',
+  'columns[2][data]': 'bbl',
+  'columns[2][name]': '',
+  'columns[2][searchable]': 'true',
+  'columns[2][orderable]': 'true',
+  'columns[2][search][value]': '',
+  'columns[2][search][regex]': 'false',
+  'order[0][column]': '2',
+  'order[0][dir]': 'asc',
+  start: '30',
+  length: '10',
+  'search[value]': '',
+  'search[regex]': 'false' };
