@@ -2,7 +2,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
-var sql = require('sql');
 var pg = require('pg');
   pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
@@ -20,25 +19,6 @@ app.use(express.static(__dirname + '/public'));
 // allow index.html to use js & css folders
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
-
-//define table
-var jobs = sql.define({
-  name: 'dob_jobs',
-  columns: ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupany','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
-});
-
-  var query = jobs
-    .select('jobType', 'bbl')
-    .from(jobs)
-    .where(jobs.jobType.equals('A1'))
-    .toQuery();
-
-    query.or(jobs.house.equals(20));
-    
-
-    console.log(query.text);
-
-
 
 
 //post request
@@ -96,9 +76,11 @@ function do_query(sql) {
 function sql_query_builder(dt_req) {
   //arrays to hold columns, 'local' wheres, global search wheres, and order bys
   var columns = [];
-  var wheres = [];
-  var global_wheres = [];
-  var orders = [];
+  var global_search_columns = [];
+  var local_search_columns - [];
+  var local_search_values = [];
+  var order_columns = [];
+  var order_dirs = [];
   //return strings
   var sql;
   var count;
@@ -122,24 +104,27 @@ function sql_query_builder(dt_req) {
         var searchable_field = 'columns[' + column_num + '][searchable]';
         //if there's a global search field and the column is searchable, then create where clauses
         if (global_search && obj[searchable_field] === 'true') {
-          var global_sql = value + " LIKE '%" + global_search + "%'";
-          global_wheres.push(global_sql);
+          global_search_columns.push(value);
         }
     //get 'local' wheres
     } else if (/columns\[\d\]\[search\]\[value\]/.test(key)){
         if (value){
           var column_num = /columns\[(\d)\]\[search\]\[value\]/.exec(key)[1];
           var field_name = 'columns[' + column_num + '][data]';
-          var sql =  obj[field_name] + " = " + "'" + value + "'";
-          wheres.push(sql);
+          //push columsn to local search columsn
+          local_search_columns.push(obj[field_name]);
+          //push values to arrays
+          local_search_values.push(value);
         }
     //get orders
     } else if (/order\[\d\]\[column\]/.test(key)) {
         var field_name = 'columns[' + value + '][data]';
         var order_num = /order\[(\d)\]\[column\]/.exec(key)[1];
         var order_dir_key = 'order[' + order_num + '][dir]';
-        var sql =  obj[field_name] + ' ' + obj[order_dir_key];
-        orders.push(sql);
+        
+        order_columns.push(obj[field_name]);
+        order_dirs.push(obj[order_dir_key])
+
     } else if (key === 'start') {
 
     } else if (key === 'length') {
@@ -155,6 +140,33 @@ function sql_query_builder(dt_req) {
   //start sql
   sql = "SELECT " + columns.join() + " FROM dob_jobs ";
   count = "SELECT COUNT (*) as c FROM dob_jobs ";
+
+  WHERE columnname LIKE $1 OR columnname like $1 AND columname = $2 [values]
+
+
+  if (global_search) {
+    sql += 'WHERE ';
+    count += 'WHERE ';
+    var search_sql = _.reduce(global_search_columns, function(memo, value){
+          var text = memo + value + " LIKE $1";
+          if (i < (list.length - 1) ) {
+            text += " OR "
+          }
+          return text;
+    }, '')
+    sql += search_sql;
+    count += search_sql;
+  
+    local_search_
+
+  }
+
+
+
+
+
+
+
   //if no wheres exist, assemble_wheres will return a blank string.
   sql += assemble_wheres(wheres, global_wheres, global_search);
   count += assemble_wheres(wheres, global_wheres, global_search);
