@@ -7,7 +7,8 @@ $( document ).ready(function() {
       type: 'POST'
     },
     columns: [
-        { data: 'house' },
+        { data: 'house',
+          "searchable": false },
         { data: 'streetname' },
         { data: 'bbl', 
           "searchable": false

@@ -39,7 +39,6 @@ app.post('/datatables', function(req, res){
       response.recordsFiltered = result[0].c;
   })
 
-  
   var sql_promise = do_query(sql)
     .then(function(result){
       response.data = result;
@@ -51,7 +50,6 @@ app.post('/datatables', function(req, res){
     })
           
 })
-
 
 function do_query(sql) {
   var def = q.defer();
@@ -76,7 +74,7 @@ function do_query(sql) {
 //input: datatables request object
 //output: [sql-query, count-query]
 function sql_query_builder(dt_req) {
-  //arrays to hold columns, conditions, and order by
+  //arrays to hold columns, 'local' wheres, global search wheres, and order bys
   var columns = [];
   var wheres = [];
   var global_wheres = [];
@@ -96,17 +94,18 @@ function sql_query_builder(dt_req) {
   _.each(dt_req, function(value, key, obj){
     //get column names and do global search
     if (/columns\[\d\]\[data\]/.test(key)) {
+        //push column names into array for SELECT clause
+        columns.push(value);
         //get current column number
         var column_num = /columns\[(\d)\]\[data\]/.exec(key)[1];
         //find out if the column is searchable
         var searchable_field = 'columns[' + column_num + '][searchable]';
-        columns.push(value);
-        //if there's a global search field and the column is searchable, then create a where clause
+        //if there's a global search field and the column is searchable, then create where clauses
         if (global_search && obj[searchable_field] === 'true') {
           var global_sql = value + " LIKE '%" + global_search + "%'";
           global_wheres.push(global_sql);
         }
-    //get wheres
+    //get 'local' wheres
     } else if (/columns\[\d\]\[search\]\[value\]/.test(key)){
         if (value){
           var column_num = /columns\[(\d)\]\[search\]\[value\]/.exec(key)[1];
@@ -136,7 +135,7 @@ function sql_query_builder(dt_req) {
   //start sql
   sql = "SELECT " + columns.join() + " FROM dob_jobs ";
   count = "SELECT COUNT (*) as c FROM dob_jobs ";
-  //if no wheres exist, assemble_where will return nothing.
+  //if no wheres exist, assemble_wheres will return a blank string.
   sql += assemble_wheres(wheres, global_wheres, global_search);
   count += assemble_wheres(wheres, global_wheres, global_search);
   //orders
@@ -147,13 +146,14 @@ function sql_query_builder(dt_req) {
   sql += " LIMIT " + dt_req.length;
   sql += " OFFSET " + dt_req.start;
   
+  //return sql string array
   return [sql, count];
 
   //assemble WHERE part
   function assemble_wheres(wheres, global_wheres, global_search){
       //both are empty, do nothing
-      if(_.isEmpty(wheres) && _.isEmpty(global_search)) {
-         return;
+      if(_.isEmpty(wheres) && !global_search) {
+         return '';
       }
       var where_statment = 'WHERE ';
       //add global search clauses
@@ -170,7 +170,7 @@ function sql_query_builder(dt_req) {
       if (!_.isEmpty(wheres)) {
         //if global_serach exists a "AND" is needed
         if (global_search) {
-          where_statment += 'AND '
+          where_statment += 'AND ';
         }
 
         where_statment += wheres.join();
@@ -186,32 +186,11 @@ function sql_query_builder(dt_req) {
 var server = app.listen(3000, function () {
   var host = server.address().address;
   var port = server.address().port;
-  console.log('Example app listening at http://%s:%s', host, port)
+  console.log('app listening at http://%s:%s', host, port)
 })
 
 
 module.exports = {
   sql_query_builder: sql_query_builder
 }
-
-//graveyard
-//POST request
-// app.post('/request', function(req, res) {
-//   console.log('requst in');
-//   //extract requestData from request
-//   var requestData = JSON.parse(req.body.json);
-// })
-
-//get request
-// app.get('/query', function(req, res){
-//   console.log('requst in');
-//   var sql = "SELECT house, streetName, bbl, latestActionDate, buildingType, existStories, proposedStories, ownerName, ownerBusinessName, jobDescription FROM dob_jobs WHERE ownerName LIKE '%KENNETH%FRIEDMAN%'";
-//   do_query(sql)
-//     .then(function(result){
-//       var stringified = JSON.stringify(result);
-//       res.send(stringified);
-//       // res.send('hi there')
-//     })
-//     .then(null, console.error);
-// })
 
