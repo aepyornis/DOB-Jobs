@@ -1,6 +1,6 @@
 var superagent = require('superagent');
 var should = require('should');
-var app = require('./app')
+var app = require('./new_app')
 
 describe('gets index.html', function(){
 

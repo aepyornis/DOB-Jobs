@@ -3,40 +3,14 @@ var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
 var squel = require('squel')
-squel.count = require('./count_squel')
+squel.useFlavour('postgres');
+//provide squel.count
+squel.count = require('./count_squel');
 var pg = require('pg');
   pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
   pg.defaults.user = 'mrbuttons';
   pg.defaults.password = 'mrbuttons';
-
-// /* OOP Inheritance mechanism (substitute your own favourite library for this!) */
-// Function.prototype.inheritsFrom = function( parentClassOrObject ) {
-//   this.prototype = new parentClassOrObject;
-//   this.prototype.constructor = this;
-//   this.prototype.parent = parentClassOrObject.prototype;
-// };
- 
-
-// var CountQuery = function(options) {
-//   this.parent.constructor.call(this, options, [
-//     new squel.cls.StringBlock(options, 'COUNT(*) as c'),
-//     new squel.cls.FromTableBlock(options),
-//     new squel.cls.WhereBlock
-//   ]);
-// };
-// CountQuery.inheritsFrom(squel.cls.QueryBuilder);
-
-// squel.count = function(options) {
-//   return new CountQuery(options)
-// }
-
-  var count = squel.count()
-    .from('dob_jobs')
-    .where("x = y")
-    .toString();
-
-    console.log(count);
 
 //initiate app
 var app = express()
@@ -50,10 +24,8 @@ app.use(express.static(__dirname + '/public'));
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
 
-
 //post request
 app.post('/datatables', function(req, res){
-
   //create response object
   var response = {};
   response.draw = req.body.draw;
@@ -63,7 +35,6 @@ app.post('/datatables', function(req, res){
   //create SQL query and count query
   var sql_query = sql_query_builder(req.body)[0];
   var countQuery = sql_query_builder(req.body)[1];
-
 
   var count_promise = do_query(countQuery)
     .then(function(result){
@@ -89,7 +60,6 @@ var server = app.listen(3000, function () {
   console.log('app listening at http://%s:%s', host, port)
 })
 
-
 function do_query(sql) {
   var def = q.defer();
   pg.connect(function(err, client, done){
@@ -110,20 +80,17 @@ function do_query(sql) {
   return def.promise;
 }
 
-
-
-
 //input: datatables request object
 //output: [sql-query, count-query]
 function sql_query_builder(dt_req) {
-  //arrays to hold columns, 'local' wheres, global search wheres, and order bys
+  //arrays to hold query information
   var columns = [];
   var global_wheres = [];
   var local_wheres = [];
   var local_wheres_values = [];
   var order_columns = [];
   var order_dirs = [];
-  //
+  //query variable
   var query;
   //global search
   var global_search;
@@ -132,7 +99,6 @@ function sql_query_builder(dt_req) {
   }  else {
     global_search = false;
   }
-
   //iterate over the request object
   _.each(dt_req, function(value, key, obj){
     //get column names and do global search
@@ -164,8 +130,8 @@ function sql_query_builder(dt_req) {
         var field_name = 'columns[' + value + '][data]';
         var order_num = /order\[(\d)\]\[column\]/.exec(key)[1];
         var order_dir_key = 'order[' + order_num + '][dir]';
-        
-        order_columns.push(obj[field_name]);
+        var order_column = obj[field_name];
+        order_columns.push(order_column);
 
         if (obj[order_dir_key] === 'asc') {
           order_dirs.push(true);
@@ -175,33 +141,28 @@ function sql_query_builder(dt_req) {
           console.error('request order is not asc or desc');
         }
        
-    } else if (key === 'start') {
-
-    } else if (key === 'length') {
-
-    } else if (key === 'search[value]') {
-
     } else {
 
     }
 
   })
-
   //generate query
   // the if/else is the order hack...until there's a better way...
-  if (!_.isEmpty(order_columns)) {
+  if (_.isEmpty(order_columns)) {
+    console.log("no order")
     query = squel.select()
       .fields(columns)
       .from("dob_jobs")
-      .where( where_exp() )
+      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
       .limit(dt_req.length)
       .offset(dt_req.start)
       .toParam(); 
   } else if (order_columns.length === 1) {
+    console.log("one order")
     query = squel.select()
       .fields(columns)
       .from("dob_jobs")
-      .where( where_exp() )
+      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
       .order(order_columns[0], order_dirs[0])
       .limit(dt_req.length)
       .offset(dt_req.start)
@@ -210,7 +171,7 @@ function sql_query_builder(dt_req) {
     query = squel.select()
       .fields(columns) 
       .from("dob_jobs")
-      .where( where_exp() )
+      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
       .order(order_columns[0], order_dirs[0])
       .order(order_columns[1], order_dirs[1])
       .limit(dt_req.length)
@@ -220,7 +181,7 @@ function sql_query_builder(dt_req) {
     query = squel.select()
       .fields(columns)
       .from("dob_jobs")
-      .where( where_exp() )
+      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
       .order(order_columns[0], order_dirs[0])
       .order(order_columns[1], order_dirs[1])
       .order(order_columns[2], order_dirs[2])
@@ -231,21 +192,23 @@ function sql_query_builder(dt_req) {
     query = squel.select()
       .fields(columns)
       .from("dob_jobs")
-      .where( where_exp() )
+      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
       .limit(dt_req.length)
       .offset(dt_req.start)
       .toParam(); 
   }
 
+  //create count
   var count = squel.count()
     .from('dob_jobs')
-    .where( where_exp())
+    .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
     .toString();
 
   return [query, count];
 }
 
-
+//input: global search (str or false), [], [], []
+//output squel.expr() or blank str
 function where_exp(global_search, global_wheres, local_wheres, local_wheres_values) {
   var x = squel.expr();
 
@@ -270,8 +233,3 @@ function where_exp(global_search, global_wheres, local_wheres, local_wheres_valu
   }
 
 }
-
-module.exports = {
-  sql_query_builder: sql_query_builder
-}
-

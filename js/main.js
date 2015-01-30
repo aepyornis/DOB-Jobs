@@ -6,17 +6,24 @@ $( document ).ready(function() {
       url: '/datatables',
       type: 'POST'
     },
+     "order": [[ 2, "desc" ]],
     columns: [
         { data: 'house',
-          "searchable": false },
-        { data: 'streetname' },
+          "searchable": false,
+          "orderable": false 
+        },
+        { data: 'streetname',
+        "orderable": false 
+        },
         { data: 'bbl', 
-          "searchable": false
+          "searchable": false,
+          "orderable": false
         },
         { data: 'latestactiondate',
           "searchable": false
-         },
-        { data: 'buildingtype' },
+        },
+        { data: 'jobtype' 
+        },
         { data: 'existstories', 
           "searchable": false
         },
