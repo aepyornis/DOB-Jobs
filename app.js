@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
+var s = require("underscore.string");
 var squel = require('squel')
 squel.useFlavour('postgres');
 //provide squel.count
@@ -35,6 +36,7 @@ app.post('/datatables', function(req, res){
   //create SQL query and count query
   var sql_query = sql_query_builder(req.body)[0];
   var countQuery = sql_query_builder(req.body)[1];
+  console.log(sql_query);
 
   var count_promise = do_query(countQuery)
     .then(function(result){
@@ -119,11 +121,44 @@ function sql_query_builder(dt_req) {
         if (value){
           var column_num = /columns\[(\d)\]\[search\]\[value\]/.exec(key)[1];
           var field_name = 'columns[' + column_num + '][data]';
-          //push columsn to local search columsn
-          var local_where = obj[field_name] + " = ?";
-          local_wheres.push(local_where);
-          //push value to arrays
-          local_wheres_values.push(value);
+          //if using number range slider
+          if(/-yadcf_delim-/.test(value)) {
+
+            var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(value)[1]
+            var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(value)[2];
+
+            if (s.isBlank(low_value) && s.isBlank(high_value)) {
+              //if both blank, do nothing
+            } else if (s.isBlank(low_value) && high_value) {
+              //no low_value, yes high_value
+              var local_where = obj[field_name] + " <= ?";
+              local_wheres.push(local_where);
+              local_wheres_values.push(s.toNumber(high_value));
+            } else if (low_value && s.isBlank(high_value)) {
+              // yes low_value, no high_value.
+              var local_where = obj[field_name] + " >= ?";
+              local_wheres.push(local_where);
+              local_wheres_values.push(s.toNumber(low_value));
+            } else if (low_value && high_value) {
+              //both low and high
+              var low =  obj[field_name] + " >= ?";
+              local_wheres.push(low);
+              local_wheres_values.push(s.toNumber(low_value));
+              var high = obj[field_name] + " <= ?";
+              local_wheres.push(high);
+              local_wheres_values.push(s.toNumber(high_value));
+            } else {
+              console.error("issues with number-range-input: " + key);
+            }
+
+          } else {
+              //push columsn to local search columsn
+               var local_where = obj[field_name] + " LIKE ?";
+              local_wheres.push(local_where);
+              //push value to arrays
+              var with_wildcards = "%" + value + "%"
+              local_wheres_values.push(with_wildcards);
+          }
         }
     //get orders
     } else if (/order\[\d\]\[column\]/.test(key)) {
@@ -149,7 +184,6 @@ function sql_query_builder(dt_req) {
   //generate query
   // the if/else is the order hack...until there's a better way...
   if (_.isEmpty(order_columns)) {
-    console.log("no order")
     query = squel.select()
       .fields(columns)
       .from("dob_jobs")
@@ -158,7 +192,6 @@ function sql_query_builder(dt_req) {
       .offset(dt_req.start)
       .toParam(); 
   } else if (order_columns.length === 1) {
-    console.log("one order")
     query = squel.select()
       .fields(columns)
       .from("dob_jobs")
