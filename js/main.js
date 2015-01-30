@@ -1,6 +1,6 @@
 $( document ).ready(function() {
 
-  $('#table').DataTable( {
+  var table = $('#table').DataTable( {
     serverSide: true,
     ajax: {
       url: '/datatables',
@@ -36,4 +36,31 @@ $( document ).ready(function() {
     ]
   });
 
+  yadcf.init(table, [
+    {column_number : 1, filter_type: "text"},
+    {column_number : 3, filter_type: "date"},
+    {column_number : 4, column_data_type: "multi_select", data: ['A1', 'A2', 'A3', 'NB']},
+    {column_number : 5, filter_type: "range_number", filter_delay: 300},
+    {column_number : 6, filter_type: "range_number", filter_delay: 300},
+    {column_number : 7, filter_type: "text"},
+    {column_number : 8, filter_type: "text"}
+  ]);
+
 })
+
+// select / multi_select / auto_complete / text / date / range_number / range_number_slider / range_date / custom_func / multi_select_custom_func
+
+// .columnFilter({
+//     aoColumns: [
+//       null,
+//       {type: "text"},
+//       null,
+//       {type: "date"},            
+//       {type: "select", values: ['A1', 'A2', 'A3', 'NB']},
+//       {type: "number"},
+//       {type: "number"},      
+//       {type: "text"},
+//       {type: "text"},
+//       {type: "text"}
+//     ]
+//   })
