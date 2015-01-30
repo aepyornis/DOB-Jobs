@@ -1,6 +1,5 @@
 var squel = require('squel');
 
-/* We create a convenience method to make it easy to instantiate our customized UPDATE builder */
 /* OOP Inheritance mechanism (substitute your own favourite library for this!) */
 Function.prototype.inheritsFrom = function( parentClassOrObject ) {
   this.prototype = new parentClassOrObject;
@@ -8,33 +7,16 @@ Function.prototype.inheritsFrom = function( parentClassOrObject ) {
   this.prototype.parent = parentClassOrObject.prototype;
 };
  
-/* Create the text clause */
-var textBlock = function() {};
-textBlock.inheritsFrom(squel.cls.Block);
- 
-textBlock.prototype.text = function(p) {
-  this._p = p;
-};
-textBlock.prototype.buildStr = function() {
-  return this._p;
-};
- 
-/* Create the 'PRAGMA' query builder */
-var PragmaQuery = function(options) {
-  this.parent.constructor.call(this, options, [
-      new squel.cls.StringBlock(options, 'COUNT (*) as c'),
-      new squel.cls.FromTableBlock,
-      new squel.cls.WhereBlock,
-      new textBlock(),
 
+var CountQuery = function(options) {
+  this.parent.constructor.call(this, options, [
+    new squel.cls.StringBlock(options, 'COUNT(*) as c'),
+    new squel.cls.FromTableBlock(options),
+    new squel.cls.WhereBlock
   ]);
 };
-PragmaQuery.inheritsFrom(squel.cls.QueryBuilder);
-
-/* Create squel.pragma() convenience method */
+CountQuery.inheritsFrom(squel.cls.QueryBuilder);
 
 module.exports = function(options) {
-  return new PragmaQuery(options)
-};
- 
- 
+  return new CountQuery(options)
+}

@@ -2,12 +2,41 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
-var sql = require('sql');
+var squel = require('squel')
+squel.count = require('./count_squel')
 var pg = require('pg');
   pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
   pg.defaults.user = 'mrbuttons';
   pg.defaults.password = 'mrbuttons';
+
+// /* OOP Inheritance mechanism (substitute your own favourite library for this!) */
+// Function.prototype.inheritsFrom = function( parentClassOrObject ) {
+//   this.prototype = new parentClassOrObject;
+//   this.prototype.constructor = this;
+//   this.prototype.parent = parentClassOrObject.prototype;
+// };
+ 
+
+// var CountQuery = function(options) {
+//   this.parent.constructor.call(this, options, [
+//     new squel.cls.StringBlock(options, 'COUNT(*) as c'),
+//     new squel.cls.FromTableBlock(options),
+//     new squel.cls.WhereBlock
+//   ]);
+// };
+// CountQuery.inheritsFrom(squel.cls.QueryBuilder);
+
+// squel.count = function(options) {
+//   return new CountQuery(options)
+// }
+
+  var count = squel.count()
+    .from('dob_jobs')
+    .where("x = y")
+    .toString();
+
+    console.log(count);
 
 //initiate app
 var app = express()
@@ -20,25 +49,6 @@ app.use(express.static(__dirname + '/public'));
 // allow index.html to use js & css folders
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
-
-//define table
-var jobs = sql.define({
-  name: 'dob_jobs',
-  columns: ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupany','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
-});
-
-  var query = jobs
-    .select('jobType', 'bbl')
-    .from(jobs)
-    .where(jobs.jobType.equals('A1'))
-    .toQuery();
-
-    query.or(jobs.house.equals(20));
-    
-
-    console.log(query.text);
-
-
 
 
 //post request
@@ -53,6 +63,7 @@ app.post('/datatables', function(req, res){
   //create SQL query and count query
   var sql_query = sql_query_builder(req.body)[0];
   var countQuery = sql_query_builder(req.body)[1];
+
 
   var count_promise = do_query(countQuery)
     .then(function(result){
@@ -70,6 +81,14 @@ app.post('/datatables', function(req, res){
     })
           
 })
+
+//start listening 
+var server = app.listen(3000, function () {
+  var host = server.address().address;
+  var port = server.address().port;
+  console.log('app listening at http://%s:%s', host, port)
+})
+
 
 function do_query(sql) {
   var def = q.defer();
@@ -91,17 +110,21 @@ function do_query(sql) {
   return def.promise;
 }
 
+
+
+
 //input: datatables request object
 //output: [sql-query, count-query]
 function sql_query_builder(dt_req) {
   //arrays to hold columns, 'local' wheres, global search wheres, and order bys
   var columns = [];
-  var wheres = [];
   var global_wheres = [];
-  var orders = [];
-  //return strings
-  var sql;
-  var count;
+  var local_wheres = [];
+  var local_wheres_values = [];
+  var order_columns = [];
+  var order_dirs = [];
+  //
+  var query;
   //global search
   var global_search;
   if (dt_req['search[value]']) {
@@ -122,24 +145,36 @@ function sql_query_builder(dt_req) {
         var searchable_field = 'columns[' + column_num + '][searchable]';
         //if there's a global search field and the column is searchable, then create where clauses
         if (global_search && obj[searchable_field] === 'true') {
-          var global_sql = value + " LIKE '%" + global_search + "%'";
-          global_wheres.push(global_sql);
+          var global_where = value + " LIKE ?";
+          global_wheres.push(global_where);
         }
     //get 'local' wheres
     } else if (/columns\[\d\]\[search\]\[value\]/.test(key)){
         if (value){
           var column_num = /columns\[(\d)\]\[search\]\[value\]/.exec(key)[1];
           var field_name = 'columns[' + column_num + '][data]';
-          var sql =  obj[field_name] + " = " + "'" + value + "'";
-          wheres.push(sql);
+          //push columsn to local search columsn
+          var local_where = obj[field_name] + " = ?";
+          local_wheres.push(local_where);
+          //push value to arrays
+          local_wheres_values.push(value);
         }
     //get orders
     } else if (/order\[\d\]\[column\]/.test(key)) {
         var field_name = 'columns[' + value + '][data]';
         var order_num = /order\[(\d)\]\[column\]/.exec(key)[1];
         var order_dir_key = 'order[' + order_num + '][dir]';
-        var sql =  obj[field_name] + ' ' + obj[order_dir_key];
-        orders.push(sql);
+        
+        order_columns.push(obj[field_name]);
+
+        if (obj[order_dir_key] === 'asc') {
+          order_dirs.push(true);
+        } else if (obj[order_dir_key] === 'desc') {
+           order_dirs.push(false);
+        } else {
+          console.error('request order is not asc or desc');
+        }
+       
     } else if (key === 'start') {
 
     } else if (key === 'length') {
@@ -151,64 +186,90 @@ function sql_query_builder(dt_req) {
     }
 
   })
-  
-  //start sql
-  sql = "SELECT " + columns.join() + " FROM dob_jobs ";
-  count = "SELECT COUNT (*) as c FROM dob_jobs ";
-  //if no wheres exist, assemble_wheres will return a blank string.
-  sql += assemble_wheres(wheres, global_wheres, global_search);
-  count += assemble_wheres(wheres, global_wheres, global_search);
-  //orders
-  if (!_.isEmpty(orders)) {
-    sql += " ORDER BY " + orders.join();
+
+  //generate query
+  // the if/else is the order hack...until there's a better way...
+  if (!_.isEmpty(order_columns)) {
+    query = squel.select()
+      .fields(columns)
+      .from("dob_jobs")
+      .where( where_exp() )
+      .limit(dt_req.length)
+      .offset(dt_req.start)
+      .toParam(); 
+  } else if (order_columns.length === 1) {
+    query = squel.select()
+      .fields(columns)
+      .from("dob_jobs")
+      .where( where_exp() )
+      .order(order_columns[0], order_dirs[0])
+      .limit(dt_req.length)
+      .offset(dt_req.start)
+      .toParam(); 
+  } else if (order_columns.length === 2) {
+    query = squel.select()
+      .fields(columns) 
+      .from("dob_jobs")
+      .where( where_exp() )
+      .order(order_columns[0], order_dirs[0])
+      .order(order_columns[1], order_dirs[1])
+      .limit(dt_req.length)
+      .offset(dt_req.start)
+      .toParam(); 
+  } else if (order_columns.length > 2) {
+    query = squel.select()
+      .fields(columns)
+      .from("dob_jobs")
+      .where( where_exp() )
+      .order(order_columns[0], order_dirs[0])
+      .order(order_columns[1], order_dirs[1])
+      .order(order_columns[2], order_dirs[2])
+      .limit(dt_req.length)
+      .offset(dt_req.start)
+      .toParam(); 
+  } else {
+    query = squel.select()
+      .fields(columns)
+      .from("dob_jobs")
+      .where( where_exp() )
+      .limit(dt_req.length)
+      .offset(dt_req.start)
+      .toParam(); 
   }
-  //add LIMIT and OFFSET
-  sql += " LIMIT " + dt_req.length;
-  sql += " OFFSET " + dt_req.start;
-  
-  //return sql string array
-  return [sql, count];
 
-  //assemble WHERE part
-  function assemble_wheres(wheres, global_wheres, global_search){
-      //both are empty, do nothing
-      if(_.isEmpty(wheres) && !global_search) {
-         return '';
-      }
-      var where_statment = 'WHERE ';
-      //add global search clauses
-      if (global_search) {
-        where_statment += _.reduce(global_wheres, function(memo, value, i, list){
-          var text = memo + value + " ";
-          if (i < (list.length - 1) ) {
-            text += 'OR '
-          }
-          return text;
-        }, '')
-      }
-      //if wheres is not empty
-      if (!_.isEmpty(wheres)) {
-        //if global_serach exists a "AND" is needed
-        if (global_search) {
-          where_statment += 'AND ';
-        }
+  var count = squel.count()
+    .from('dob_jobs')
+    .where( where_exp())
+    .toString();
 
-        where_statment += wheres.join();
-        where_statment += " ";
-      }
-      return where_statment;
-  }
-
+  return [query, count];
 }
 
 
-//start listening 
-var server = app.listen(3000, function () {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log('app listening at http://%s:%s', host, port)
-})
+function where_exp(global_search, global_wheres, local_wheres, local_wheres_values) {
+  var x = squel.expr();
 
+  if (global_search){
+      _.each(global_wheres, function(element) {
+        var with_wildcards = "%" + global_search + "%";
+        x.or(element, with_wildcards);
+      })
+  }
+  
+  if (!_.isEmpty(local_wheres)) {
+    _.each(local_wheres, function(element, i) {
+        x.and(element, local_wheres_values[i])
+    })
+
+  }
+
+  if(global_search || !_.isEmpty(local_wheres)) {
+    return x;
+  } else {
+    return "";
+  }
+
+}
 
 module.exports = {
   sql_query_builder: sql_query_builder
