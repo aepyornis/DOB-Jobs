@@ -42,6 +42,7 @@ $( document ).ready(function() {
     {column_number : 4, column_data_type: "multi_select", data: ['A1', 'A2', 'A3', 'NB']},
     {column_number : 5, filter_type: "range_number", filter_delay: 300},
     {column_number : 6, filter_type: "range_number", filter_delay: 300},
+    {column_number : 7, filter_type: "text", filter_delay: 300}
   ]);
 
 })

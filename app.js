@@ -13,6 +13,7 @@ var pg = require('pg');
   pg.defaults.user = 'mrbuttons';
   pg.defaults.password = 'mrbuttons';
 
+var dtParser = require('./dtParser');
 //initiate app
 var app = express()
 
@@ -85,133 +86,49 @@ function do_query(sql) {
 //input: datatables request object
 //output: [sql-query, count-query]
 function sql_query_builder(dt_req) {
-  //arrays to hold query information
-  var columns = [];
-  var global_wheres = [];
-  var local_wheres = [];
-  var local_wheres_values = [];
-  var order_columns = [];
-  var order_dirs = [];
-  //query variable
-  var query;
-  //global search
-  var global_search;
-  if (dt_req['search[value]']) {
-    global_search = dt_req['search[value]'];
-  }  else {
-    global_search = false;
-  }
-  //iterate over the request object
-  _.each(dt_req, function(value, key, obj){
-    //get column names and do global search
-    if (/columns\[\d\]\[data\]/.test(key)) {
-        //push column names into array for SELECT clause
-        columns.push(value);
-        //get current column number
-        var column_num = /columns\[(\d)\]\[data\]/.exec(key)[1];
-        //find out if the column is searchable
-        var searchable_field = 'columns[' + column_num + '][searchable]';
-        //if there's a global search field and the column is searchable, then create where clauses
-        if (global_search && obj[searchable_field] === 'true') {
-          var global_where = value + " LIKE ?";
-          global_wheres.push(global_where);
-        }
-    //get 'local' wheres
-    } else if (/columns\[\d\]\[search\]\[value\]/.test(key)){
-        if (value){
-          var column_num = /columns\[(\d)\]\[search\]\[value\]/.exec(key)[1];
-          var field_name = 'columns[' + column_num + '][data]';
-          //if using number range slider
-          if(/-yadcf_delim-/.test(value)) {
+  //these are returned
+  var rows_query;
+  var count_query;
 
-            var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(value)[1]
-            var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(value)[2];
+  //parse datatables request
+  var dt = dtParser(dt_req);
 
-            if (s.isBlank(low_value) && s.isBlank(high_value)) {
-              //if both blank, do nothing
-            } else if (s.isBlank(low_value) && high_value) {
-              //no low_value, yes high_value
-              var local_where = obj[field_name] + " <= ?";
-              local_wheres.push(local_where);
-              local_wheres_values.push(s.toNumber(high_value));
-            } else if (low_value && s.isBlank(high_value)) {
-              // yes low_value, no high_value.
-              var local_where = obj[field_name] + " >= ?";
-              local_wheres.push(local_where);
-              local_wheres_values.push(s.toNumber(low_value));
-            } else if (low_value && high_value) {
-              //both low and high
-              var low =  obj[field_name] + " >= ?";
-              local_wheres.push(low);
-              local_wheres_values.push(s.toNumber(low_value));
-              var high = obj[field_name] + " <= ?";
-              local_wheres.push(high);
-              local_wheres_values.push(s.toNumber(high_value));
-            } else {
-              console.error("issues with number-range-input: " + key);
-            }
+  var fields = _.reduce(dt['columns'], function(memo, column_obj, i, list){
+    return memo + column_obj['data'] + ",";
+  }, '')
 
-          } else {
-              //push columsn to local search columsn
-               var local_where = obj[field_name] + " LIKE ?";
-              local_wheres.push(local_where);
-              //push value to arrays
-              var with_wildcards = "%" + value + "%"
-              local_wheres_values.push(with_wildcards);
-          }
-        }
-    //get orders
-    } else if (/order\[\d\]\[column\]/.test(key)) {
-        var field_name = 'columns[' + value + '][data]';
-        var order_num = /order\[(\d)\]\[column\]/.exec(key)[1];
-        var order_dir_key = 'order[' + order_num + '][dir]';
-        var order_column = obj[field_name];
-        order_columns.push(order_column);
-
-        if (obj[order_dir_key] === 'asc') {
-          order_dirs.push(true);
-        } else if (obj[order_dir_key] === 'desc') {
-           order_dirs.push(false);
-        } else {
-          console.error('request order is not asc or desc');
-        }
-       
-    } else {
-
-    }
-
-  })
-
-  query = squel.select()
-    .fields(columns)
+  var query = squel.select()
+    .fields(fields)
     .from("dob_jobs")
-    .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
+    .where( where_exp() )
 
-  if(!_.isEmpty(order_columns)) {
-    _.each(order_columns, function(column, i){
-      query.order(column, order_dirs[i]);
+  if (!_.isEmpty(dt.orders)) {
+    _.each(dt.orders, function(order){
+      query.order(order['columnData'], order['dir'])
     })
   }
 
-  query = query.limit(dt_req.length)
-      .offset(dt_req.start)
-      .toParam();
+  query.limit(dt.length).offset(dt.start);
 
-  //create count
-  var count = squel.count()
+  rows_query = query.toParam();
+
+  count _query = squel.count()
     .from('dob_jobs')
-    .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
+    .where( where_exp() )
     .toString();
 
-  return [query, count];
+    return [rows_query, count_query];
 }
+
 
 //input: global search (str or false), [], [], []
 //output squel.expr() or blank str
-function where_exp(global_search, global_wheres, local_wheres, local_wheres_values) {
+function where_exp() {
   var x = squel.expr();
 
-  if (global_search){
+  var global_wheres = dt[]
+
+  if (dt.search){
       _.each(global_wheres, function(element) {
         var with_wildcards = "%" + global_search + "%";
         x.or(element, with_wildcards);

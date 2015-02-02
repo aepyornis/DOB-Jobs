@@ -1,6 +1,6 @@
 // input: data tables object
 // out: parsed data tablesobject
-function parse_datatables_object (dt_req) {
+module.exports = function parse_datatables_object (dt_req) {
   var parsed_obj = {
     columns: null,
     orders: null,
@@ -78,30 +78,12 @@ function parseSearchValue(str) {
     }
 }
 
-module.exports = {
+// module.exports = {
 
-    getColumns: getColumns,
-    getOrders: getOrders,
-    parse_datatables_object: parse_datatables_object
-}
-
-// { draw: '1',
-//   'columns[0][data]': 'house',
-//   'columns[0][name]': '',
-//   'columns[0][searchable]': 'true',
-//   'columns[0][orderable]': 'true',
-//   'columns[0][search][value]': '',
-//   'columns[0][search][regex]': 'false',
-//   ....
-//   'order[0][column]': '0',
-//   'order[0][dir]': 'asc',
-//   start: '0',
-//   length: '10',
-//   'search[value]': '',
-//   'search[regex]': 'false' 
+//     getColumns: getColumns,
+//     getOrders: getOrders,
+//     parse_datatables_object: parse_datatables_object
 // }
-
-
 
 // {
 //     columns: [ {column_object} ]
@@ -125,11 +107,6 @@ module.exports = {
 // }
 
 
-    // _.keys() -> array of keys
-
-    // splitOnBrackets(str) {
-
-    // }
 
 
 
