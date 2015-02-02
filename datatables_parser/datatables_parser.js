@@ -1,18 +1,19 @@
-var _ = require('underscore');
-
 // input: data tables object
 // out: parsed data tablesobject
 function parse_datatables_object (dt_req) {
   var parsed_obj = {
     columns: null,
-    orders: [],
+    orders: null,
     draw: dt_req.draw,
     start: dt_req.start,
     length: dt_req.length,
-    search: parseSearchValue(dt_req['search[value]'])
+    search: (dt_req['search[value]'] === '') ? false : dt_req['search[value]']
   }
 
   parsed_obj.columns = getColumns(dt_req);
+  parsed_obj.orders = getOrders(dt_req);
+
+  return parsed_obj;
 
 }
 
@@ -34,8 +35,8 @@ function getColumns(dt_req) {
           name: dt_req[name],
           searchable: dt_req[searchable],
           orderable: dt_req[orderable],
-          search_value: dt_req[search_value],
-          search_regex: dt_req[search_regex]
+          searchValue: dt_req[search_value],
+          searchRegex: dt_req[search_regex]
         };
 
         columns.push(column); 
@@ -46,19 +47,13 @@ function getColumns(dt_req) {
 
 }
 
-
 function getOrders(dt_req) {
-
-    var counter = 0;
-    var orders = [];
-    get_me_some_orders();
-    return orders;
-
-    function get_me_some_orders() {
-      var column_num_field = 'order[' + counter + '][column]';
+  var orders = [];
+    for (var i=0; true; i++) {
+      var column_num_field = 'order[' + i + '][column]';
       if(dt_req[column_num_field]) {
         var columnNum = dt_req[column_num_field];
-        var dir = 'order[' + counter + '][dir]';
+        var dir = 'order[' + i + '][dir]';
         var column_name = 'columns[' + columnNum + '][name]';
         var column_data = 'columns[' + columnNum + '][data]';
 
@@ -69,19 +64,10 @@ function getOrders(dt_req) {
           dir: dt_req[dir]
         }
         orders.push(order);
-        counter += 1;
-        get_me_some_orders();
+      } else {
+        return orders
       }
     }
-
-}
-
-
-
-function splitOnBrackets(str) {
-
-  return _.without(str.split(/[\[\]]/), '');
-
 }
 
 function parseSearchValue(str) {
@@ -94,9 +80,9 @@ function parseSearchValue(str) {
 
 module.exports = {
 
-    splitOnBrackets: splitOnBrackets,
     getColumns: getColumns,
-    getOrders: getOrders
+    getOrders: getOrders,
+    parse_datatables_object: parse_datatables_object
 }
 
 // { draw: '1',
