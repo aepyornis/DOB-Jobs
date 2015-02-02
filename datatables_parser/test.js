@@ -1,0 +1,96 @@
+var should = require('should');
+
+var parser = require('./datatables_parser');
+
+describe('splitOnBrackets', function(){
+
+
+    it('works with example', function(){
+
+        parser.splitOnBrackets('columns[0][name]').should.eql(["columns", "0", "name"]);
+
+
+    })
+
+})
+
+describe('getColumns', function(){
+
+    it('works with sample obj', function(){
+
+        var sample_object = {
+            draw: '1',
+          'columns[0][data]': 'house',
+          'columns[0][name]': '',
+          'columns[0][searchable]': 'true',
+          'columns[0][orderable]': 'true',
+          'columns[0][search][value]': '',
+          'columns[0][search][regex]': 'false',
+          'columns[1][data]': 'streetname',
+          'columns[1][name]': '',
+          'columns[1][searchable]': 'true',
+          'columns[1][orderable]': 'true',
+          'columns[1][search][value]': '',
+          'columns[1][search][regex]': 'false',
+          'columns[2][data]': 'bbl',
+          'columns[2][name]': '',
+          'columns[2][searchable]': 'true',
+          'columns[2][orderable]': 'true',
+          'columns[2][search][value]': '',
+          'columns[2][search][regex]': 'false'
+        };
+
+
+        var columns = parser.getColumns(sample_object);
+        columns.should.have.lengthOf(3);
+        columns[1]['data'].should.eql('streetname');
+
+
+    })
+
+})
+
+
+describe('getOrders', function(){
+
+    it('should work on sample', function(){
+        var sample_object = {
+                draw: '1',
+              'columns[0][data]': 'house',
+              'columns[0][name]': '',
+              'columns[0][searchable]': 'true',
+              'columns[0][orderable]': 'true',
+              'columns[0][search][value]': '',
+              'columns[0][search][regex]': 'false',
+              'columns[1][data]': 'streetname',
+              'columns[1][name]': '',
+              'columns[1][searchable]': 'true',
+              'columns[1][orderable]': 'true',
+              'columns[1][search][value]': '',
+              'columns[1][search][regex]': 'false',
+              'columns[2][data]': 'bbl',
+              'columns[2][name]': '',
+              'columns[2][searchable]': 'true',
+              'columns[2][orderable]': 'true',
+              'columns[2][search][value]': '',
+              'columns[2][search][regex]': 'false',
+              'order[0][column]': '0',
+              'order[0][dir]': 'asc'
+         };
+
+         var orders = parser.getOrders(sample_object)
+         orders.should.have.lengthOf(1);
+         orders[0]['dir'].should.eql('asc');
+         orders[0]['columnData'].should.eql('house')
+
+    })
+
+
+
+})
+
+
+
+
+
+
