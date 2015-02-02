@@ -181,55 +181,21 @@ function sql_query_builder(dt_req) {
     }
 
   })
-  //generate query
-  // the if/else is the order hack...until there's a better way...
-  if (_.isEmpty(order_columns)) {
-    query = squel.select()
-      .fields(columns)
-      .from("dob_jobs")
-      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
-      .limit(dt_req.length)
-      .offset(dt_req.start)
-      .toParam(); 
-  } else if (order_columns.length === 1) {
-    query = squel.select()
-      .fields(columns)
-      .from("dob_jobs")
-      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
-      .order(order_columns[0], order_dirs[0])
-      .limit(dt_req.length)
-      .offset(dt_req.start)
-      .toParam(); 
-  } else if (order_columns.length === 2) {
-    query = squel.select()
-      .fields(columns) 
-      .from("dob_jobs")
-      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
-      .order(order_columns[0], order_dirs[0])
-      .order(order_columns[1], order_dirs[1])
-      .limit(dt_req.length)
-      .offset(dt_req.start)
-      .toParam(); 
-  } else if (order_columns.length > 2) {
-    query = squel.select()
-      .fields(columns)
-      .from("dob_jobs")
-      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
-      .order(order_columns[0], order_dirs[0])
-      .order(order_columns[1], order_dirs[1])
-      .order(order_columns[2], order_dirs[2])
-      .limit(dt_req.length)
-      .offset(dt_req.start)
-      .toParam(); 
-  } else {
-    query = squel.select()
-      .fields(columns)
-      .from("dob_jobs")
-      .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
-      .limit(dt_req.length)
-      .offset(dt_req.start)
-      .toParam(); 
+
+  query = squel.select()
+    .fields(columns)
+    .from("dob_jobs")
+    .where( where_exp(global_search, global_wheres, local_wheres, local_wheres_values) )
+
+  if(!_.isEmpty(order_columns)) {
+    _.each(order_columns, function(column, i){
+      query.order(column, order_dirs[i]);
+    })
   }
+
+  query = query.limit(dt_req.length)
+      .offset(dt_req.start)
+      .toParam();
 
   //create count
   var count = squel.count()
