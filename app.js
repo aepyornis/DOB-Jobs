@@ -112,7 +112,7 @@ function sql_query_builder(dt_req) {
 
   rows_query = query.toParam();
 
-  count _query = squel.count()
+  count_query = squel.count()
     .from('dob_jobs')
     .where( where_exp() )
     .toString();
@@ -126,13 +126,11 @@ function sql_query_builder(dt_req) {
 function where_exp(dt) {
   var x = squel.expr();
 
-  var searchable_columns = _.map(dt.columns, function(val, key, column){
-    if (column['searchable'] === 'true') {
-      return column['data'];
-    } else {
-      return;
+  var searchable_columns = _.chain(dt.columns).filter(function(column) {
+    if (column.searchable === 'true') {
+      return true;
     }
-  })
+  }).pluck('data').value();
 
   // do global search on searchable columns
   if (dt.search){
@@ -144,7 +142,7 @@ function where_exp(dt) {
   }
   
     // do local searches. 
-    _.each(columns, function(column, i) {
+    _.each(dt.columns, function(column, i) {
       // if blank
       if(s.isBlank(column['searchValue'])) {
         return;
@@ -156,12 +154,18 @@ function where_exp(dt) {
         x.and(sql, value);
       } else {
         var sql = column['data'] + " LIKE ?"
-        var value = column['searchValue'];
+        var value = "%" + column['searchValue'] + "%";
         x.and(sql, value);
       }
     })
 
-  }
 
-  
+  return x;
+
+}
+
+module.exports = {
+
+  where_exp: where_exp
+
 }

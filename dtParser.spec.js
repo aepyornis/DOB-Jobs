@@ -1,6 +1,6 @@
 var should = require('should');
 
-var parser = require('./datatables_parser');
+var parser = require('./dtParser');
 
 
 describe('parse_datatables_object', function(){
@@ -34,13 +34,15 @@ describe('parse_datatables_object', function(){
         'search[regex]': 'false' 
       }
 
-      var test = parser.parse_datatables_object(sample);
+      var test = parser((sample));
       test['draw'].should.eql('1');
       test['columns'].should.be.an.array;
       test['columns'].should.have.lengthOf(3);
       test['columns'][1]['data'].should.eql('streetname');
       test['orders'].should.have.lengthOf(1);
       test['search'].should.be.false;
+
+      console.log(test);
 
 
   })
