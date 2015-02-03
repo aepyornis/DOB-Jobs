@@ -123,29 +123,45 @@ function sql_query_builder(dt_req) {
 
 //input: global search (str or false), [], [], []
 //output squel.expr() or blank str
-function where_exp() {
+function where_exp(dt) {
   var x = squel.expr();
 
-  var global_wheres = dt[]
+  var searchable_columns = _.map(dt.columns, function(val, key, column){
+    if (column['searchable'] === 'true') {
+      return column['data'];
+    } else {
+      return;
+    }
+  })
 
+  // do global search on searchable columns
   if (dt.search){
-      _.each(global_wheres, function(element) {
-        var with_wildcards = "%" + global_search + "%";
-        x.or(element, with_wildcards);
+      _.each(searchable_columns, function(column) {
+        var sql = column + " LIKE ?";
+        var value = "%" + dt.search + "%";
+        x.or(sql, value);
       })
   }
   
-  if (!_.isEmpty(local_wheres)) {
-    _.each(local_wheres, function(element, i) {
-        x.and(element, local_wheres_values[i])
+    // do local searches. 
+    _.each(columns, function(column, i) {
+      // if blank
+      if(s.isBlank(column['searchValue'])) {
+        return;
+      // if number  
+      } else if (/[\d*]/.test(column['searchValue'])){
+        var sql = column['data'] + " = ?"
+        // coverts to INT. can be changed with work with decimals. 
+        var value = s.toNumber(column['searchValue']);
+        x.and(sql, value);
+      } else {
+        var sql = column['data'] + " LIKE ?"
+        var value = column['searchValue'];
+        x.and(sql, value);
+      }
     })
 
   }
 
-  if(global_search || !_.isEmpty(local_wheres)) {
-    return x;
-  } else {
-    return "";
-  }
-
+  
 }
