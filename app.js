@@ -75,7 +75,8 @@ function do_query(sql) {
             def.reject(err);
             console.log(err);
           }
-          def.resolve(result.rows); 
+          var prepare = psql_to_dt(result.rows);
+          def.resolve(prepare);
           done();
         })
       }
@@ -133,34 +134,85 @@ function where_exp(dt) {
 
   // do global search on searchable columns
   if (dt.search){
-      _.each(searchable_columns, function(column) {
-        var sql = column + " LIKE ?";
-        var value = "%" + dt.search.toUpperCase() + "%";
-        x.or(sql, value);
-      })
+      _.each(searchable_columns, function(col) {
+        global_search(col)}
+      );
   }
   
     // do local searches. 
-    _.each(dt.columns, function(column, i) {
-      // if blank
-      if(s.isBlank(column['searchValue'])) {
-        return;
-      // if number  
-      } else if (/^\d+$/.test(column['searchValue'])){
-        var sql = column['data'] + " = ?"
-        // coverts to INT. can be changed with work with decimals. 
-        var value = s.toNumber(column['searchValue']);
-        x.and(sql, value);
-      } else {
-        var sql = column['data'] + " LIKE ?"
-        var value = "%" + column['searchValue'].toUpperCase() + "%";
-        x.and(sql, value);
-      }
-    })
+    _.each(dt.columns, function(c,i) {
+      local_search(c, i)}
+    );
 
   return x;
 
+  // where_exp helper functions
+  function local_search(column, i) {
+
+    var search = column['searchValue'];
+    // if blank
+    if(s.isBlank(search)) {
+      return;
+    // if number  
+    } else if (/^\d+$/.test(search)){
+      var sql = column['data'] + " = ?"
+      // coverts to INT. can be changed with work with decimals. 
+      var value = s.toNumber(column['searchValue']);
+      x.and(sql, value);
+    // if date
+    } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
+      var date = /(\d{2})\/(\d{2})\/(\d{4})/.exec(search);
+      console.log(date); 
+      var date_str = date[3] + "/" + date[1] + "/" + date[2];
+      var sql = column['data'] + " = ?"
+      x.and(sql, date_str);
+    } else {
+      var sql = column['data'] + " LIKE ?"
+      var value = "%" + column['searchValue'].toUpperCase() + "%";
+      x.and(sql, value);
+    }
+
+  }
+
+  function global_search(column) {
+      var sql = column + " LIKE ?";
+      var value = "%" + dt.search.toUpperCase() + "%";
+      x.or(sql, value);
+  }
+
+
+
 }
+
+// input: rows from psql query
+// output: modified rows
+// [ {}, {} ]
+// 
+function psql_to_dt(rows){
+
+  var changed = _.map(rows, function(row){
+      return change_row(row);
+  })
+
+  
+  function change_row(row) {
+    var newRow = row;
+   var date = '' + row['latestactiondate'];
+   newRow['latestactiondate'] = date.slice(0,15);
+   
+    return newRow;
+
+  }
+
+
+  return changed;
+
+}
+
+
+
+
+
 
 
 module.exports = {

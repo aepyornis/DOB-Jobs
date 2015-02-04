@@ -6,7 +6,7 @@ $( document ).ready(function() {
       url: '/datatables',
       type: 'POST'
     },
-     "order": [[ 2, "desc" ]],
+     "order": [[ 3, "desc" ]],
     columns: [
         { data: 'house',
           "searchable": false,
