@@ -89,32 +89,31 @@ function sql_query_builder(dt_req) {
   //these are returned
   var rows_query;
   var count_query;
-
-  //parse datatables request
-  var dt = dtParser(dt_req);
-
-  var fields = _.reduce(dt['columns'], function(memo, column_obj, i, list){
-    return memo + column_obj['data'] + ",";
-  }, '')
-
+  //create squel select obj.
   var query = squel.select()
-    .fields(fields)
-    .from("dob_jobs")
-    .where( where_exp() )
-
+  //parse datatables request
+  var dt = dtParser.parse(dt_req);
+  //get fields
+  _.each(dt.columns, function(col){
+    query.field(col.data);
+  })
+  // TABLE AND WHERES
+  query.from("dob_jobs")
+    .where( where_exp(dt) );
+  // order if they exist
   if (!_.isEmpty(dt.orders)) {
     _.each(dt.orders, function(order){
       query.order(order['columnData'], order['dir'])
     })
   }
-
+  // limit and offset
   query.limit(dt.length).offset(dt.start);
 
   rows_query = query.toParam();
 
   count_query = squel.count()
     .from('dob_jobs')
-    .where( where_exp() )
+    .where( where_exp(dt) )
     .toString();
 
     return [rows_query, count_query];
@@ -126,7 +125,7 @@ function sql_query_builder(dt_req) {
 function where_exp(dt) {
   var x = squel.expr();
 
-  var searchable_columns = _.chain(dt.columns).filter(function(column) {
+  var searchable_columns = _.chain(dt['columns']).filter(function(column) {
     if (column.searchable === 'true') {
       return true;
     }
@@ -159,13 +158,13 @@ function where_exp(dt) {
       }
     })
 
-
   return x;
 
 }
 
 module.exports = {
 
-  where_exp: where_exp
+  where_exp: where_exp,
+  sql_query_builder: sql_query_builder
 
 }

@@ -36,6 +36,21 @@ describe('where_exp', function(){
 })
 
 
+describe('sql_query_builder', function(){
+
+
+  it('should produce correct sql query', function(){
+
+    var test = app.sql_query_builder(sample_request);
+    var correctSQL = "SELECT house,streetname,bbl FROM dob_jobs WHERE (streetname LIKE '%LLC%' OR bbl LIKE '%LLC%' AND house = 20) ORDER BY bbl ASC LIMIT 10 OFFSET 30";
+    test[0].should.eql(correctSQL);
+
+
+  })
+
+})
+
+
 var dt = { columns:
    [ { data: 'house',
        name: '',
@@ -61,7 +76,7 @@ var dt = { columns:
        columnData: 'house',
        dir: 'asc' } ],
   draw: '1',
-  start: '0',
+  start: '20',
   length: '10',
   search: 'LLC' };
 
@@ -83,16 +98,10 @@ var sample_request = {
   'columns[1][search][regex]': 'false',
   'columns[2][data]': 'bbl',
   'columns[2][name]': '',
-  'columns[2][searchable]': 'false',
+  'columns[2][searchable]': 'true',
   'columns[2][orderable]': 'true',
   'columns[2][search][value]': '',
   'columns[2][search][regex]': 'false',
-  'columns[3][data]': 'ownerbusinessname',
-  'columns[3][name]': '',
-  'columns[3][searchable]': 'true',
-  'columns[3][orderable]': 'true',
-  'columns[3][search][value]': '',
-  'columns[3][search][regex]': 'false',
   'order[0][column]': '2',
   'order[0][dir]': 'asc',
   start: '30',

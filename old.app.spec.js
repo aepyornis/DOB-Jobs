@@ -19,81 +19,80 @@ var should = require('should');
 // })
 
 
-describe('range number', function(){
 
 
 
 
-it('should work with no values', function(){
-  var local_wheres = [];
-  var local_wheres_values = [];
-  var field_name = 'columns[5][data]';
-  range_numbers('-yadcf_delim-', sample_request, 'columns[5][data]', local_wheres, local_wheres_values);
-  // local_wheres.should.eql([]);
-})
+// it('should work with no values', function(){
+//   var local_wheres = [];
+//   var local_wheres_values = [];
+//   var field_name = 'columns[5][data]';
+//   range_numbers('-yadcf_delim-', sample_request, 'columns[5][data]', local_wheres, local_wheres_values);
+//   // local_wheres.should.eql([]);
+// })
 
-it('should work with low value', function(){
-  var local_wheres = [];
-  var local_wheres_values = [];
-  var field_name = 'columns[5][data]';
-  range_numbers('3-yadcf_delim-', sample_request, field_name, local_wheres, local_wheres_values);
-  local_wheres.should.have.lengthOf(1);
-  local_wheres_values.should.eql([3]);
+// it('should work with low value', function(){
+//   var local_wheres = [];
+//   var local_wheres_values = [];
+//   var field_name = 'columns[5][data]';
+//   range_numbers('3-yadcf_delim-', sample_request, field_name, local_wheres, local_wheres_values);
+//   local_wheres.should.have.lengthOf(1);
+//   local_wheres_values.should.eql([3]);
 
-})
+// })
 
-it('should work with high value', function(){
-  var local_wheres = [];
-  var local_wheres_values = [];
-  var field_name = 'columns[5][data]';
-  range_numbers('-yadcf_delim-25', sample_request, field_name, local_wheres, local_wheres_values);
-  local_wheres.should.have.lengthOf(1);
-  local_wheres_values.should.eql([25]);
+// it('should work with high value', function(){
+//   var local_wheres = [];
+//   var local_wheres_values = [];
+//   var field_name = 'columns[5][data]';
+//   range_numbers('-yadcf_delim-25', sample_request, field_name, local_wheres, local_wheres_values);
+//   local_wheres.should.have.lengthOf(1);
+//   local_wheres_values.should.eql([25]);
 
-})
-
-
-it('should work with bpth', function(){
-  var local_wheres = [];
-  var local_wheres_values = [];
-  var field_name = 'columns[5][data]';
-  range_numbers('3-yadcf_delim-7', sample_request, field_name, local_wheres, local_wheres_values);
-  local_wheres.should.eql(['existstories BETWEEN ? AND ?']);
-  local_wheres_values.should.eql([3,7]);
-
-})
+// })
 
 
-function range_numbers(value, obj, field_name, local_wheres, local_wheres_values) {
-  var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(value)[1]
-  var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(value)[2];
+// it('should work with bpth', function(){
+//   var local_wheres = [];
+//   var local_wheres_values = [];
+//   var field_name = 'columns[5][data]';
+//   range_numbers('3-yadcf_delim-7', sample_request, field_name, local_wheres, local_wheres_values);
+//   local_wheres.should.eql(['existstories BETWEEN ? AND ?']);
+//   local_wheres_values.should.eql([3,7]);
 
-  if (s.isBlank(low_value) && s.isBlank(high_value)) {
-    //if both blank, do nothing
-    return;
-  } else if (s.isBlank(low_value) && high_value) {
-    //no low_value, yes high_value
-    var local_where = obj[field_name] + " <= ?";
-    local_wheres.push(local_where);
-    local_wheres_values.push(s.toNumber(high_value));
-  } else if (low_value && s.isBlank(high_value)) {
-    // yes low_value, no high_value.
-    var local_where = obj[field_name] + " >= ?";
-    local_wheres.push(local_where);
-    local_wheres_values.push(s.toNumber(low_value));
-  } else if (low_value && high_value) {
-    //both low and high
-    var local_where = obj[field_name] + " BETWEEN ? AND ?";
-    local_wheres.push(local_where);
-    local_wheres_values.push(s.toNumber(low_value));
-    local_wheres_values.push(s.toNumber(high_value));
-  } else {
-    console.error("issues with number-range-input: " + key);
-  }
-}
+// })
 
 
-})
+// function range_numbers(value, obj, field_name, local_wheres, local_wheres_values) {
+//   var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(value)[1]
+//   var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(value)[2];
+
+//   if (s.isBlank(low_value) && s.isBlank(high_value)) {
+//     //if both blank, do nothing
+//     return;
+//   } else if (s.isBlank(low_value) && high_value) {
+//     //no low_value, yes high_value
+//     var local_where = obj[field_name] + " <= ?";
+//     local_wheres.push(local_where);
+//     local_wheres_values.push(s.toNumber(high_value));
+//   } else if (low_value && s.isBlank(high_value)) {
+//     // yes low_value, no high_value.
+//     var local_where = obj[field_name] + " >= ?";
+//     local_wheres.push(local_where);
+//     local_wheres_values.push(s.toNumber(low_value));
+//   } else if (low_value && high_value) {
+//     //both low and high
+//     var local_where = obj[field_name] + " BETWEEN ? AND ?";
+//     local_wheres.push(local_where);
+//     local_wheres_values.push(s.toNumber(low_value));
+//     local_wheres_values.push(s.toNumber(high_value));
+//   } else {
+//     console.error("issues with number-range-input: " + key);
+//   }
+// }
+
+
+// })
 
 
 

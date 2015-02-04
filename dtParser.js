@@ -1,6 +1,6 @@
 // input: data tables object
 // out: parsed data tablesobject
-module.exports = function parse_datatables_object (dt_req) {
+function parse_datatables_object (dt_req) {
   var parsed_obj = {
     columns: null,
     orders: null,
@@ -78,12 +78,12 @@ function parseSearchValue(str) {
     }
 }
 
-// module.exports = {
+module.exports = {
 
-//     getColumns: getColumns,
-//     getOrders: getOrders,
-//     parse_datatables_object: parse_datatables_object
-// }
+    getColumns: getColumns,
+    getOrders: getOrders,
+    parse: parse_datatables_object
+}
 
 // {
 //     columns: [ {column_object} ]

@@ -34,7 +34,7 @@ describe('parse_datatables_object', function(){
         'search[regex]': 'false' 
       }
 
-      var test = parser((sample));
+      var test = parser.parse_datatables_object(sample);
       test['draw'].should.eql('1');
       test['columns'].should.be.an.array;
       test['columns'].should.have.lengthOf(3);
@@ -129,5 +129,7 @@ describe('getOrders', function(){
 
 
 
+module.exports = {
 
 
+}
