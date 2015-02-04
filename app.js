@@ -135,7 +135,7 @@ function where_exp(dt) {
   if (dt.search){
       _.each(searchable_columns, function(column) {
         var sql = column + " LIKE ?";
-        var value = "%" + dt.search + "%";
+        var value = "%" + dt.search.toUpperCase() + "%";
         x.or(sql, value);
       })
   }
@@ -153,7 +153,7 @@ function where_exp(dt) {
         x.and(sql, value);
       } else {
         var sql = column['data'] + " LIKE ?"
-        var value = "%" + column['searchValue'] + "%";
+        var value = "%" + column['searchValue'].toUpperCase() + "%";
         x.and(sql, value);
       }
     })
@@ -161,6 +161,7 @@ function where_exp(dt) {
   return x;
 
 }
+
 
 module.exports = {
 
