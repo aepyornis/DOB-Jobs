@@ -114,7 +114,7 @@ function sql_query_builder(dt_req) {
   count_query = squel.count()
     .from('dob_jobs')
     .where( where_exp(dt) )
-    .toString();
+    .toParam();
 
     return [rows_query, count_query];
 }
@@ -146,7 +146,7 @@ function where_exp(dt) {
       if(s.isBlank(column['searchValue'])) {
         return;
       // if number  
-      } else if (/[\d*]/.test(column['searchValue'])){
+      } else if (/^\d+$/.test(column['searchValue'])){
         var sql = column['data'] + " = ?"
         // coverts to INT. can be changed with work with decimals. 
         var value = s.toNumber(column['searchValue']);
