@@ -1,6 +1,7 @@
 // input: data tables object
 // out: parsed data tablesobject
 function parse_datatables_object (dt_req) {
+  console.log(dt_req)
   var parsed_obj = {
     columns: null,
     orders: null,
@@ -57,12 +58,14 @@ function getOrders(dt_req) {
         var column_name = 'columns[' + columnNum + '][name]';
         var column_data = 'columns[' + columnNum + '][data]';
 
+        console.log(dir);
         var order = {
           columnNum: columnNum,
           columnName: dt_req[column_name],
           columnData: dt_req[column_data],
-          dir: (dt_req[dir] === "desc") ? true : false
+          dir: (dt_req[dir] === "desc") ? false : true
         }
+        console.log(order.dir);
         orders.push(order);
       } else {
         return orders

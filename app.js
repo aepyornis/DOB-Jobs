@@ -106,7 +106,7 @@ function sql_query_builder(dt_req) {
   // order if they exist
   if (!_.isEmpty(dt.orders)) {
     _.each(dt.orders, function(order){
-      query.order(order['columnData'], order.dir)
+      query.order(order.columnData, order.dir)
     })
   }
   // limit and offset
