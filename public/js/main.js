@@ -33,14 +33,14 @@ $( document ).ready(function() {
         searchable: false
        },
        {
-        data: 'jobdescription',
-        orderable: false
-       },
-       {
         data: 'ownername'
        },
        {
         data: 'ownerbusinessname'
+       },
+       {
+        data: 'jobdescription',
+        orderable: false
        },
        {
         data: 'existstories',
@@ -90,11 +90,11 @@ $( document ).ready(function() {
     $("tr td:nth-child(8)").css('text-align', 'left');
 
     // tooltip
-    $("tr td:nth-child(6)").each(function(i, element){
+    $("tr td:nth-child(8)").each(function(i, element){
 
       $(this).attr('title', table.cell( this ).data());
       $(this).tooltip({
-        placement: 'left'
+        placement: 'auto'
       });
 
     })
