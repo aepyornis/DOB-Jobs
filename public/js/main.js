@@ -1,5 +1,6 @@
 $( document ).ready(function() {
 
+  // table
   var table = $('#table').DataTable( {
     serverSide: true,
     ajax: {
@@ -43,7 +44,8 @@ $( document ).ready(function() {
        },
        {
         data: 'existstories',
-        searchable: false
+        searchable: false,
+        width: '20px'
        },
        {
         data: 'proposedstories',
@@ -65,7 +67,7 @@ $( document ).ready(function() {
   });
 
 
-
+  // filters
   yadcf.init(table, [
       {column_number: 2, filter_type: 'date'},
       // {column_number: 3, filter_type: 'text', filter_delay: 300},
@@ -80,17 +82,24 @@ $( document ).ready(function() {
     
   ], 'footer');
 
-  // $("#table").on('draw.dt', function(){
-  //   $("tr td:nth-child(2)").each(function (index){
-  //     $(this).css('color', 'yellow');
-  //   })
-  // })
-  
-
+  var text;
+  // align some columns
   $("#table").on('draw.dt', function(){
     $("tr td:nth-child(2)").css('text-align', 'left');
     $("tr td:nth-child(7)").css('text-align', 'left');
     $("tr td:nth-child(8)").css('text-align', 'left');
+
+    // tooltip
+    $("tr td:nth-child(6)").each(function(i, element){
+
+      $(this).attr('title', table.cell( this ).data());
+      $(this).tooltip({
+        placement: 'left'
+      });
+
+    })
+
+
   })
 
 

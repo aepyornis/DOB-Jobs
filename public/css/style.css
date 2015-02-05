@@ -23,6 +23,10 @@
 
   max-width: 115px;
 }
+.yadcf-filter-range-number {
+  max-width: 50px;
+  font-size: 12px;
+}
 
 .center-left {
   text-align: left;
