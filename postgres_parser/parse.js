@@ -5,21 +5,27 @@ var async = require('async');
 var _ = require('underscore');
 var excelParser = require('excel-parser');
 var pg = require('pg');
-  pg.defaults.database = 'dob';
+  pg.defaults.database = 'dob_jobs';
   pg.defaults.host = 'localhost';
-  pg.defaults.user = 'mrbuttons';
-  pg.defaults.password = 'mrbuttons';
+  pg.defaults.user = 'chrislhenrick';
+  pg.defaults.password = '';
   // pg.defaults.poolSize
+
+// name of table to add data to  
+var table_name = 'dob_jobs_2014';
+
 //my modules
 var sql = require('./sql');
 var type_cast = require('./type_casting');
+
 //error counter
 var errors = 0;
+
 //this function creates the table, if that's needed
 // createDobTable(console.log('done'));
 
 //the magic function that does everything
-insertAllTheFiles('./data');
+insertAllTheFiles('../../data/test/');
 
 function insertAllTheFiles (dirPath) {
 
@@ -28,87 +34,42 @@ function insertAllTheFiles (dirPath) {
     return function(callback) {
       insertOneFile(filePath, callback);
     }
-  })
+  });
   async.series(arr_of_insert_functions, function(err) {
     if (err) console.error(err);
     console.log('my god - they are done');
     console.log('total errors: ' + errors);
     pg.end();
-  })
+  });
 
 }
 
+// creates an array of file paths for excel files in a give directory
+function create_excel_files_arr(dirPath) {
+  var allFiles = fs.readdirSync(dirPath);
+  //remove any non excel files
+  var onlyExcel = _.filter(allFiles, function(v){
+      return (/(\.xls)$/.test(v))
+  });
+  return _.map(onlyExcel, function(filePath) {
+    return dirPath + '/' + filePath;
+  });
+}
+
+// inserts an excel file into the postgres db
 function insertOneFile (filePath, callback){
+  // parses an excel file
   read_excel_file(filePath, function(records){
+      // iterates over the excel file's rows (multi-dimensional array) to create sql insert queries
       var query_array = create_queries_array(records);
+
+      // excute the insert queries in parallel 
       async.parallel(query_array, function(err){
           if (err) console.error(err);
           console.log(filePath + ' is done!')
           callback(null);
-      })
-  })
-}
-
-function create_queries_array(records) {
-  var queries = [];
-  //records = [[],[]]
-  //each record is an array containing all values in one excel row
-  _.each(records, function(record, i){
-    if (i > 2) {
-      //remove white space commas
-      var row = _.map(record, function(field ,i){ 
-          var noCommas = removeCommas(field);
-          var doubledUp = doubleUp(noCommas);
-          return removeWhiteSpace(doubledUp);
       });
-      //add bbl
-      row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
-      
-      var query = generate_sql_query(row);
-
-      //push function to array for user with asnyc.parallel
-      queries.push(function(callback){
-         do_query(query, callback);
-      })
-    }
-  })
-
-  return queries;   
-}
-
-function generate_sql_query(row) {
-    var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupany','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
-    var column_names = [];
-    var values = [];
-    _.each(row, function(field, i){
-      //get value of field
-      var value = type_cast(field, i);
-      //if it exists add it to the sql statement
-      if (value) {
-          column_names.push(fields_in_order[i]);
-          values.push("'" + value + "'");
-      }
-    })
-
-    var sql = "INSERT INTO dob_jobs (" + column_names.join() + ") VALUES (" + values.join() + ")";
-
-    return sql;
-}
-
-function do_query(sql, whenDone) {
-  pg.connect(function(err, client, done){
-    if (err) {
-        return console.error('error fetching client from pool', err)
-    }
-    client.query(sql, function(err, result){
-        if (err) {
-          console.error('error executing query', err);
-          errors += 1;
-        }
-        done();
-        whenDone();
-    })
-  })
+  });
 }
 
 //input: filePath of excel file
@@ -122,9 +83,77 @@ function read_excel_file(filePath, callback){
     },function(err, records){
         if (err) console.error(err);
         typeof callback === 'function' && callback(records);
-    })
+    });
 }
 
+
+function create_queries_array(records) {
+  var queries = [];
+  //records = [[],[]]
+  //each record is an array containing all values in one excel row
+  _.each(records, function(record, i){
+    // skip the first two rows
+    if (i > 2) {
+      //clean up data: remove white space, commas
+      var row = _.map(record, function(field ,i){ 
+          var noCommas = removeCommas(field);
+          var doubledUp = doubleUp(noCommas);
+          return removeWhiteSpace(doubledUp);
+      });
+      //add bbl number
+      row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
+      
+      var query = generate_sql_query(row);
+
+      //push function to array for user with asnyc.parallel
+      queries.push(function(callback){
+         do_query(query, callback);
+      });
+    }
+  });
+
+  return queries;   
+}
+
+// creates the insert SQL statement, one row at a time
+function generate_sql_query(row) {
+    var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupancy','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
+    var column_names = [];
+    var values = [];
+    _.each(row, function(field, i){
+      //get value of field
+      var value = type_cast(field, i);
+      //if it exists add it to the sql statement
+      if (value) {
+          column_names.push(fields_in_order[i]);
+          values.push("'" + value + "'");
+      }
+    });
+
+    var sql = "INSERT INTO " + table_name + " (" + column_names.join() + ") VALUES (" + values.join() + ")";
+
+    return sql;
+}
+
+// runs the SQL query on the postgres data using the pg module
+function do_query(sql, whenDone) {
+  pg.connect(function(err, client, done){
+    if (err) {
+        return console.error('error fetching client from pool', err)
+    }
+    client.query(sql, function(err, result){
+        if (err) {
+          console.error('error executing query', err);
+          errors += 1;
+        }
+        done();
+        whenDone();
+    });
+  });
+}
+
+// Helper Functions....
+// creates the bbl number
 function bbl(borough, block, lot) {
   var bor;
   var blk = '' + block;
@@ -142,13 +171,13 @@ function bbl(borough, block, lot) {
   } else if (borough === 'STATEN ISLAND') {
     bor = '5';
   } else { 
-        bor = 'err'; 
-        console.log("there's a mistake with the borough name: " + borough);
-    }
+      bor = 'err'; 
+      console.log("there's a mistake with the borough name: " + borough);
+  }
 
   if (block != undefined && lot != undefined) {
     if (block.length > 5 || lot.length > 4) {
-    console.log("the block and/or lot are too long")
+    console.log("the block and/or lot are too long");
     } else {
         while (blk.length !== 5) {
           blk = '0' + blk;
@@ -175,7 +204,7 @@ function removeWhiteSpace(field) {
 
 function removeCommas ( str ) {
   if (typeof str === 'string') {
-      return (str + '').replace(/[,]/g, '')
+      return (str + '').replace(/[,]/g, '');
   } else {
       return str
   }     
@@ -189,21 +218,11 @@ function doubleUp ( str ) {
   }
 }
 
-function create_excel_files_arr(dirPath) {
-  var allFiles = fs.readdirSync(dirPath);
-  //remove any non excel files
-  var onlyExcel = _.filter(allFiles, function(v){
-      return (/(\.xls)$/.test(v))
-  })
-  return _.map(onlyExcel, function(filePath) {
-    return dirPath + '/' + filePath;
-  })
-}
-
+// Use pg to create the table
 function createDobTable(callback) {
-  var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dob');
+  var client = new pg.Client();
   do_some_SQL(client, sql.dobTable, function(result){
-      client.end()
+      client.end();
       console.log('table created!');
       typeof callback === 'function' && callback();
   }) 
@@ -234,4 +253,4 @@ module.exports = {
     read_excel_file: read_excel_file,
     create_queries_array: create_queries_array,
     doubleUp: doubleUp
-}
+};
