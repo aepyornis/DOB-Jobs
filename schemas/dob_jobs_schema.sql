@@ -62,7 +62,7 @@ CREATE TABLE "dob_jobs_2014"(
     existDwellUnits integer,
     proposedDwellUnits integer,
     existOccupancy varchar(10),
-    proposedOccupany varchar(10),
+    proposedOccupancy varchar(10),
     siteFill varchar(50),
     zoneDist1 varchar(50),
     zoneDist2 varchar(50),
@@ -77,7 +77,7 @@ CREATE TABLE "dob_jobs_2014"(
     ownerCityStateZip varchar(50),
     ownerPhone varchar(25),
     jobDescription text,
-    bbl varchar(12)
+    bbl char(10)
 );
 
 END TRANSACTION;

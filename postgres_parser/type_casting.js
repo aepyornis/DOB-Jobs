@@ -1,17 +1,18 @@
 var _ = require('underscore')
 
+//all the fields in order
+var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupancy','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
+
 //input: field str or number, index of field (column number)
 //output: value or false. 
-module.exports = function type_cast(field, i) {
-  //all the fields in order
-  var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupany','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
+function type_cast(field, i) {
   //object containing the type of each field
-  //all possible types: integer, money, boolean, varchar(), char(), text, date, 
+  //all possible types: integer, money, boolean, house, varchar(), char(), text, date, 
   var types = {
     job: 'integer',
     doc: 'integer',
     borough: varchar(15),
-    house: varchar(50),
+    house: 'house',
     streetName: varchar(100),
     block: 'integer',
     lot: 'integer',
@@ -130,9 +131,18 @@ module.exports = function type_cast(field, i) {
     } else {
       return field.slice(0,type);
     }
-  //error
-  } else {
-    return console.error('typcasting error - ' + field + ' - ' + i);
+  // house
+  } else if (type === 'house') {
+    if (field) {
+      return field.replace('.0', '');
+    } else {
+      return false;
+    }
+    
+  }
+  // error
+  else {
+    return console.error('typcasting error - ' + field + ' - ' + fields_in_order[i]);
   }
 }
 
@@ -161,4 +171,9 @@ function removeWhiteSpace(field) {
  } else {
   return field;
  }
+}
+
+module.exports = {
+  cast: type_cast,
+  fields: fields_in_order
 }

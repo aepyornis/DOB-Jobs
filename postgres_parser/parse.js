@@ -5,10 +5,10 @@ var async = require('async');
 var _ = require('underscore');
 var excelParser = require('excel-parser');
 var pg = require('pg');
-  pg.defaults.database = 'dob_jobs';
+  pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
-  pg.defaults.user = 'chrislhenrick';
-  pg.defaults.password = '';
+  pg.defaults.user = 'mrbuttons';
+  pg.defaults.password = 'mrbuttons';
   // pg.defaults.poolSize
 
 // name of table to add data to  
@@ -20,12 +20,11 @@ var type_cast = require('./type_casting');
 
 //error counter
 var errors = 0;
-
 //this function creates the table, if that's needed
 // createDobTable(console.log('done'));
 
 //the magic function that does everything
-insertAllTheFiles('../../data/test/');
+insertAllTheFiles('../data');
 
 function insertAllTheFiles (dirPath) {
 
@@ -117,15 +116,14 @@ function create_queries_array(records) {
 
 // creates the insert SQL statement, one row at a time
 function generate_sql_query(row) {
-    var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupany','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
     var column_names = [];
     var values = [];
     _.each(row, function(field, i){
       //get value of field
-      var value = type_cast(field, i);
+      var value = type_cast.cast(field, i);
       //if it exists add it to the sql statement
       if (value) {
-          column_names.push(fields_in_order[i]);
+          column_names.push(type_cast.fields[i]);
           values.push("'" + value + "'");
       }
     });
