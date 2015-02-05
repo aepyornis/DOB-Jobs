@@ -61,7 +61,7 @@ function getOrders(dt_req) {
           columnNum: columnNum,
           columnName: dt_req[column_name],
           columnData: dt_req[column_data],
-          dir: dt_req[dir]
+          dir: (dt_req[dir] === "desc") ? true : false
         }
         orders.push(order);
       } else {

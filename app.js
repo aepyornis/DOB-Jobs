@@ -104,7 +104,7 @@ function sql_query_builder(dt_req) {
   // order if they exist
   if (!_.isEmpty(dt.orders)) {
     _.each(dt.orders, function(order){
-      query.order(order['columnData'], order['dir'])
+      query.order(order['columnData'], order.dir)
     })
   }
   // limit and offset
@@ -148,9 +148,10 @@ function where_exp(dt) {
 
   // where_exp helper functions
   function local_search(column, i) {
-
+    // search = search value
     var search = column['searchValue'];
     // if blank
+
     if(s.isBlank(search)) {
       return;
     // if number  
@@ -159,14 +160,21 @@ function where_exp(dt) {
       // coverts to INT. can be changed with work with decimals. 
       var value = s.toNumber(column['searchValue']);
       x.and(sql, value);
-    // if date
+    // if date 
     } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
       var date = /(\d{2})\/(\d{2})\/(\d{4})/.exec(search);
-      console.log(date); 
       var date_str = date[3] + "/" + date[1] + "/" + date[2];
       var sql = column['data'] + " = ?"
       x.and(sql, date_str);
-    } else {
+    } 
+    // if number-range
+    else if (/-yadcf_delim-/.test(search)){
+
+      numberRangeSQL(search, column);
+
+    }
+    
+    else {
       var sql = column['data'] + " LIKE ?"
       var value = "%" + column['searchValue'].toUpperCase() + "%";
       x.and(sql, value);
@@ -180,9 +188,47 @@ function where_exp(dt) {
       x.or(sql, value);
   }
 
+  function numberRangeSQL(search, column) {
 
+    var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[1]
+    var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[2];
+
+    if (s.isBlank(low_value) && s.isBlank(high_value)) {
+
+        
+      //if both blank, do nothing
+    } else if (s.isBlank(low_value) && high_value) {
+      //no low_value, yes high_value
+    
+      var sql = column['data'] + " <= ?"
+      x.and(sql, high_value);
+      var lowSQL = column['data'] + " >= ?";
+      x.and(lowSQL, 0);
+
+    } else if (low_value && s.isBlank(high_value)) {
+      // yes low_value, no high_value.
+      var sql = column['data'] + " >= ?";
+      x.and(sql, low_value);
+
+    } else if (low_value && high_value) {
+      //both low and high
+      var lowSQL = column['data'] + " >= ?";
+      x.and(lowSQL, low_value);
+      var highSQL = column['data'] + " <= ?"
+      x.and(highSQL, high_value);
+
+    } else {
+      console.error("issues with number-range-input");
+    }
+
+  }
 
 }
+
+
+
+
+
 
 // input: rows from psql query
 // output: modified rows
