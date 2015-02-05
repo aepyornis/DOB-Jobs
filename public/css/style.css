@@ -2,14 +2,28 @@
    
 }
 
+#table th {
+   text-align: center;
+}
+
 #table td {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     max-width: 250px;
+    text-align: center;
 }
 
 #table_container {
   margin-left: 20px;
   margin-right: 20px;
+}
+
+.yadcf-filter-date {
+
+  max-width: 115px;
+}
+
+.center-left {
+  text-align: left;
 }

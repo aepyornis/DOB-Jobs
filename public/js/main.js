@@ -64,7 +64,7 @@ $( document ).ready(function() {
     ]
   });
 
-  
+
 
   yadcf.init(table, [
       {column_number: 2, filter_type: 'date'},
@@ -80,6 +80,18 @@ $( document ).ready(function() {
     
   ], 'footer');
 
+  // $("#table").on('draw.dt', function(){
+  //   $("tr td:nth-child(2)").each(function (index){
+  //     $(this).css('color', 'yellow');
+  //   })
+  // })
+  
+
+  $("#table").on('draw.dt', function(){
+    $("tr td:nth-child(2)").css('text-align', 'left');
+    $("tr td:nth-child(7)").css('text-align', 'left');
+    $("tr td:nth-child(8)").css('text-align', 'left');
+  })
 
 
 })
