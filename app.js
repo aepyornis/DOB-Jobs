@@ -14,6 +14,8 @@ var pg = require('pg');
   pg.defaults.password = 'mrbuttons';
 
 var dtParser = require('./dtParser');
+// store table name for SQL query
+var tableName = "dob_jobs_2014";
 //initiate app
 var app = express()
 
@@ -99,7 +101,7 @@ function sql_query_builder(dt_req) {
     query.field(col.data);
   })
   // TABLE AND WHERES
-  query.from("dob_jobs")
+  query.from(tableName)
     .where( where_exp(dt) );
   // order if they exist
   if (!_.isEmpty(dt.orders)) {
@@ -113,7 +115,7 @@ function sql_query_builder(dt_req) {
   rows_query = query.toParam();
 
   count_query = squel.count()
-    .from('dob_jobs')
+    .from(tableName)
     .where( where_exp(dt) )
     .toParam();
 
