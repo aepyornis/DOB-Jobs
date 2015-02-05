@@ -26,6 +26,7 @@
     "underscore": "^1.7.0",
     "xlsjs": "~0.7.2",
     "underscore.string": "~3.0.2",
-    "squel": "~3.10.0"
+    "squel": "~3.10.0",
+    "superagent": "~0.21.0"
   }
 }

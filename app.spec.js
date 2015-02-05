@@ -4,51 +4,63 @@ var should = require('should');
 var app = require('./app');
 var squel = require('squel');
 
-describe('gets index.html', function(){
+// describe('gets index.html', function(){
 
- it('should get index.html', function(done){
+//  it('should get index.html', function(done){
 
-  superagent.get('http://localhost:3000/')
-    .end(function(e, res){
-      (e === null).should.be.true;
-      res.status.should.eql(200);
-      done();
-    })
+//   superagent.get('http://localhost:3000/')
+//     .end(function(e, res){
+//       (e === null).should.be.true;
+//       res.status.should.eql(200);
+//       done();
+//     })
 
- })
+//  })
 
-})
+// })
 
-describe('where_exp', function(){
+// describe('where_exp', function(){
 
-  it('should produce correct where statement', function(){
+//   it('should produce correct where statement', function(){
 
-    var where = squel.select()
-      .from('dob_jobs')
-      .where(app.where_exp(dt))
-      .toString();
+//     var where = squel.select()
+//       .from('dob_jobs')
+//       .where(app.where_exp(dt))
+//       .toString();
 
-    where.should.eql("SELECT * FROM dob_jobs WHERE (streetname LIKE '%LLC%' OR bbl LIKE '%LLC%' AND house = 10 AND streetname LIKE '%HENRY%')")
+//     where.should.eql("SELECT * FROM dob_jobs WHERE (streetname LIKE '%LLC%' OR bbl LIKE '%LLC%' AND house = 10 AND streetname LIKE '%HENRY%')")
 
-  })
-
-
-})
+//   })
 
 
-describe('sql_query_builder', function(){
+// })
 
+describe('sentence_capitalize', function(){
 
-  it('should produce correct sql query', function(){
+  it('works with sample sentence', function(){
 
-    var test = app.sql_query_builder(sample_request);
-    var correctSQL = "SELECT house,streetname,bbl FROM dob_jobs WHERE (streetname LIKE '%LLC%' OR bbl LIKE '%LLC%' AND house = 20) ORDER BY bbl ASC LIMIT 10 OFFSET 30";
-    test[0].should.eql(correctSQL);
+    var sample = "I AM HERE. ARE YOU.";
 
+    app.sentence_capitalize(sample).should.eql('I am here. Are you.')
 
   })
 
 })
+
+
+// describe('sql_query_builder', function(){
+
+
+//   it('should produce correct sql query', function(){
+
+//     var test = app.sql_query_builder(sample_request);
+//     var correctSQL = "SELECT house,streetname,bbl FROM dob_jobs WHERE (streetname LIKE '%LLC%' OR bbl LIKE '%LLC%' AND house = 20) ORDER BY bbl ASC LIMIT 10 OFFSET 30";
+//     test[0].should.eql(correctSQL);
+
+
+//   })
+
+// })
 
 
 var dt = { columns:

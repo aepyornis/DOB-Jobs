@@ -245,9 +245,15 @@ function psql_to_dt(rows){
   
   function change_row(row) {
     var newRow = row;
-   var date = '' + row['latestactiondate'];
-   newRow['latestactiondate'] = date.slice(0,15);
-   
+    console.log(row)
+    var date = '' + row['latestactiondate'];
+    newRow['latestactiondate'] = date.slice(0,15);
+    if (row.jobdescription){
+        newRow.jobdescription = sentence_capitalize(row.jobdescription)
+    }
+    if (row.ownername) {
+      newRow.ownername = s.titleize(row.ownername.toLowerCase());
+    }
     return newRow;
 
   }
@@ -258,7 +264,13 @@ function psql_to_dt(rows){
 }
 
 
-
+function sentence_capitalize(str) {
+  var lowercase = str.toLowerCase();
+  var capitalized_arr = _.map(lowercase.split('. '), function(val) {
+    return s.capitalize(val);
+  })
+  return capitalized_arr.join('. ');
+}
 
 
 
@@ -266,6 +278,7 @@ function psql_to_dt(rows){
 module.exports = {
 
   where_exp: where_exp,
-  sql_query_builder: sql_query_builder
+  sql_query_builder: sql_query_builder,
+  sentence_capitalize:sentence_capitalize
 
 }
