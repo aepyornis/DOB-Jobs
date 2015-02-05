@@ -69,7 +69,7 @@ module.exports = function type_cast(field, i) {
     existDwellUnits: 'integer',
     proposedDwellUnits: 'integer',
     existOccupancy: varchar(10),
-    proposedOccupany: varchar(10),
+    proposedOccupancy: varchar(10),
     siteFill: varchar(50),
     zoneDist1: varchar(50),
     zoneDist2: varchar(50),
