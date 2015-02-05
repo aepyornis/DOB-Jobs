@@ -15,3 +15,8 @@ Tools for making the NYC Department of Building Jobs data more accessible.
 ## LICENSE
 
   -  The ONLY restriction: NON-COMMERICAL use. This may not be used by real estate or for ANY profit-making purpose. 
+
+## ISSUES
+
+  - Null values should be excluded from ordering?
+

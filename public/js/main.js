@@ -63,8 +63,18 @@ $( document ).ready(function() {
     ]
   });
 
-  // yadcf.init(table, [
+  yadcf.init(table, [
+      {column_number: 2, filter_type: 'date'},
+      {column_number: 3, filter_type: 'text', filter_delay: 300},
+      {column_number: 4, filter_type: "select", column_data_type: "multi_select", data: ['A1', 'A2', 'A3', 'NB']},
+      {column_number: 5, filter_type: 'text', filter_delay: 300},
+      {column_number: 6, filter_type: 'text', filter_delay: 300},
+      {column_number: 7, filter_type: 'text', filter_delay: 300},
+      {column_number: 8, filter_type: "range_number", filter_delay: 300},
+      {column_number: 9, filter_type: "range_number", filter_delay: 300},
+      {column_number: 10, filter_type: "range_number", filter_delay: 300},
+      {column_number: 11, filter_type: "range_number", filter_delay: 300}
     
-  // ]);
+  ], 'footer');
 
 })
