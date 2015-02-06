@@ -12,6 +12,12 @@ var pg = require('pg');
   pg.defaults.host = 'localhost';
   pg.defaults.user = 'mrbuttons';
   pg.defaults.password = 'mrbuttons';
+  // open shift settings
+  // pg.defaults.database = 'dobjobs';
+  // pg.defaults.host = OPENSHIFT_POSTGRESQL_DB_HOST;
+  // pg.defaults.user = OPENSHIFT_POSTGRESQL_DB_USERNAME;
+  // pg.defaults.password = OPENSHIFT_POSTGRESQL_DB_PASSWORD;
+  // pg.defaults.port = OPENSHIFT_POSTGRESQL_DB_PORT;
 
 var dtParser = require('./dtParser');
 // store table name for SQL query
@@ -225,11 +231,22 @@ function where_exp(dt) {
 
   }
 
+  function month_match(search) {
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    
+    if (_.find(months, function(val){
+      if (search === val) {
+        return true;
+      }
+    })) {
+      return true; 
+    } else {
+      return false;
+    }
+
+  }
+
 }
-
-
-
-
 
 
 // input: rows from psql query
@@ -245,15 +262,19 @@ function psql_to_dt(rows){
   
   function change_row(row) {
     var newRow = row;
-    console.log(row)
     var date = '' + row['latestactiondate'];
-    newRow['latestactiondate'] = date.slice(0,15);
+    newRow['latestactiondate'] = date.slice(4,15);
     if (row.jobdescription){
         newRow.jobdescription = sentence_capitalize(row.jobdescription)
     }
     if (row.ownername) {
       newRow.ownername = s.titleize(row.ownername.toLowerCase());
     }
+    if (row.approveddate) {
+      var date = '' + row.approveddate;
+      newRow.approveddate = date.slice(4, 15);
+    }
+
     return newRow;
 
   }

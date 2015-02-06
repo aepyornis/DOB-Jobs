@@ -61,6 +61,12 @@
 
 
 
+<!-- Autocomplete -->
+<h2 class="demoHeaders">Autocomplete</h2>
+<div>
+	<input id="autocomplete" title="type &quot;a&quot;">
+</div>
+
 
 
 <!-- Button -->
@@ -264,6 +270,10 @@
 
 
 
+<!-- Datepicker -->
+<h2 class="demoHeaders">Datepicker</h2>
+<div id="datepicker"></div>
+
 
 
 <!-- Progressbar -->
@@ -283,10 +293,6 @@
 </select>
 
 
-
-<!-- Spinner -->
-<h2 class="demoHeaders">Spinner</h2>
-<input id="spinner">
 
 
 
@@ -340,6 +346,34 @@ the element with your mouse, the title attribute is displayed in a little box ne
 
 
 
+var availableTags = [
+	"ActionScript",
+	"AppleScript",
+	"Asp",
+	"BASIC",
+	"C",
+	"C++",
+	"Clojure",
+	"COBOL",
+	"ColdFusion",
+	"Erlang",
+	"Fortran",
+	"Groovy",
+	"Haskell",
+	"Java",
+	"JavaScript",
+	"Lisp",
+	"Perl",
+	"PHP",
+	"Python",
+	"Ruby",
+	"Scala",
+	"Scheme"
+];
+$( "#autocomplete" ).autocomplete({
+	source: availableTags
+});
+
 
 
 $( "#button" ).button();
@@ -350,6 +384,10 @@ $( "#radioset" ).buttonset();
 
 
 
+
+$( "#datepicker" ).datepicker({
+	inline: true
+});
 
 
 
@@ -365,8 +403,6 @@ $( "#progressbar" ).progressbar({
 });
 
 
-
-$( "#spinner" ).spinner();
 
 
 

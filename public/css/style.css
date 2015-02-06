@@ -1,10 +1,14 @@
-#table {
-   
+body {
+   font-family: Tahoma,Verdana,Segoe,sans-serif; 
 }
 
-#table th {
+/*#table th {
    text-align: center;
+   font-size: 14px;
 }
+*/
+
+
 
 #table td {
     text-overflow: ellipsis;
@@ -12,6 +16,7 @@
     overflow: hidden;
     max-width: 250px;
     text-align: center;
+    font-size: 12px;
 }
 
 #table_container {
@@ -19,15 +24,25 @@
   margin-right: 32px;
 }
 
-.yadcf-filter-date {
+#yadcf-filter-wrapper--table-3 {
 
-  max-width: 115px;
-}
-.yadcf-filter-range-number {
-  max-width: 50px;
-  font-size: 12px;
+  width: 120px;
+  text-align: center;
 }
 
-.center-left {
-  text-align: left;
+.yadcf-filter {
+  max-height: 80%;
+  max-width: 75%;
+  margin-right: 3px;
+}
+
+
+.ui-tooltip {
+
+  max-width: 100px;
+}
+
+.ui-tooltip-content {
+
+  max-width: 100%;
 }
