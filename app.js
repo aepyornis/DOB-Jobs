@@ -7,6 +7,8 @@ var squel = require('squel')
 squel.useFlavour('postgres');
 //provide squel.count
 squel.count = require('./count_squel');
+// my SELECT
+squel.mySelect = require('./selectNull');
 var pg = require('pg');
   pg.defaults.database = 'dob';
   pg.defaults.host = 'localhost';
@@ -99,7 +101,7 @@ function sql_query_builder(dt_req) {
   var rows_query;
   var count_query;
   //create squel select obj.
-  var query = squel.select()
+  var query = squel.mySelect()
   //parse datatables request
   var dt = dtParser.parse(dt_req);
   //get fields
@@ -113,6 +115,7 @@ function sql_query_builder(dt_req) {
   if (!_.isEmpty(dt.orders)) {
     _.each(dt.orders, function(order){
       query.order(order.columnData, order.dir)
+      query.nullOrder('LAST')
     })
   }
   // limit and offset
