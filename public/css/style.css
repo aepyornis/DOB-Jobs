@@ -8,8 +8,6 @@ table thead tr th {
 }
 
 
-
-
 #table tbody td {
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -19,10 +17,9 @@ table thead tr th {
     font-size: 12px;
 }
 
-input#yadcf-filter-table-3 {
+/*input#yadcf-filter-table-3 {
   width: 90px;
 }
-
 
 .yadcf-filter {
   padding-right: 4px;
@@ -30,11 +27,9 @@ input#yadcf-filter-table-3 {
   padding-bottom: 3px;
   padding-top: 3px;
   max-width: 100px;
-  display: block
-  float: 
+  display: block;
 }
-
-
+*/
 
 #main-text {
 
@@ -46,6 +41,20 @@ input#yadcf-filter-table-3 {
 }
 
 .dataTables_scroll {
-
+  margin-top: 20px;
   margin-bottom: 25px;
+}
+
+#table_wrapper {
+
+}
+
+.ui-widget-header {
+  border: 0px;
+  background: 0;
+}
+
+.ui-state-default {
+
+  color: #000;
 }

@@ -66,6 +66,20 @@ app.post('/datatables', function(req, res){
           
 })
 
+app.post('/applicant', function(req, res){
+
+  var sql = applicantQuery(req.body.applicant);
+
+  var applicant_query = do_query_raw(sql)
+    .then(function(result){
+
+       res.send(JSON.stringify(result[0]));
+     
+    })
+
+})
+
+
 //start listening 
 var server = app.listen(3000, function () {
   var host = server.address().address;
@@ -93,6 +107,27 @@ function do_query(sql) {
   })
   return def.promise;
 }
+
+function do_query_raw(sql) {
+  var def = q.defer();
+  pg.connect(function(err, client, done){
+    if (err) {
+        def.reject(err);
+        console.log(err);
+    } else {
+        client.query(sql, function(err, result){
+          if (err) {
+            def.reject(err);
+            console.log(err);
+          }
+          def.resolve(result.rows);
+          done();
+        })
+      }
+  })
+  return def.promise;
+}
+
 
 //input: datatables request object
 //output: [sql-query, count-query]
@@ -255,6 +290,17 @@ function where_exp(dt) {
 
   }
 
+}
+
+function applicantQuery(name) {
+  return squel.mySelect()
+    .field('applicanttitle')
+    .field('professionallicense')
+    .field('professionalcert')
+    .from(tableName)
+    .where('applicantname = ?', name)
+    .limit(1)
+    .toParam();
 }
 
 

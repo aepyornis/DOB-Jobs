@@ -106,38 +106,49 @@ $( document ).ready(function() {
  
     // tooltip for job description
     $("tr td:nth-child(8)").each(function(i, element){
-      $(this).tooltip({
-        content: $(this).attr('title', table.cell( this ).data())
-      });
+      $(this).attr('title', table.cell( this ).data())
+      
     })
 
+    $("tr td:nth-child(8)").each(function(i, element){
+         // $( this ).tooltip();
+    })
     // tooltip for applicant
-    $("tr td:nth-child(15)").each(function(i, element){
-      $(this).tooltip({
-        content: applicantContent(table.cell( this ).data())
-      })
-    })
+      $("tr td:nth-child(15)").each(function(i, element){
 
+        getApplicantContent(this);
+      
+
+      })
+
+         // $( document ).tooltip();
 
   })
 
 
-  function applicantContent(applicant) {
 
-    $.$.ajax({
-      url: '/path/to/file',
-      type: 'default GET (Other values: POST)',
-      dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
-      data: {param1: 'value1'},
+  function getApplicantContent(jq) {
+
+    var applicant = table.cell(jq).data();
+
+    $.ajax({
+      url: '/applicant',
+      type: 'POST',
+      data: {'applicant': applicant}
     })
-    .done(function() {
-      console.log("success");
+    .done(function(data) {
+      var info = JSON.parse(data);
+      var html = "<p><strong>Name: </strong>" + applicant + "</p>"
+        html += "<p><strong><Applicant Title: </strong>" + info.applicanttitle + '</p>';
+        html += "<p><strong>Professional License: </strong>" + info.professionallicense + '</p>';
+        html += "<p><strong>Professional Certified: </strong>" + info.professionalcert + '</p>';
+        
+      var tooltip = "Title: " + info.applicanttitle + " / Professional License: " + info.professionallicense + " / Professional Certified: " + info.professionalcert;
+      $(jq).attr('title', tooltip);
     })
-    .fail(function() {
-      console.log("error");
-    })
-    .always(function() {
-      console.log("complete");
+    .fail(function(err) {
+      console.log('some ajax error')
+      console.log(err);
     });
     
 
