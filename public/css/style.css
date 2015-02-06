@@ -2,15 +2,15 @@ body {
    font-family: Tahoma,Verdana,Segoe,sans-serif; 
 }
 
-/*#table th {
+table thead tr th {
    text-align: center;
-   font-size: 14px;
+   font-size: 16px;
 }
-*/
 
 
 
-#table td {
+
+#table tbody td {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -19,30 +19,33 @@ body {
     font-size: 12px;
 }
 
-#table_container {
-  margin-left: 32px;
-  margin-right: 32px;
+input#yadcf-filter-table-3 {
+  width: 90px;
 }
 
-#yadcf-filter-wrapper--table-3 {
-
-  width: 120px;
-  text-align: center;
-}
 
 .yadcf-filter {
-  max-height: 80%;
-  max-width: 75%;
-  margin-right: 3px;
-}
-
-
-.ui-tooltip {
-
+  padding-right: 4px;
+  padding-left: 4px;
+  padding-bottom: 3px;
+  padding-top: 3px;
   max-width: 100px;
+  display: block
+  float: 
 }
 
-.ui-tooltip-content {
 
-  max-width: 100%;
+
+#main-text {
+
+  padding-top: 25px;
+  padding-left: 8%;
+  padding-right: 8%;
+  padding-bottom: 25px;
+
+}
+
+.dataTables_scroll {
+
+  margin-bottom: 25px;
 }

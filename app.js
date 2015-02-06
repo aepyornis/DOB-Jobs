@@ -115,7 +115,13 @@ function sql_query_builder(dt_req) {
   if (!_.isEmpty(dt.orders)) {
     _.each(dt.orders, function(order){
       query.order(order.columnData, order.dir)
-      query.nullOrder('LAST')
+      console.log(order)
+      if (order.dir === true && order.columnData === 'approveddate') {
+        query.nullOrder('FIRST');
+      } else {
+        query.nullOrder('LAST');
+      }
+      
     })
   }
   // limit and offset

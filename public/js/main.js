@@ -3,6 +3,7 @@ $( document ).ready(function() {
   // table
   var table = $('#table').DataTable( {
     serverSide: true,
+      "scrollX": true,
     ajax: {
       url: '/datatables',
       type: 'POST'
@@ -25,8 +26,7 @@ $( document ).ready(function() {
        {
         data: 'cb',
         searchable: false,
-        orderable: false,
-        width: '20px'
+        orderable: false
        },
        {
         data: 'jobtype',
@@ -66,6 +66,10 @@ $( document ).ready(function() {
        {
         data: 'initialcost',
         searchable: false
+       },
+       {
+        data: 'applicantname'
+
        }
     ]
   });
@@ -75,7 +79,7 @@ $( document ).ready(function() {
   yadcf.init(table, [
       // {column_number: 2, filter_type: 'select', data:['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']},
       {column_number: 3, filter_type: 'auto_complete', data:['101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '301', '302', '303', '304', '305', '306', '307', '308', '309', '310', '311', '312', '313', '314', '315', '316', '317', '318', '401', '402', '403', '404', '405', '406', '407', '408', '409', '410', '412', '413', '414', '501', '502', '503'], filter_delay: 300},
-      {column_number: 4, filter_type: "select", data: ['A1', 'A2', 'A3', 'NB']},
+      {column_number: 4, filter_type: "select", data: ['A1', 'A2', 'A3', 'NB', 'DM', 'PA', 'SI', 'SC']},
       {column_number: 5, filter_type: 'text', filter_delay: 300},
       {column_number: 6, filter_type: 'text', filter_delay: 300},
       {column_number: 7, filter_type: 'text', filter_delay: 300},
@@ -84,7 +88,7 @@ $( document ).ready(function() {
       {column_number: 11, filter_type: "range_number", filter_delay: 300},
       {column_number: 12, filter_type: "range_number", filter_delay: 300}
     
-  ], 'footer');
+  ]);
 
   var text;
   // on each draw
@@ -100,23 +104,47 @@ $( document ).ready(function() {
       $(this).addClass('input-group');
     }) 
  
-    // tooltip
+    // tooltip for job description
     $("tr td:nth-child(8)").each(function(i, element){
-
       $(this).tooltip({
         content: $(this).attr('title', table.cell( this ).data())
       });
+    })
 
+    // tooltip for applicant
+    $("tr td:nth-child(15)").each(function(i, element){
+      $(this).tooltip({
+        content: applicantContent(table.cell( this ).data())
+      })
     })
 
 
   })
 
 
-  $(".selectpicker").selectpicker();
+  function applicantContent(applicant) {
 
-  $('.selectpicker').click(function(){
-      alert("hi");
+    $.$.ajax({
+      url: '/path/to/file',
+      type: 'default GET (Other values: POST)',
+      dataType: 'default: Intelligent Guess (Other values: xml, json, script, or html)',
+      data: {param1: 'value1'},
+    })
+    .done(function() {
+      console.log("success");
+    })
+    .fail(function() {
+      console.log("error");
+    })
+    .always(function() {
+      console.log("complete");
     });
+    
+
+  }
+
+
+
+
 
 })
