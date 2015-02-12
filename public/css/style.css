@@ -73,3 +73,5 @@ table thead tr th {
   font-family: Tahoma,Verdana,Segoe,sans-serif; 
   font-size: 12px;
 }
+
+.ui-helper-hidden-accessible { display:none; }
