@@ -4,14 +4,13 @@
   "description": "Mapping NYC Department of Building's Jobs",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/aepyornis/DOB-Jobs.git"
   },
   "author": "ziggy",
-  "license": "GPLv3",
   "bugs": {
     "url": "https://github.com/aepyornis/DOB-Jobs/issues"
   },
@@ -22,11 +21,14 @@
     "express": "~4.10.6",
     "pg": "^4.2.0",
     "q": "~1.1.2",
-    "should": "~4.4.1",
     "underscore": "^1.7.0",
     "xlsjs": "~0.7.2",
     "underscore.string": "~3.0.2",
-    "squel": "~3.10.0",
-    "superagent": "~0.21.0"
+    "squel": "~3.10.0"
+  },
+   "main": "app.js",
+   "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
   }
 }

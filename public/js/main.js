@@ -90,36 +90,25 @@ $( document ).ready(function() {
     
   ]);
 
-  var text;
   // on each draw
   $("#table").on('draw.dt', function(){
     // align some columns
     $("tr td:nth-child(2)").css('text-align', 'left');
     $("tr td:nth-child(7)").css('text-align', 'left');
     $("tr td:nth-child(8)").css('text-align', 'left');
-
-
-    $("tfoot tr t h.div").each(function(i, element){
-      $(this).css('background-color', 'value');
-      $(this).addClass('input-group');
-    }) 
  
     // tooltip for job description
     $("tr td:nth-child(8)").each(function(i, element){
       $(this).attr('title', table.cell( this ).data())
-      
-    })
+    }).tooltip();
 
     $("tr td:nth-child(8)").each(function(i, element){
          // $( this ).tooltip();
     })
     // tooltip for applicant
-      $("tr td:nth-child(15)").each(function(i, element){
-
+    $("tr td:nth-child(15)").each(function(i, element){
         getApplicantContent(this);
-      
-
-      })
+    }).tooltip();
 
          // $( document ).tooltip();
 

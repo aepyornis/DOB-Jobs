@@ -66,6 +66,7 @@ app.post('/datatables', function(req, res){
           
 })
 
+// get applicant data
 app.post('/applicant', function(req, res){
 
   var sql = applicantQuery(req.body.applicant);
@@ -310,11 +311,10 @@ function applicantQuery(name) {
 // 
 function psql_to_dt(rows){
 
-  var changed = _.map(rows, function(row){
+  return _.map(rows, function(row){
       return change_row(row);
   })
-
-  
+ 
   function change_row(row) {
     var newRow = row;
     var date = '' + row['latestactiondate'];
@@ -329,14 +329,8 @@ function psql_to_dt(rows){
       var date = '' + row.approveddate;
       newRow.approveddate = date.slice(4, 15);
     }
-
     return newRow;
-
   }
-
-
-  return changed;
-
 }
 
 
