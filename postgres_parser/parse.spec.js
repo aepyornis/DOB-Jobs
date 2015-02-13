@@ -11,6 +11,16 @@ var type_cast = require('./type_casting');
   pg.defaults.password = 'mrbuttons'
   // pg.defaults.poolSize
 
+describe('createAddress', function(){
+
+  it('works with example', function() {
+    parser.createAddress(14.0, 'ASTORIA BLVD').should.eql('14 ASTORIA BLVD');
+    parser.createAddress('2', 'ASTORIA BLVD').should.eql('2 ASTORIA BLVD');
+  })
+})
+
+
+
 describe('the whole damn thing', function(){
   this.timeout(10000)
   var parsed_records;

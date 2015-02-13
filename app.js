@@ -23,7 +23,7 @@ var pg = require('pg');
 
 var dtParser = require('./dtParser');
 // store table name for SQL query
-var tableName = "dob_jobs_2014";
+var tableName = "jobs_2014";
 //initiate app
 var app = express()
 

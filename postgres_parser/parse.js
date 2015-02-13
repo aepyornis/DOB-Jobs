@@ -12,7 +12,7 @@ var pg = require('pg');
   // pg.defaults.poolSize
 
 // name of table to add data to  
-var table_name = 'dob_jobs_2014';
+var table_name = 'jobs_2014';
 
 //my modules
 var sql = require('./sql');
@@ -99,8 +99,10 @@ function create_queries_array(records) {
           var doubledUp = doubleUp(noCommas);
           return removeWhiteSpace(doubledUp);
       });
-      //add bbl number
+      // add bbl number
       row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
+      // add address
+      row.push(createAddress(row[3], row[4]));
       
       var query = generate_sql_query(row);
 
@@ -192,7 +194,12 @@ function bbl(borough, block, lot) {
   return bbl;
 }
 
-function removeWhiteSpace(field) {
+function createAddress(house, streetname) {
+  var strHouse = '' + house;
+  return '' + strHouse.replace('.0', '') + ' ' + streetname
+}
+
+function removeWhiteSpace( field ) {
   if (typeof field === 'string') {
     return field.trim();
   } else {
@@ -250,5 +257,6 @@ module.exports = {
     do_some_SQL: do_some_SQL,
     read_excel_file: read_excel_file,
     create_queries_array: create_queries_array,
-    doubleUp: doubleUp
+    doubleUp: doubleUp,
+    createAddress: createAddress
 };

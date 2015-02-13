@@ -1,7 +1,7 @@
 var _ = require('underscore')
 
 //all the fields in order
-var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupancy','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl']
+var fields_in_order = ['job','doc','borough','house','streetName','block','lot','bin','jobType','jobStatus','jobStatusDescrp','latestActionDate','buildingType','CB','cluster','landmark','adultEstab','loftBoard','cityOwned','littleE','PCFiled','eFiling','plumbing','mechanical','boiler','fuelBurning','fuelStorage','standPipe','sprinkler','fireAlarm','equipment','fireSuppresion','curbCut','other','otherDescript','applicantName','applicantTitle', 'professionalLicense','professionalCert','preFilingDate','paidDate','fullyPaidDate','assignedDate','approvedDate','fullyPermitted','initialCost','totalEstFee','feeStatus','existZoningSqft','proposedZoningSqft','horizontalEnlrgmt','verticalEnlrgmt','enlrgmtSqft','streetFrontage','existStories','proposedStories','existHeight','proposedHeight','existDwellUnits','proposedDwellUnits','existOccupancy','proposedOccupancy','siteFill','zoneDist1','zoneDist2','zoneDist3','zoneSpecial1','zoneSpecial2','ownerType','nonProfit','ownerName','ownerBusinessName','ownerHouseStreet','ownerCityStateZip','ownerPhone','jobDescription','bbl', 'address']
 
 //input: field str or number, index of field (column number)
 //output: value or false. 
@@ -85,7 +85,8 @@ function type_cast(field, i) {
     ownerCityStateZip: varchar(50),
     ownerPhone: varchar(25),
     jobDescription: 'text',
-    bbl: varchar(12)
+    bbl: varchar(12),
+    address: varchar(150)
   }
   
   //gets the column

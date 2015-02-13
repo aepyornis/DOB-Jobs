@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE "dob_jobs_2014"(
+CREATE TABLE "jobs_2014"(
     job integer,
     doc integer,
     borough varchar(15),
@@ -77,7 +77,8 @@ CREATE TABLE "dob_jobs_2014"(
     ownerCityStateZip varchar(50),
     ownerPhone varchar(25),
     jobDescription text,
-    bbl char(10)
+    bbl char(10),
+    address varchar(150)
 );
 
 END TRANSACTION;
