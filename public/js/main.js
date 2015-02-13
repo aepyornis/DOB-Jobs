@@ -112,6 +112,8 @@ $( document ).ready(function() {
   })
 
    bblSearch();
+   yearSelect();
+  
 
   function getApplicantContent(jq) {
 
@@ -186,6 +188,12 @@ $( document ).ready(function() {
              
           return bbl;
         }
+
+  }
+
+  function yearSelect() {
+
+   $( "#year-container" ).selectable();    
 
   }
 
