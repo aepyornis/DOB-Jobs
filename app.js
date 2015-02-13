@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
 var s = require("underscore.string");
+var http = require('http');
 var squel = require('squel')
 squel.useFlavour('postgres');
 //provide squel.count
@@ -203,13 +204,12 @@ function where_exp(dt) {
     // search = search value
     var search = column['searchValue'];
     // if blank
-
     if(s.isBlank(search)) {
       return;
     // if number  
     } else if (/^\d+$/.test(search)){
       var sql = column['data'] + " = ?"
-      // coverts to INT. can be changed with work with decimals. 
+      // coverts to INT. Change to with work with decimals. 
       var value = s.toNumber(column['searchValue']);
       x.and(sql, value);
     // if date 
@@ -221,16 +221,25 @@ function where_exp(dt) {
     } 
     // if number-range
     else if (/-yadcf_delim-/.test(search)){
-
       numberRangeSQL(search, column);
+    }
+    else {
+      // if GeoclientAPI stuff!
+      if (column.data === 'address') {
+
+
+
+
+      } else {
+        var sql = column['data'] + " LIKE ?"
+        var value = "%" + column['searchValue'].toUpperCase() + "%";
+        x.and(sql, value);
+      }
+      
 
     }
-    
-    else {
-      var sql = column['data'] + " LIKE ?"
-      var value = "%" + column['searchValue'].toUpperCase() + "%";
-      x.and(sql, value);
-    }
+
+
 
   }
 
@@ -307,7 +316,6 @@ function applicantQuery(name) {
 // input: rows from psql query
 // output: modified rows
 // [ {}, {} ]
-// 
 function psql_to_dt(rows){
 
   return _.map(rows, function(row){
@@ -342,7 +350,6 @@ function sentence_capitalize(str) {
 }
 
 
-
 // module.exports = {
 
 //   where_exp: where_exp,
@@ -350,3 +357,89 @@ function sentence_capitalize(str) {
 //   sentence_capitalize:sentence_capitalize
 
 // }
+
+function geoclient_get_bbl (address) {
+
+      
+
+      
+
+
+      94 monroe st brooklyn bk manhattan mn 
+
+
+      var options = {
+        hosts: 'https://api.cityofnewyork.us/',
+        path: 'geoclient/v1'
+      }
+
+
+ }
+
+
+// input address (str)
+// output: {}. address.houseNum / address.street / address.borough / address.zip
+ function parse_address(address) {
+
+  var regex_add = /(\d+\S+)\s+(\S+\s\w+)[\s,]+([\w]+([ ]{1}[iI]{1}\w+)?)[\s,]+([0-9]*)/.exec(address)
+
+  var houseNum = regex_add[1];
+  var street = regex_add[2];
+  var borough = bor(regex_add[3]);
+  var zip = (regex_add[5]) ? regex_add[5] : ''; 
+
+  
+
+  function bor (b) {
+    switch (b) {
+      case "Manhattan":
+      case "MN":
+      case "Mn":
+      case "mn":
+      case "MANHATTAN"
+      case "manhattan"
+        return "Manhattan";
+      case "Bronx":
+      case "BRONX":
+      case "BX":
+      case "bx":
+      case "Bx":
+        return "Bronx";
+      case "QUEENS":
+      case "Queens":
+      case "qn":
+      case "Qn":
+      case "QN":
+      case "queens"
+        return "Queens";
+      case "Brooklyn":
+      case "BROOKLYN":
+      case "brooklyn":
+      case "BN":
+      case "Bn":
+      case "bn":
+      case "bklyn":
+        return "Brooklyn";
+      case "Staten Island":
+      case "STATEN ISLAND":
+      case "SI":
+      case "si":
+      case "Si":
+      case "staten island":
+        return "Staten Island";
+      default:
+        console.log('address error: can not recognize borough');
+        return 'error';
+    }
+
+  }
+
+
+
+ }
+
+
+Bronx
+Brooklyn
+Queens
+Staten Island
