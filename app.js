@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
 var s = require("underscore.string");
-var http = require('http');
+var request = require('request');
 var squel = require('squel')
 squel.useFlavour('postgres');
 //provide squel.count
@@ -48,7 +48,7 @@ app.post('/datatables', function(req, res){
   //create SQL query and count query
   var sql_query = sql_query_builder(req.body)[0];
   var countQuery = sql_query_builder(req.body)[1];
-  console.log(sql_query);
+  // console.log(sql_query);
 
   var count_promise = do_query(countQuery)
     .then(function(result){
@@ -192,10 +192,12 @@ function where_exp(dt) {
       );
   }
   
+  var address = _.find(dt.columns)
+
     // do local searches. 
     _.each(dt.columns, function(c,i) {
-      local_search(c, i)}
-    );
+      local_search(c, i)
+    });
 
   return x;
 
@@ -206,8 +208,10 @@ function where_exp(dt) {
     // if blank
     if(s.isBlank(search)) {
       return;
-    // if number  
-    } else if (/^\d+$/.test(search)){
+    // if address field
+    } 
+    // if number
+    else if (/^\d+$/.test(search)){
       var sql = column['data'] + " = ?"
       // coverts to INT. Change to with work with decimals. 
       var value = s.toNumber(column['searchValue']);
@@ -226,10 +230,7 @@ function where_exp(dt) {
     else {
       // if GeoclientAPI stuff!
       if (column.data === 'address') {
-
-
-
-
+        // nothing here now
       } else {
         var sql = column['data'] + " LIKE ?"
         var value = "%" + column['searchValue'].toUpperCase() + "%";
@@ -255,8 +256,6 @@ function where_exp(dt) {
     var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[2];
 
     if (s.isBlank(low_value) && s.isBlank(high_value)) {
-
-        
       //if both blank, do nothing
     } else if (s.isBlank(low_value) && high_value) {
       //no low_value, yes high_value
@@ -358,88 +357,49 @@ function sentence_capitalize(str) {
 
 // }
 
-function geoclient_get_bbl (address) {
-
-      
-
-      
-
-
-      94 monroe st brooklyn bk manhattan mn 
-
-
-      var options = {
-        hosts: 'https://api.cityofnewyork.us/',
-        path: 'geoclient/v1'
-      }
-
-
- }
-
 
 // input address (str)
 // output: {}. address.houseNum / address.street / address.borough / address.zip
- function parse_address(address) {
-
-  var regex_add = /(\d+\S+)\s+(\S+\s\w+)[\s,]+([\w]+([ ]{1}[iI]{1}\w+)?)[\s,]+([0-9]*)/.exec(address)
-
-  var houseNum = regex_add[1];
-  var street = regex_add[2];
-  var borough = bor(regex_add[3]);
-  var zip = (regex_add[5]) ? regex_add[5] : ''; 
-
+// still a work in progress (!)
+function address_to_bbl(address) {
+    var def = q.defer();
+    var split = address.split(';')
+    var house_street = /(\d+\S*)[ ]+(\w+[ ]?\w*)/.exec(split[0]);
+    var house = house_street[1];
+    var street = house_street[2];
+    var bor = format_bor(split[1]);
   
+    var url = 'https://api.cityofnewyork.us/geoclient/v1/address.json?'
+    url += 'houseNumber=' + encodeURIComponent(house) + '&street=' + encodeURIComponent(street) + '&borough=' + bor;
+    url += '&app_id=a24f63ab&app_key=47bd8f72f07c547b4cfc72e7f0a6ad67';
 
-  function bor (b) {
-    switch (b) {
-      case "Manhattan":
-      case "MN":
-      case "Mn":
-      case "mn":
-      case "MANHATTAN"
-      case "manhattan"
-        return "Manhattan";
-      case "Bronx":
-      case "BRONX":
-      case "BX":
-      case "bx":
-      case "Bx":
-        return "Bronx";
-      case "QUEENS":
-      case "Queens":
-      case "qn":
-      case "Qn":
-      case "QN":
-      case "queens"
-        return "Queens";
-      case "Brooklyn":
-      case "BROOKLYN":
-      case "brooklyn":
-      case "BN":
-      case "Bn":
-      case "bn":
-      case "bklyn":
-        return "Brooklyn";
-      case "Staten Island":
-      case "STATEN ISLAND":
-      case "SI":
-      case "si":
-      case "Si":
-      case "staten island":
-        return "Staten Island";
-      default:
-        console.log('address error: can not recognize borough');
-        return 'error';
+    request(url, function(err, responce, body) {
+      if(err) {
+        def.reject(err)
+      } else {
+        var address = JSON.parse(body);
+        def.resolve(address.address.bbl);
+      }
+    });
+
+    return def.promise;
+
+    function format_bor(b){
+      switch(b) {
+        case "MN":
+          return "Manhattan";
+        case "BX":
+          return "Bronx";
+        case "BK":
+          return "Brooklyn";
+        case "QN":
+          return "Queens";
+        case "SI":
+          return "Staten Island";
+        default:
+          return;
+      }
     }
-
-  }
-
-
 
  }
 
-
-Bronx
-Brooklyn
-Queens
-Staten Island

@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE "jobs_2014"(
+CREATE TABLE "jobs_2012"(
     job integer,
     doc integer,
     borough varchar(15),

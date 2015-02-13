@@ -90,3 +90,18 @@ table thead tr th {
 
 
 }
+
+.address-input {
+
+  max-width: 120px;
+}
+
+/*#house-input {
+  width: 40px;
+  margin-right: 3px;
+}*/
+
+#address-submit {
+
+  display: inline;
+}

@@ -76,6 +76,7 @@ $( document ).ready(function() {
   // filters
   yadcf.init(table, [
       // {column_number: 2, filter_type: 'select', data:['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']},
+      // {column_number: 0, filter_type: 'text', filter_delay: 600},
       {column_number: 2, filter_type: 'auto_complete', data:['101', '102', '103', '104', '105', '106', '107', '108', '109', '110', '111', '112', '201', '202', '203', '204', '205', '206', '207', '208', '209', '210', '211', '212', '301', '302', '303', '304', '305', '306', '307', '308', '309', '310', '311', '312', '313', '314', '315', '316', '317', '318', '401', '402', '403', '404', '405', '406', '407', '408', '409', '410', '412', '413', '414', '501', '502', '503'], filter_delay: 300},
       {column_number: 3, filter_type: "select", data: ['A1', 'A2', 'A3', 'NB', 'DM', 'PA', 'SI', 'SC']},
       {column_number: 4, filter_type: 'text', filter_delay: 300},
@@ -107,8 +108,6 @@ $( document ).ready(function() {
     $("tr td:nth-child(14)").each(function(i, element){
         getApplicantContent(this);
     }).tooltip();
-
-         // $( document ).tooltip();
 
   })
 
@@ -157,18 +156,15 @@ $( document ).ready(function() {
         var bor = $('#bor-select').val();
         var block = $('#block-input').val();
         var lot = $('#lot-input').val();
-       
-         table.columns(15).search(bbl(bor,block,lot)).draw();
+        table.columns(14).search(bbl(bor,block,lot)).draw();
       })
       // reset
       $('#bbl-reset').click(function(){
         // $('#bor-select').val();
         $('#block-input').val('');
         $('#lot-input').val('');
-        table.columns(15).search('').draw();
+        table.columns(14).search('').draw();
       })
-
-
 
        function bbl(borough, block, lot) {
           var bor = '' + borough;
@@ -176,26 +172,42 @@ $( document ).ready(function() {
           var lt = '' + lot;
           var bbl = '';
 
-            if (block != undefined && lot != undefined) {
-              if (block.length > 5 || lot.length > 4) {
+          if (block.length > 5 || lot.length > 4) {
               console.log("the block and/or lot are too long");
-              } else {
-                  while (blk.length !== 5) {
-                    blk = '0' + blk;
-                  }
-                  while (lt.length !== 4) {
-                    lt = '0' + lt;
-                  }
-                  bbl = bor + blk + lt;
-              }
-            } else {
-              return 'err';
-            } 
+          } else {
+                while (blk.length !== 5) {
+                  blk = '0' + blk;
+                }
+                while (lt.length !== 4) {
+                  lt = '0' + lt;
+                }
+                bbl = bor + blk + lt;
+          }
+             
           return bbl;
         }
 
   }
 
+  // server-side script not ready yet
+  function addSearch() {
+
+    var html = '<div id="address-search-container">'
+    html += '<input id="add-input" type="text" class="address-input" placeholder="house & street"></input>';
+    html += '<select id="address-bor-select"><option>MN</option><option>BX</option><option>BK</option><option>QN</option><option>SI</option></select>'
+    html += '<button id="address-submit">Search</button>';
+    html += '</div>';
+
+    $('thead tr th:first').append(html);
+
+    $('#address-submit').click(function(){
+        var formatted_address = $('#add-input').val();
+        formatted_address += ';';
+        formatted_address += $('#address-bor-select').val();
+       table.columns(0).search(formatted_address).draw();
+    })
+
+  }
 
 })
 //end of (document ready)
