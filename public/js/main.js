@@ -70,6 +70,8 @@ $( document ).ready(function() {
        {
         data: 'applicantname'
 
+       }, {
+        data: 'bbl'
        }
     ]
   });
@@ -114,7 +116,7 @@ $( document ).ready(function() {
 
   })
 
-
+   bblSearch();
 
   function getApplicantContent(jq) {
 
@@ -142,9 +144,64 @@ $( document ).ready(function() {
     
 
   }
+  
+ 
+  function bblSearch() {
+      var html = '<div id="bbl">';
+      html += '<select id="bor-select" name="bor"><option value="1">Manhattan (1)</option><option value="2">Bronx (2)</option><option value="3">Brooklyn (3)</option><option value="4">Queens (4)</option><option value="5">SI (5)</option></select>'
+      html += '<input id="block-input" class="bbl-input" type="text" inputmode="numberic" maxlength="5" placeholder="Block"></input>';
+      html += '<input id="lot-input" class="bbl-input" type="text" inputmode="numberic" maxlength="4" placeholder="Lot"></input>';
+      html += '<button id="bbl-search-button" name="bblSubmit" class="bbl-input">Search</button>';
+      html += '<input value="x" id="bbl-reset"  class="yadcf-filter-reset-button" type="button">'
+      html += '</div>';
+
+      $('#table_length').append(html);
+      //"search" button
+      $('#bbl-search-button').click(function(){
+        var bor = $('#bor-select').val();
+        var block = $('#block-input').val();
+        var lot = $('#lot-input').val();
+       
+         table.columns(15).search(bbl(bor,block,lot)).draw();
+      })
+      // reset
+      $('#bbl-reset').click(function(){
+        // $('#bor-select').val();
+        $('#block-input').val('');
+        $('#lot-input').val('');
+        table.columns(15).search('').draw();
+      })
 
 
 
+       function bbl(borough, block, lot) {
+          var bor = '' + borough;
+          var blk = '' + block;
+          var lt = '' + lot;
+          var bbl = '';
+
+            if (block != undefined && lot != undefined) {
+              if (block.length > 5 || lot.length > 4) {
+              console.log("the block and/or lot are too long");
+              } else {
+                  while (blk.length !== 5) {
+                    blk = '0' + blk;
+                  }
+                  while (lt.length !== 4) {
+                    lt = '0' + lt;
+                  }
+                  bbl = bor + blk + lt;
+              }
+            } else {
+              return 'err';
+            } 
+          return bbl;
+        }
+
+  }
 
 
 })
+//end of (document ready)
+
+

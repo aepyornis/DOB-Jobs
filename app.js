@@ -151,7 +151,6 @@ function sql_query_builder(dt_req) {
   if (!_.isEmpty(dt.orders)) {
     _.each(dt.orders, function(order){
       query.order(order.columnData, order.dir)
-      console.log(order)
       if (order.dir === true && order.columnData === 'approveddate') {
         query.nullOrder('FIRST');
       } else {
@@ -344,11 +343,10 @@ function sentence_capitalize(str) {
 
 
 
+// module.exports = {
 
-module.exports = {
+//   where_exp: where_exp,
+//   sql_query_builder: sql_query_builder,
+//   sentence_capitalize:sentence_capitalize
 
-  where_exp: where_exp,
-  sql_query_builder: sql_query_builder,
-  sentence_capitalize:sentence_capitalize
-
-}
+// }

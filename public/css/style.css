@@ -75,3 +75,18 @@ table thead tr th {
 }
 
 .ui-helper-hidden-accessible { display:none; }
+
+#bbl {
+
+  float: right;
+  padding-left: 14px;
+
+}
+
+.bbl-input {
+
+  margin-left: 5px;
+  max-width: 60px;
+
+
+}
