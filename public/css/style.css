@@ -109,24 +109,41 @@ table thead tr th {
 #title {
   width: 100%;
   margin: 0 auto;
+  position: relative;
   text-align: center;
 }
 #title h2 {
-  margin: 0;
+  margin: 0 auto;
   padding-top: 10px;
   padding-bottom: 10px;
 }
 
-#year-container {
-
-  margin: 0 auto;
-  width: 200px;
+#year-container ul{
+  padding-left: 4px;
+  
 }
 
-#year-container .ui-selecting { background-color: #bebebe }
-#year-container .ui-selected {  background-color: #777777}
-.year {
-  width: 50px;
-  display: inline-block;
+#year-container li {
+    display: inline;
+    list-style-type: none; 
+    text-align: center;
+    font-size: 1.4em;
+    padding: .3em;
 
 }
+
+#year-container .ui-selecting { 
+  background: #FECA40; 
+}
+#year-container .ui-selected { 
+  background: #666666; color: white; 
+}
+
+.year:hover {
+  cursor: default;
+}
+
+
+#selectable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+
+#selectable li { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px; }
