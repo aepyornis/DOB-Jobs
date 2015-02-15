@@ -353,12 +353,16 @@ function sentence_capitalize(str) {
 function getTableName(year) {
   var yr = '' + year;
   switch(yr) {
+    case '2011':
+      return 'jobs_2011';
     case '2012':
       return 'jobs_2012';
     case '2013':
       return 'jobs_2013';
     case '2014':
       return 'jobs_2014';
+    case '2015':
+      return 'jobs_2015';
     default:
       console.log('error with year in dt request: ' + yr);
       return 'jobs_2014';
@@ -368,12 +372,16 @@ function getTableName(year) {
 function getTotalRecords(year){
    var yr = '' + year;
    switch(yr) {
+    case '2011':
+      return '77715';
     case '2012':
       return '79935';
     case '2013':
       return '91657';
     case '2014':
       return '106569';
+    case '2015':
+      return '5362';
     default:
       console.log('error with year in dt request');
       return 'error';

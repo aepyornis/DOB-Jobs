@@ -12,7 +12,7 @@ var pg = require('pg');
   // pg.defaults.poolSize
 
 // name of table to add data to  
-var table_name = 'jobs_2012';
+var table_name = 'jobs_2015';
 
 //my modules
 var sql = require('./sql');
@@ -24,7 +24,7 @@ var errors = 0;
 // createDobTable(console.log('done'));
 
 //the magic function that does everything
-insertAllTheFiles('./data/2012');
+insertAllTheFiles('./data/2015');
 
 function insertAllTheFiles (dirPath) {
 

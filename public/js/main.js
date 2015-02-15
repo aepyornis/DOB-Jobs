@@ -1,8 +1,5 @@
 $( document ).ready(function() {
-
-   bblSearch();
    yearSelect();
-
   // table
   var table = $('#table').DataTable( {
     serverSide: true,
@@ -79,7 +76,6 @@ $( document ).ready(function() {
     ]
   });
 
-
   // filters
   yadcf.init(table, [
       // {column_number: 2, filter_type: 'select', data:['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']},
@@ -95,6 +91,8 @@ $( document ).ready(function() {
       {column_number: 11, filter_type: "range_number", filter_delay: 300}
     
   ]);
+  // add BBL search
+  bblSearch();
 
   // on each draw
   $("#table").on('draw.dt', function(){
