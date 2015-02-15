@@ -21,10 +21,8 @@ var pg = require('pg');
   // pg.defaults.user = OPENSHIFT_POSTGRESQL_DB_USERNAME;
   // pg.defaults.password = OPENSHIFT_POSTGRESQL_DB_PASSWORD;
   // pg.defaults.port = OPENSHIFT_POSTGRESQL_DB_PORT;
-
 var dtParser = require('./dtParser');
-// store table name for SQL query
-var tableName = "jobs_2014";
+
 //initiate app
 var app = express()
 
@@ -41,10 +39,9 @@ app.use("/css", express.static(__dirname + '/css'));
 app.post('/datatables', function(req, res){
   //create response object
   var response = {};
-  console.log(req.body.year);
   response.draw = req.body.draw;
-  //total number of records in database. hard-coded for now.
-  response.recordsTotal = 106569; 
+  // total number of records in database.
+  response.recordsTotal = getTotalRecords(req.body.year);
   
   //create SQL query and count query
   var sql_query = sql_query_builder(req.body)[0];
@@ -71,7 +68,7 @@ app.post('/datatables', function(req, res){
 // get applicant data
 app.post('/applicant', function(req, res){
 
-  var sql = applicantQuery(req.body.applicant);
+  var sql = applicantQuery(req.body.applicant, req.body.year);
 
   var applicant_query = do_query_raw(sql)
     .then(function(result){
@@ -131,7 +128,6 @@ function do_query_raw(sql) {
   return def.promise;
 }
 
-
 //input: datatables request object
 //output: [sql-query, count-query]
 function sql_query_builder(dt_req) {
@@ -142,6 +138,9 @@ function sql_query_builder(dt_req) {
   var query = squel.mySelect()
   //parse datatables request
   var dt = dtParser.parse(dt_req);
+
+  var tableName = getTableName(dt.year);
+
   //get fields
   _.each(dt.columns, function(col){
     query.field(col.data);
@@ -174,7 +173,6 @@ function sql_query_builder(dt_req) {
     return [rows_query, count_query];
 }
 
-
 //input: global search (str or false), [], [], []
 //output squel.expr() or blank str
 function where_exp(dt) {
@@ -193,7 +191,7 @@ function where_exp(dt) {
       );
   }
   
-  var address = _.find(dt.columns)
+  // var address = _.find(dt.columns)
 
     // do local searches. 
     _.each(dt.columns, function(c,i) {
@@ -209,7 +207,6 @@ function where_exp(dt) {
     // if blank
     if(s.isBlank(search)) {
       return;
-    // if address field
     } 
     // if number
     else if (/^\d+$/.test(search)){
@@ -301,7 +298,10 @@ function where_exp(dt) {
 
 }
 
-function applicantQuery(name) {
+function applicantQuery(name, year) {
+
+  var tableName = getTableName(year);
+
   return squel.mySelect()
     .field('applicanttitle')
     .field('professionallicense')
@@ -349,6 +349,35 @@ function sentence_capitalize(str) {
   return capitalized_arr.join('. ');
 }
 
+function getTableName(year) {
+  var yr = '' + year;
+  switch(yr) {
+    case '2012':
+      return 'jobs_2012';
+    case '2013':
+      return 'jobs_2013';
+    case '2014':
+      return 'jobs_2014';
+    default:
+      console.log('error with year in dt request');
+      return 'jobs_2014';
+  }
+}
+
+function getTotalRecords(year){
+   var yr = '' + year;
+   switch(yr) {
+    case '2012':
+      return '79935';
+    case '2013':
+      return '91657';
+    case '2014':
+      return '106569';
+    default:
+      console.log('error with year in dt request');
+      return 'error';
+  }
+}
 
 // module.exports = {
 
