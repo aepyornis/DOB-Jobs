@@ -17,10 +17,10 @@ var pg = require('pg');
   pg.defaults.password = 'mrbuttons';
   // open shift settings
   // pg.defaults.database = 'dobjobs';
-  // pg.defaults.host = OPENSHIFT_POSTGRESQL_DB_HOST;
-  // pg.defaults.user = OPENSHIFT_POSTGRESQL_DB_USERNAME;
-  // pg.defaults.password = OPENSHIFT_POSTGRESQL_DB_PASSWORD;
-  // pg.defaults.port = OPENSHIFT_POSTGRESQL_DB_PORT;
+  // pg.defaults.host = process.env.OPENSHIFT_POSTGRESQL_DB_HOST;
+  // pg.defaults.user = process.env.OPENSHIFT_POSTGRESQL_DB_USERNAME;
+  // pg.defaults.password = process.env.OPENSHIFT_POSTGRESQL_DB_PASSWORD;
+  // pg.defaults.port = process.env.OPENSHIFT_POSTGRESQL_DB_PORT;
 var dtParser = require('./dtParser');
 
 //initiate app
@@ -81,8 +81,10 @@ app.post('/applicant', function(req, res){
 })
 
 
+var server_port = process.env.OPENSHIFT_NODEJS_PORT || '3000';
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || 'localhost';
 //start listening 
-var server = app.listen(3000, function () {
+var server = app.listen(server_port, server_ip_address, function () {
   var host = server.address().address;
   var port = server.address().port;
   console.log('app listening at http://%s:%s', host, port)

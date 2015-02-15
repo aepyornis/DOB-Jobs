@@ -1,5 +1,6 @@
 node_modules
 database
 data
+dump
 geojson
 .DS_Store
