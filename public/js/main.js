@@ -1,12 +1,14 @@
 $( document ).ready(function() {
-
   // table
   var table = $('#table').DataTable( {
     serverSide: true,
       "scrollX": true,
     ajax: {
       url: '/datatables',
-      type: 'POST'
+      type: 'POST',
+      data: function ( d ) {
+        d.year = $('#year-container .ui-selected').text();
+    }
     },
      "order": [[ 1, "desc" ]],
     columns: [
@@ -193,7 +195,11 @@ $( document ).ready(function() {
 
   function yearSelect() {
 
-   $( "#year-container" ).selectable();    
+   $( "#year-container" ).selectable();
+
+   $( "#year-container" ).on( "selectableselected", function( event, ui ) {
+    table.search('').draw();
+   })    
 
   }
 

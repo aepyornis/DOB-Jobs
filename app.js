@@ -3,7 +3,7 @@ var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
 var s = require("underscore.string");
-var request = require('request');
+// var request = require('request');
 var squel = require('squel')
 squel.useFlavour('postgres');
 //provide squel.count
@@ -41,6 +41,7 @@ app.use("/css", express.static(__dirname + '/css'));
 app.post('/datatables', function(req, res){
   //create response object
   var response = {};
+  console.log(req.body.year);
   response.draw = req.body.draw;
   //total number of records in database. hard-coded for now.
   response.recordsTotal = 106569; 

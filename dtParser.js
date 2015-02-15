@@ -7,7 +7,8 @@ function parse_datatables_object (dt_req) {
     draw: dt_req.draw,
     start: dt_req.start,
     length: dt_req.length,
-    search: (dt_req['search[value]'] === '') ? false : dt_req['search[value]']
+    search: (dt_req['search[value]'] === '') ? false : dt_req['search[value]'],
+    year: dt_req.year
   }
 
   parsed_obj.columns = getColumns(dt_req);
