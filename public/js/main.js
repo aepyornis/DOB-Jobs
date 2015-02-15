@@ -1,4 +1,8 @@
 $( document ).ready(function() {
+
+   bblSearch();
+   yearSelect();
+
   // table
   var table = $('#table').DataTable( {
     serverSide: true,
@@ -7,6 +11,7 @@ $( document ).ready(function() {
       url: '/datatables',
       type: 'POST',
       data: function ( d ) {
+        console.log($('#year-container .ui-selected').text());
         d.year = $('#year-container .ui-selected').text();
     }
     },
@@ -113,18 +118,18 @@ $( document ).ready(function() {
 
   })
 
-   bblSearch();
-   yearSelect();
-  
-
   function getApplicantContent(jq) {
 
     var applicant = table.cell(jq).data();
+    var year = $('#year-container .ui-selected').text()
 
     $.ajax({
       url: '/applicant',
       type: 'POST',
-      data: {'applicant': applicant}
+      data: {
+        'applicant': applicant,
+        'year': year
+      }
     })
     .done(function(data) {
       var info = JSON.parse(data);
@@ -196,6 +201,7 @@ $( document ).ready(function() {
   function yearSelect() {
 
    $( "#year-container" ).selectable();
+   $('#year-container .year-2014').addClass('ui-selected');
 
    $( "#year-container" ).on( "selectableselected", function( event, ui ) {
     table.search('').draw();

@@ -68,6 +68,7 @@ app.post('/datatables', function(req, res){
 // get applicant data
 app.post('/applicant', function(req, res){
 
+
   var sql = applicantQuery(req.body.applicant, req.body.year);
 
   var applicant_query = do_query_raw(sql)
@@ -359,7 +360,7 @@ function getTableName(year) {
     case '2014':
       return 'jobs_2014';
     default:
-      console.log('error with year in dt request');
+      console.log('error with year in dt request: ' + yr);
       return 'jobs_2014';
   }
 }
