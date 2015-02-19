@@ -1,7 +1,7 @@
 var superagent = require('superagent');
 var s = require('underscore.string')
 var should = require('should');
-var app = require('./app');
+var app = require('../app');
 var squel = require('squel');
 
 // describe('gets index.html', function(){

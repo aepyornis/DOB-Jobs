@@ -1,6 +1,6 @@
 var should = require('should');
 
-var parser = require('./dtParser');
+var parser = require('../dtParser');
 
 
 describe('parse_datatables_object', function(){
@@ -126,10 +126,3 @@ describe('getOrders', function(){
 
 })
 
-
-
-
-module.exports = {
-
-
-}
