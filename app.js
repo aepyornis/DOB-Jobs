@@ -21,7 +21,6 @@ var pg = require('pg');
   // pg.defaults.user = process.env.OPENSHIFT_POSTGRESQL_DB_USERNAME;
   // pg.defaults.password = process.env.OPENSHIFT_POSTGRESQL_DB_PASSWORD;
   // pg.defaults.port = process.env.OPENSHIFT_POSTGRESQL_DB_PORT;
-var dtParser = require('./dtParser');
 
 //initiate app
 var app = express()
@@ -36,16 +35,20 @@ app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
 
 //post request
-app.post('/datatables', function(req, res){
+app.get('/test', function(req, res){
+  console.log(req.query);
+})
+
+app.get('/datatables', function(req, res){
   //create response object
   var response = {};
-  response.draw = req.body.draw;
+  response.draw = req.query.draw;
   // total number of records in database.
-  response.recordsTotal = getTotalRecords(req.body.year);
+  response.recordsTotal = getTotalRecords(req.query.year);
   
   //create SQL query and count query
-  var sql_query = sql_query_builder(req.body)[0];
-  var countQuery = sql_query_builder(req.body)[1];
+  var sql_query = sql_query_builder(req.query)[0];
+  var countQuery = sql_query_builder(req.query)[1];
   // console.log(sql_query);
 
   var count_promise = do_query(countQuery)
@@ -67,19 +70,21 @@ app.post('/datatables', function(req, res){
 
 // get applicant data
 app.post('/applicant', function(req, res){
-
-
   var sql = applicantQuery(req.body.applicant, req.body.year);
-
   var applicant_query = do_query_raw(sql)
     .then(function(result){
-
-       res.send(JSON.stringify(result[0]));
-     
+       res.send(JSON.stringify(result[0]));    
     })
-
 })
 
+app.get('/csv', function(req, res){
+  console.log(req.query);
+  console.log(req.query.columns[0].search);
+  var sample = 'this is a long string that will be sent';
+  res.set('Content-Type', 'text/plain');
+  res.send(sample);
+
+})
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || '3000';
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || 'localhost';
@@ -133,14 +138,13 @@ function do_query_raw(sql) {
 
 //input: datatables request object
 //output: [sql-query, count-query]
-function sql_query_builder(dt_req) {
+function sql_query_builder(dt) {
   //these are returned
   var rows_query;
   var count_query;
   //create squel select obj.
   var query = squel.mySelect()
   //parse datatables request
-  var dt = dtParser.parse(dt_req);
 
   var tableName = getTableName(dt.year);
 
@@ -154,7 +158,7 @@ function sql_query_builder(dt_req) {
   // order if they exist
   if (!_.isEmpty(dt.orders)) {
     _.each(dt.orders, function(order){
-      query.order(order.columnData, order.dir)
+      query.order(dt.columns[order.column].data, order.dir)
       if (order.dir === true && order.columnData === 'approveddate') {
         query.nullOrder('FIRST');
       } else {
@@ -181,20 +185,18 @@ function sql_query_builder(dt_req) {
 function where_exp(dt) {
   var x = squel.expr();
 
-  var searchable_columns = _.chain(dt['columns']).filter(function(column) {
+  var searchable_columns = _.chain(dt.columns).filter(function(column) {
     if (column.searchable === 'true') {
       return true;
     }
   }).pluck('data').value();
 
   // do global search on searchable columns
-  if (dt.search){
+  if (dt.search.value){
       _.each(searchable_columns, function(col) {
         global_search(col)}
       );
   }
-  
-  // var address = _.find(dt.columns)
 
     // do local searches. 
     _.each(dt.columns, function(c,i) {
@@ -206,16 +208,16 @@ function where_exp(dt) {
   // where_exp helper functions
   function local_search(column, i) {
     // search = search value
-    var search = column['searchValue'];
+    var search = column.search.value;
     // if blank
     if(s.isBlank(search)) {
       return;
     } 
     // if number
     else if (/^\d+$/.test(search)){
-      var sql = column['data'] + " = ?"
+      var sql = column.data + " = ?"
       // coverts to INT. Change to with work with decimals. 
-      var value = s.toNumber(column['searchValue']);
+      var value = s.toNumber(search);
       x.and(sql, value);
     // if date 
     } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
@@ -234,20 +236,17 @@ function where_exp(dt) {
         // nothing here now
       } else {
         var sql = column['data'] + " LIKE ?"
-        var value = "%" + column['searchValue'].toUpperCase() + "%";
+        var value = "%" + column.search.value.toUpperCase() + "%";
         x.and(sql, value);
       }
       
-
     }
-
-
 
   }
 
-  function global_search(column) {
-      var sql = column + " LIKE ?";
-      var value = "%" + dt.search.toUpperCase() + "%";
+  function global_search(columnData) {
+      var sql = columnData + " LIKE ?";
+      var value = "%" + dt.search.value.toUpperCase() + "%";
       x.or(sql, value);
   }
 

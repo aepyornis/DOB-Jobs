@@ -1,4 +1,7 @@
 $( document ).ready(function() {
+  // used by ajax and download_button to send message to server 
+  var download = false;
+
    yearSelect();
   // table
   var table = $('#table').DataTable( {
@@ -6,10 +9,18 @@ $( document ).ready(function() {
       "scrollX": true,
     ajax: {
       url: '/datatables',
-      type: 'POST',
+      type: 'GET',
       data: function ( d ) {
-        console.log($('#year-container .ui-selected').text());
         d.year = $('#year-container .ui-selected').text();
+        if (download) {
+          d.download = 'true';
+          // download_ajax_call;
+          var url = '/csv?' + $.param(d);
+          window.open(url);
+          download = false;
+        } else {
+          d.download = '';
+        }
     }
     },
      "order": [[ 1, "desc" ]],
@@ -91,8 +102,9 @@ $( document ).ready(function() {
       {column_number: 11, filter_type: "range_number", filter_delay: 300}
     
   ]);
-  // add BBL search
+  // add BBL search + download button
   bblSearch();
+  download_button()
 
   // on each draw
   $("#table").on('draw.dt', function(){
@@ -207,6 +219,14 @@ $( document ).ready(function() {
 
   }
 
+  function download_button() {
+    
+    $('#download-button').click(function(){
+      download = true; 
+      table.search('').draw();
+    })  
+
+  }
   // server-side script not ready yet
   function addSearch() {
 

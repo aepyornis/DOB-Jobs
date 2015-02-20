@@ -83,11 +83,14 @@ table thead tr th {
 
 }
 
+#download {
+  padding-left: 4%;
+}
+
 .bbl-input {
 
   margin-left: 5px;
   max-width: 60px;
-
 
 }
 
