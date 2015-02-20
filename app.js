@@ -34,11 +34,7 @@ app.use(express.static(__dirname + '/public'));
 app.use("/js", express.static(__dirname + '/js'));
 app.use("/css", express.static(__dirname + '/css'));
 
-//post request
-app.get('/test', function(req, res){
-  console.log(req.query);
-})
-
+// datatables draw
 app.get('/datatables', function(req, res){
   //create response object
   var response = {};
@@ -79,11 +75,10 @@ app.post('/applicant', function(req, res){
 
 app.get('/csv', function(req, res){
   console.log(req.query);
-  console.log(req.query.columns[0].search);
   var sample = 'this is a long string that will be sent';
+  res.set("Content-Disposition", "attachment; filename=\"dobjobs.txt\"")
   res.set('Content-Type', 'text/plain');
   res.send(sample);
-
 })
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || '3000';
