@@ -147,9 +147,10 @@ function sql_query_builder(dt, limit) {
   query.from(tableName)
     .where( where_exp(dt) );
   // order if they exist
-  if (!_.isEmpty(dt.orders)) {
-    _.each(dt.orders, function(order){
-      query.order(dt.columns[order.column].data, order.dir)
+  if (!_.isEmpty(dt.order)) {
+    _.each(dt.order, function(order){
+      var direction = (order.dir === "desc") ? false : true;
+      query.order(dt.columns[order.column].data, direction)
       if (order.dir === true && order.columnData === 'approveddate') {
         query.nullOrder('FIRST');
       } else {
