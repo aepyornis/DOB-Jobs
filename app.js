@@ -312,7 +312,6 @@ function applicantQuery(name, year) {
     .toParam();
 }
 
-
 // input: rows from psql query
 // output: modified rows
 // [ {}, {} ]
@@ -339,7 +338,6 @@ function psql_to_dt(rows){
     return newRow;
   }
 }
-
 
 function sentence_capitalize(str) {
   var lowercase = str.toLowerCase();
@@ -387,31 +385,32 @@ function getTotalRecords(year){
   }
 }
 
-
 function downloadCSV (req, res) {
-
-  res.set("Content-Disposition", "attachment; filename=\"dobjobs.txt\"")
+  // set headers for attachment
+  res.set("Content-Disposition", "attachment; filename=\"dobjobs.csv\"")
   res.set('Content-Type', 'text/plain');
 
   var columnNames = _.map(req.query.columns, function(col){
       return col.data;
   })
-
-
-
+  // write columnNames
+  res.write(columnNames.join(',') + '\n');
+  // generate SQL
+  var sql = sql_query_builder(req.query, false)[0];
+  // Streaming query from postgres -> responce
   pg.connect(function(err, client, done) {
     if(err) throw err;
-    var query = new QueryStream('SELECT * FROM jobs_2015')
-    var stream = client.query(query)
+    var query = new QueryStream(sql.text, sql.values);
+    var stream = client.query(query);
     //release the client when the stream is finished
     stream.on('end', done);
-
+    // pipe data to responce
     stream.pipe(through(write_one_row), function(){
       // this.queue(null);
       res.end();
     }).pipe(res);
   })
-
+    // transform stream from objects to csv
     function write_one_row(row) {
        var arr = _.map(columnNames, function(name){
           if (!row[name]) {
