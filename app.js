@@ -127,9 +127,9 @@ function do_query_raw(sql) {
   return def.promise;
 }
 
-//input: datatables request object
+//input: datatables request object, optional: false as second arg to disable limit/offset
 //output: [sql-query, count-query]
-function sql_query_builder(dt) {
+function sql_query_builder(dt, limit) {
   //these are returned
   var rows_query;
   var count_query;
@@ -159,7 +159,14 @@ function sql_query_builder(dt) {
     })
   }
   // limit and offset
-  query.limit(dt.length).offset(dt.start);
+  // pass false as second argument to prevent limit
+  if (typeof limit === 'undefined') {
+    query.limit(dt.length).offset(dt.start);
+  } else if (limit === false) {
+    // don't limit the function! 
+  } else {
+    query.limit(dt.length).offset(dt.start);
+  }
 
   rows_query = query.toParam();
 
@@ -389,6 +396,8 @@ function downloadCSV (req, res) {
   var columnNames = _.map(req.query.columns, function(col){
       return col.data;
   })
+
+
 
   pg.connect(function(err, client, done) {
     if(err) throw err;
