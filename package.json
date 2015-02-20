@@ -24,10 +24,11 @@
     "underscore": "^1.7.0",
     "xlsjs": "~0.7.2",
     "underscore.string": "~3.0.2",
-    "squel": "~3.10.0"
+    "squel": "~3.10.0",
+    "through": "~2.3.6",
+    "pg-query-stream": "~0.7.0"
   },
-   "main": "app.js",
-   "engines": {
+  "engines": {
     "node": ">= 0.6.0",
     "npm": ">= 1.0.0"
   }

@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var q = require('q');
 var _ = require('underscore');
 var s = require("underscore.string");
+var through = require('through');
 // var request = require('request');
 var squel = require('squel')
 squel.useFlavour('postgres');
@@ -15,6 +16,7 @@ var pg = require('pg');
   pg.defaults.host = 'localhost';
   pg.defaults.user = 'mrbuttons';
   pg.defaults.password = 'mrbuttons';
+var QueryStream = require('pg-query-stream')
   // open shift settings
   // pg.defaults.database = 'dobjobs';
   // pg.defaults.host = process.env.OPENSHIFT_POSTGRESQL_DB_HOST;
@@ -73,13 +75,7 @@ app.post('/applicant', function(req, res){
     })
 })
 
-app.get('/csv', function(req, res){
-  console.log(req.query);
-  var sample = 'this is a long string that will be sent';
-  res.set("Content-Disposition", "attachment; filename=\"dobjobs.txt\"")
-  res.set('Content-Type', 'text/plain');
-  res.send(sample);
-})
+app.get('/csv', downloadCSV);
 
 var server_port = process.env.OPENSHIFT_NODEJS_PORT || '3000';
 var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || 'localhost';
@@ -382,6 +378,42 @@ function getTotalRecords(year){
       console.log('error with year in dt request');
       return 'error';
   }
+}
+
+
+function downloadCSV (req, res) {
+
+  res.set("Content-Disposition", "attachment; filename=\"dobjobs.txt\"")
+  res.set('Content-Type', 'text/plain');
+
+  var columnNames = _.map(req.query.columns, function(col){
+      return col.data;
+  })
+
+  pg.connect(function(err, client, done) {
+    if(err) throw err;
+    var query = new QueryStream('SELECT * FROM jobs_2015')
+    var stream = client.query(query)
+    //release the client when the stream is finished
+    stream.on('end', done);
+
+    stream.pipe(through(write_one_row), function(){
+      // this.queue(null);
+      res.end();
+    }).pipe(res);
+  })
+
+    function write_one_row(row) {
+       var arr = _.map(columnNames, function(name){
+          if (!row[name]) {
+              return '';
+          } else {
+              return row[name];
+          }
+       });
+       var csv = arr.join(',') + '\n'
+       this.queue(csv);
+    }
 }
 
 // module.exports = {
