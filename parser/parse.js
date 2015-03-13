@@ -7,6 +7,7 @@
 // argv[5] = user
 // argv[6] = password
 // argv[7] = host
+// argv[8] = port
 
 var fs = require('fs');
 var async = require('async');
@@ -18,6 +19,9 @@ var pg = require('pg');
   pg.defaults.user = process.argv[5] || 'mrbuttons';
   pg.defaults.password = process.argv[6] || 'mrbuttons';
   // pg.defaults.poolSize
+  if (process.argv[8]) {
+    pg.defaults.port = process.argv[8];
+  }
 
 // name of table to add data to  
 var table_name = process.argv[2] || 'jobs_2015';
