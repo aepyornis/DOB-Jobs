@@ -1,18 +1,28 @@
-//DOB excel data to postgres
-//note: to use excel-parser python must be installed and you need to have these two python modules: argparse, xlrd run: pip install argparse & pip install xlrd
+// DOB excel data to postgres
+// note: to use excel-parser python must be installed and you need to have these two python modules: argparse, xlrd run: pip install argparse & pip install xlrd
+// to use as command line: 
+// argv[2] = table_name 
+// argv[3] = path to directory with excel files
+// argv[4] = database
+// argv[5] = user
+// argv[6] = password
+// argv[7] = host
+
 var fs = require('fs');
 var async = require('async');
 var _ = require('underscore');
 var excelParser = require('excel-parser');
 var pg = require('pg');
-  pg.defaults.database = 'dob';
-  pg.defaults.host = 'localhost';
-  pg.defaults.user = 'mrbuttons';
-  pg.defaults.password = 'mrbuttons';
+  pg.defaults.database = process.argv[4] || 'dob';
+  pg.defaults.host = process.argv[7] || 'localhost';
+  pg.defaults.user = process.argv[5] || 'mrbuttons';
+  pg.defaults.password = process.argv[6] || 'mrbuttons';
   // pg.defaults.poolSize
 
 // name of table to add data to  
-var table_name = 'jobs_2015';
+var table_name = process.argv[2] || 'jobs_2015';
+// path to excel files directory
+var excel_dir = process.argv[3] || './data/2015';
 
 //my modules
 var sql = require('./sql');
@@ -24,7 +34,7 @@ var errors = 0;
 // createDobTable(console.log('done'));
 
 //the magic function that does everything
-insertAllTheFiles('./data/2015');
+insertAllTheFiles(excel_dir);
 
 function insertAllTheFiles (dirPath) {
 
@@ -252,11 +262,11 @@ function do_some_SQL (client, sql, callback) {
 }
 
 //testing
-module.exports = {
-    create_excel_files_arr: create_excel_files_arr,
-    do_some_SQL: do_some_SQL,
-    read_excel_file: read_excel_file,
-    create_queries_array: create_queries_array,
-    doubleUp: doubleUp,
-    createAddress: createAddress
-};
+// module.exports = {
+//     create_excel_files_arr: create_excel_files_arr,
+//     do_some_SQL: do_some_SQL,
+//     read_excel_file: read_excel_file,
+//     create_queries_array: create_queries_array,
+//     doubleUp: doubleUp,
+//     createAddress: createAddress
+// };
