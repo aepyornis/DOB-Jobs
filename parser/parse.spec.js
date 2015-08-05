@@ -51,6 +51,7 @@ describe('the whole damn thing', function(){
     it('should create an array of functions that executes queries', function(){
 
         query_function_array = parser.create_queries_array(parsed_records);
+        console.log(query_function_array);
         query_function_array.should.have.lengthOf(4);
 
     })
@@ -59,6 +60,7 @@ describe('the whole damn thing', function(){
 
       before(function(done){
         async.parallel(query_function_array, function(err){
+            console.log(query_function_array)
             if (err) console.error(err);
             console.log('done!')
             done()
@@ -155,6 +157,14 @@ describe('doubleUp', function(){
   it('should double the apostrophes', function(){
     parser.doubleUp("her's").should.eql("her''s")
     parser.doubleUp("her's, jenny's").should.eql("her''s, jenny''s")
+  })
+
+})
+
+describe('createFieldObject', function(){
+
+  it('should be an object', function(){
+    parser.createFieldObject.should.be.an.object;
   })
 
 })

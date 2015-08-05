@@ -38,7 +38,7 @@ var errors = 0;
 // createDobTable(console.log('done'));
 
 //the magic function that does everything
-insertAllTheFiles(excel_dir);
+// insertAllTheFiles(excel_dir);
 
 function insertAllTheFiles (dirPath) {
 
@@ -118,7 +118,7 @@ function create_queries_array(records) {
       // add address
       row.push(createAddress(row[3], row[4]));
       
-      var query = generate_sql_query(row);
+      var query = generate_sql_query(row, 'jobs_2015');
 
       //push function to array for user with asnyc.parallel
       queries.push(function(callback){
@@ -131,7 +131,8 @@ function create_queries_array(records) {
 }
 
 // creates the insert SQL statement, one row at a time
-function generate_sql_query(row) {
+// input: row (arr), tableName(string)
+function generate_sql_query(row, tableName) {
     var column_names = [];
     var values = [];
     _.each(row, function(field, i){
@@ -144,7 +145,7 @@ function generate_sql_query(row) {
       }
     });
 
-    var sql = "INSERT INTO " + table_name + " (" + column_names.join() + ") VALUES (" + values.join() + ")";
+    var sql = "INSERT INTO " + tableName + " (" + column_names.join() + ") VALUES (" + values.join() + ")";
 
     return sql;
 }
@@ -265,12 +266,70 @@ function do_some_SQL (client, sql, callback) {
   })
 }
 
-//testing
-// module.exports = {
-//     create_excel_files_arr: create_excel_files_arr,
-//     do_some_SQL: do_some_SQL,
-//     read_excel_file: read_excel_file,
-//     create_queries_array: create_queries_array,
-//     doubleUp: doubleUp,
-//     createAddress: createAddress
-// };
+// creates object representation of fields
+// based off of the new excel-version for 2015. 
+function createFieldObject () {
+
+  return {
+    Borough: null,
+    Bin: null,
+    House: null,
+    StreetName: null,
+    Job: null,
+    Jobdoc: null,
+    JobType: null,
+    SelfCert: null,
+    Block: null,
+    Lot: null,
+    CommunityBoard: null,
+    ZipCode: null,
+    BldgType: null,
+    Residential: null,
+    SpecialDistrict1: null,
+    SpecialDistrict2: null,
+    WorkType: null,
+    PermitStatus: null,
+    FilingStatus: null,
+    PermitType: null,
+    PermitSequence: null,
+    PermitSubtype: null,
+    OilGas: null,
+    SiteFill: null,
+    FilingDate: null,
+    IssuanceDate: null,
+    ExpirationDate: null,
+    JobStartDate: null,
+    PermitteesName: null,
+    PermitteesBusinessName: null,
+    PermitteesPhone: null,
+    PermitteesLicenseType: null,
+    PermitteesLicense: null,
+    PermitteesOtherTitle: null,
+    ActsAsSuperintendent: null,
+    HICLicense: null,
+    SiteSafetyMgrsName: null,
+    SiteSafetyMgrBusinessName: null,
+    SuperintendentName: null,
+    SuperintendentBusinessName: null,
+    OwnersBusinessType: null,
+    NonProfit: null,
+    OwnersBusinessName: null,
+    OwnersName: null,
+    OwnersHouseStreet: null,
+    OwnersCityStateZip: null,
+    OwnersPhone: null,
+    BBL: null
+  }
+
+} 
+
+// testing
+module.exports = {
+    create_excel_files_arr: create_excel_files_arr,
+    do_some_SQL: do_some_SQL,
+    read_excel_file: read_excel_file,
+    create_queries_array: create_queries_array,
+    doubleUp: doubleUp,
+    createAddress: createAddress,
+    createFieldObject: createFieldObject
+};
