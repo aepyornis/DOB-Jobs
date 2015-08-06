@@ -29,11 +29,12 @@ var table_name = process.argv[2] || 'jobs_2015';
 var excel_dir = process.argv[3] || './data/2015';
 
 //my modules
-var sql = require('./sql');
-var type_cast = require('./type_casting');
+// var sql = require('./sql');
+// var type_cast = require('./type_casting');
 
 //error counter
 var errors = 0;
+
 //this function creates the table, if that's needed
 // createDobTable(console.log('done'));
 
@@ -99,55 +100,70 @@ function read_excel_file(filePath, callback){
     });
 }
 
-
+// takes records as nested arrays and returns array of functions that each insert one row in the database
+// input: [[],[]]
+// output [function, function]
 function create_queries_array(records) {
-  var queries = [];
-  //records = [[],[]]
-  //each record is an array containing all values in one excel row
-  _.each(records, function(record, i){
-    // skip the first two rows
-    if (i > 2) {
-      //clean up data: remove white space, commas
-      var row = _.map(record, function(field ,i){ 
-          var noCommas = removeCommas(field);
-          var doubledUp = doubleUp(noCommas);
-          return removeWhiteSpace(doubledUp);
-      });
-      // add bbl number
-      row.push(bbl(row[2], parseInt(row[5]), parseInt(row[6])));
-      // add address
-      row.push(createAddress(row[3], row[4]));
-      
-      var query = generate_sql_query(row, 'jobs_2015');
-
-      //push function to array for user with asnyc.parallel
-      queries.push(function(callback){
-         do_query(query, callback);
-      });
-    }
-  });
-
-  return queries;   
+  return  _.chain(records) // [[],[]]
+    .map(cleanUp) 
+    .map(toObjRepresentation) // [{}.{}]
+    .map(addressAndBBL)
+    .map(sqlStatments) // ['','']
+    .map(queryFunctionArray) // [function, function]
+    .value()
 }
 
-// creates the insert SQL statement, one row at a time
-// input: row (arr), tableName(string)
-function generate_sql_query(row, tableName) {
-    var column_names = [];
-    var values = [];
-    _.each(row, function(field, i){
-      //get value of field
-      var value = type_cast.cast(field, i);
-      //if it exists add it to the sql statement
-      if (value) {
-          column_names.push(type_cast.fields[i]);
-          values.push("'" + value + "'");
+// removes commas and white space, doubles '' 
+function cleanUp (record){
+      return _.map(record, function(field ,i){ 
+          if (i > 2) {
+            var noCommas = removeCommas(field);
+            var doubledUp = doubleUp(noCommas);
+            return removeWhiteSpace(doubledUp);
+          }
+      });
+}
+
+// converts to object representation of data
+// [] -> {}
+function toObjRepresentation(record){
+  var lookup2015 = require('./fieldmap')
+  return _.reduce(record, function(memo, val, index){
+    var addThisPair = {};
+    addThisPair[lookup2015[index]] = val;
+    return _.extend(memo, addThisPair);
+  }, {})
+}
+
+// adds two new fields to the record: address and BBL
+// {} -> {}
+function addressAndBBL(record) {
+  record.address = createAddress(record.House, record.StreetName)
+  record.BBL = bbl(record.Borough, record.Block, record.Lot)
+  return record;
+}
+
+
+// input: {} -> str
+// takes record and returns corresponding SQL query 
+function sqlStatements(row) {
+  var columnsAndvalues =  _.chain(row)
+    .map(function(val, key, obj){
+      if (val) {
+        return obj;
       }
-    });
+    })
+    .pairs()
+    .unzip()
+    .value()
 
-    var sql = "INSERT INTO " + tableName + " (" + column_names.join() + ") VALUES (" + values.join() + ")";
+  return "INSERT INTO " + table_name + " (" + columnsAndvalues[0].join() + ") VALUES (" + columnsAndvalues[1].join() + ")";
+}
 
-    return sql;
+function queryFunctionArray(query) {
+  return function(callback) {
+    do_query(query, callback)
+  }
 }
 
 // runs the SQL query on the postgres data using the pg module
@@ -238,15 +254,17 @@ function doubleUp ( str ) {
   }
 }
 
+// need to change table schema !
+
 // Use pg to create the table
-function createDobTable(callback) {
-  var client = new pg.Client();
-  do_some_SQL(client, sql.dobTable, function(result){
-      client.end();
-      console.log('table created!');
-      typeof callback === 'function' && callback();
-  }) 
-}
+// function createDobTable(callback) {
+//   var client = new pg.Client();
+//   do_some_SQL(client, sql.dobTable, function(result){
+//       client.end();
+//       console.log('table created!');
+//       typeof callback === 'function' && callback();
+//   }) 
+// }
 
 //this function excutes sql
 //used by createDobTable()
@@ -266,70 +284,12 @@ function do_some_SQL (client, sql, callback) {
   })
 }
 
-// creates object representation of fields
-// based off of the new excel-version for 2015. 
-function createFieldObject () {
-
-  return {
-    Borough: null,
-    Bin: null,
-    House: null,
-    StreetName: null,
-    Job: null,
-    Jobdoc: null,
-    JobType: null,
-    SelfCert: null,
-    Block: null,
-    Lot: null,
-    CommunityBoard: null,
-    ZipCode: null,
-    BldgType: null,
-    Residential: null,
-    SpecialDistrict1: null,
-    SpecialDistrict2: null,
-    WorkType: null,
-    PermitStatus: null,
-    FilingStatus: null,
-    PermitType: null,
-    PermitSequence: null,
-    PermitSubtype: null,
-    OilGas: null,
-    SiteFill: null,
-    FilingDate: null,
-    IssuanceDate: null,
-    ExpirationDate: null,
-    JobStartDate: null,
-    PermitteesName: null,
-    PermitteesBusinessName: null,
-    PermitteesPhone: null,
-    PermitteesLicenseType: null,
-    PermitteesLicense: null,
-    PermitteesOtherTitle: null,
-    ActsAsSuperintendent: null,
-    HICLicense: null,
-    SiteSafetyMgrsName: null,
-    SiteSafetyMgrBusinessName: null,
-    SuperintendentName: null,
-    SuperintendentBusinessName: null,
-    OwnersBusinessType: null,
-    NonProfit: null,
-    OwnersBusinessName: null,
-    OwnersName: null,
-    OwnersHouseStreet: null,
-    OwnersCityStateZip: null,
-    OwnersPhone: null,
-    BBL: null
-  }
-
-} 
-
 // testing
-module.exports = {
-    create_excel_files_arr: create_excel_files_arr,
-    do_some_SQL: do_some_SQL,
-    read_excel_file: read_excel_file,
-    create_queries_array: create_queries_array,
-    doubleUp: doubleUp,
-    createAddress: createAddress,
-    createFieldObject: createFieldObject
-};
+// module.exports = {
+//     create_excel_files_arr: create_excel_files_arr,
+//     do_some_SQL: do_some_SQL,
+//     read_excel_file: read_excel_file,
+//     create_queries_array: create_queries_array,
+//     doubleUp: doubleUp,
+//     createAddress: createAddress
+// };
