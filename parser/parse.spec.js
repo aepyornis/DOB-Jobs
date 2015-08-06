@@ -11,160 +11,61 @@ var type_cast = require('./type_casting');
   pg.defaults.password = 'mrbuttons'
   // pg.defaults.poolSize
 
-describe('createAddress', function(){
+var testRecords = JSON.parse(fs.readFileSync('./testrecords.json'));
 
-  it('works with example', function() {
-    parser.createAddress(14.0, 'ASTORIA BLVD').should.eql('14 ASTORIA BLVD');
-    parser.createAddress('2', 'ASTORIA BLVD').should.eql('2 ASTORIA BLVD');
+
+describe('do_query', function(){
+  it('should do a query', function(done){
+    parser.do_query('SELECT NOW() As "theTime"', function(err, result){
+      should(err).be.null;
+      result.rows.should.have.lengthOf(1);
+      done();
+    })
   })
 })
 
-
-
-describe('the whole damn thing', function(){
-  this.timeout(10000)
-  var parsed_records;
-  var query_function_array;
-
-    before(function(done){
-            parser.read_excel_file('test.xls', function(records){
-            parsed_records = records;
-            done();
-        })
-    })
-
-    it('connection should work', function(done) {
-        pg.connect(function(err, client, finished){
-            should.not.exist(err)
-            finished()
-            done()
-        })
-    })
-
-    it('should read excel file', function(){
-        parsed_records.should.be.an.Array.and.an.Object;
-        parsed_records.should.have.lengthOf(7);
-        parsed_records[4].should.have.lengthOf[75];
-
-    })
-
-    it('should create an array of functions that executes queries', function(){
-
-        query_function_array = parser.create_queries_array(parsed_records);
-        console.log(query_function_array);
-        query_function_array.should.have.lengthOf(4);
-
-    })
-
-    describe('insert into db', function(){
-
-      before(function(done){
-        async.parallel(query_function_array, function(err){
-            console.log(query_function_array)
-            if (err) console.error(err);
-            console.log('done!')
-            done()
-        })
-      })
-
-      it('should have the records', function(done){
-        pg.connect(function(err, client, finished){
-          should.not.exist(err);
-          client.query('SELECT * FROM dob_jobs', function(err, result){
-              should.not.exist(err);
-              result.rows.should.have.lengthOf(4);
-              finished();
-              done();
-          })
-        })
-      })
-    })
-
-    //remove the documents after the test
-    after(function(){
-      pg.connect(function(err, client, finished){
-        client.query('TRUNCATE TABLE dob_jobs', function(err, result){
-            finished();
-            pg.end();
-        })
-      })  
-    })
-
-})
-
-describe('create_excel_files_arr', function(){
-
-  it('removes non-xls files and returns array', function(){
-    var excel_array = parser.create_excel_files_arr('../data');
-    excel_array.should.have.lengthOf(12);
-  })
-
-})
-
-describe('do_some_SQL', function(){
-
-  it('should execute some SQL', function(done){
-    var client = new pg.Client('postgres://mrbuttons:mrbuttons@localhost/dobtest');
-    parser.do_some_SQL(client, 'SELECT NOW() As "theTime"', function(result){
-        result.rows.should.have.lengthOf(1)
-        client.end()
-        done()
-    }) 
-  })
-
-})
-
-describe('read_excel_file', function(){
-  this.timeout(10000)
-  it('should be an array', function(done) {
-      parser.read_excel_file('test.xls', function(records){
-          records.should.be.an.Array.and.an.Object;
-          done();
-      })
+describe('removeWhiteSpace', function(){
+  it('should remove white space', function(){
+    parser.removeWhiteSpace(' is it gone?  ').should.eql('is it gone?')
   })
 })
-
-describe('type_cast', function(){
-
-    it('should work with integers', function(){
-        type_cast('34', 1).should.eql(34)
-        type_cast('122208789.0', 0).should.eql(122208789);
-    })
-
-    it('should work with booleans', function(){
-        type_cast('', 20).should.eql('false');
-        type_cast(null, 20).should.eql('false');
-        type_cast('Y', 20).should.eql('true');
-        type_cast('X', 20).should.eql('true');
-    })
-
-    it('should work with varchar()', function(){
-        type_cast('lessThan15', 2).should.eql('lessThan15');
-        type_cast('this is more than 15', 2).should.eql('this is more th');
-    })
-
-    it('should work with date', function(){
-        type_cast('2014-12-01 00:00:00', 11).should.eql('2014-12-01');
-        type_cast('', 11).should.be.false
-        type_cast(0, 11).should.be.false
-        type_cast('0', 11).should.be.false
-    })
-})
-
 
 describe('doubleUp', function(){
-
   it('should double the apostrophes', function(){
     parser.doubleUp("her's").should.eql("her''s")
     parser.doubleUp("her's, jenny's").should.eql("her''s, jenny''s")
   })
-
 })
 
-describe('createFieldObject', function(){
-
-  it('should be an object', function(){
-    parser.createFieldObject.should.be.an.object;
+describe('removeCommas', function(){
+  it('should remove commas, duh', function(){
+    parser.removeCommas('remove, those, commas').should.eql('remove those commas')
   })
-
 })
+
+describe('bbl', function(){
+  it('should correctly create bbls', function(){
+    parser.bbl('BRONX', '33', '765').should.eql('2000330765')
+  })
+})
+
+describe('cleanUp', function(){
+  it('should remove white space, commas, and double apostrophes', function(){
+    var test_record = [ "62.0  ","  1057289.0 ","A'1","J","P/E, DISAPPROVED  "]
+    parser.cleanUp(test_record).should.eql([ "62.0","1057289.0","A''1","J","P/E DISAPPROVED"])
+  })
+})
+
+describe('toObjRepresentation', function(){
+  it('should turn into an object', function(){
+    var test_record = ["122208636", "2", "MANHATTAN", "328"]
+    var as_an_object = {
+      "Job": "122208636",
+      "Doc": "2",
+      "Borough": "MANHATTAN",
+      "House": "328"
+    }
+    parser.toObjRepresentation(test_record).should.eql(as_an_object);
+  })
+})
+

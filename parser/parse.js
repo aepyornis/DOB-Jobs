@@ -14,7 +14,7 @@ var async = require('async');
 var _ = require('underscore');
 var excelParser = require('excel-parser');
 var pg = require('pg');
-  pg.defaults.database = process.argv[4] || 'dob';
+  pg.defaults.database = process.argv[4] || 'dobtest';
   pg.defaults.host = process.argv[7] || 'localhost';
   pg.defaults.user = process.argv[5] || 'mrbuttons';
   pg.defaults.password = process.argv[6] || 'mrbuttons';
@@ -105,8 +105,10 @@ function read_excel_file(filePath, callback){
 // output [function, function]
 function create_queries_array(records) {
   return  _.chain(records) // [[],[]]
+    .slice(3)
     .map(cleanUp) 
     .map(toObjRepresentation) // [{}.{}]
+    .map(prepareForDatabase)
     .map(addressAndBBL)
     .map(sqlStatments) // ['','']
     .map(queryFunctionArray) // [function, function]
@@ -115,22 +117,20 @@ function create_queries_array(records) {
 
 // removes commas and white space, doubles '' 
 function cleanUp (record){
-      return _.map(record, function(field ,i){ 
-          if (i > 2) {
-            var noCommas = removeCommas(field);
-            var doubledUp = doubleUp(noCommas);
-            return removeWhiteSpace(doubledUp);
-          }
-      });
+  return _.map(record, function(field){
+    var noCommas = removeCommas(field);
+    var doubledUp = doubleUp(noCommas);
+    return removeWhiteSpace(doubledUp);
+  });
 }
 
 // converts to object representation of data
 // [] -> {}
 function toObjRepresentation(record){
-  var lookup2015 = require('./fieldmap')
+  var lookup = require('./fieldmap')
   return _.reduce(record, function(memo, val, index){
     var addThisPair = {};
-    addThisPair[lookup2015[index]] = val;
+    addThisPair[lookup[index]] = val;
     return _.extend(memo, addThisPair);
   }, {})
 }
@@ -138,12 +138,73 @@ function toObjRepresentation(record){
 // adds two new fields to the record: address and BBL
 // {} -> {}
 function addressAndBBL(record) {
-  record.address = createAddress(record.House, record.StreetName)
+  record.address = record.House + " " + record.StreetName
   record.BBL = bbl(record.Borough, record.Block, record.Lot)
   return record;
 }
 
+  
+// prepares the data for inserting in to postgres
+// {} -> {}
+function prepareForDatabase(record) {
+  return _.mapObject(record, function(val, key) {
+    switch (key) {
+      case "Job":
+      case "Doc":
+      case "House":
+      case "Block":
+      case "Lot":
+      case "CommunityBoard":
+      case "ApplicantLicense":
+      case "OwnerPhone":
+        return val.replace('.0', '')
+        break;
+      // booleans
+      case "Cluster":
+      case "Landmarked":
+      case "AdultEstab":
+      case "LoftBoard":
+      case "CityOwned":
+      case "Littlee":
+      case "PCFiled":
+      case "eFilingFiled":
+      case "Plumbing":
+      case "Mechanical":
+      case "Boiler":
+      case "FuelBurning":
+      case "FuelStorage":
+      case "Standpipe":
+      case "Sprinkler":
+      case "FireAlarm":
+      case "Equipment":
+      case "FireSuppression":
+      case "CurbCut":
+      case "Other":
+      case "NonProfit":
+      case "HorizontalEnlrgmt":
+      case "VerticalEnlrgmt":
+        if (val.trim()) {
+          return 't'
+        } else {
+          return 'f'
+        }
+        break;
+      // dates
+      case "PreFilingDate":
+      case "Paid":
+      case "FullyPaid":
+      case "Assigned":
+      case "Approved":
+      case "FullyPermitted":
+        return val.replace(/[ ]*00:00:00|0.0/g, '')
+        break;
+      default:
+        return val;
+        break; 
+    }
+  })
 
+}
 // input: {} -> str
 // takes record and returns corresponding SQL query 
 function sqlStatements(row) {
@@ -168,7 +229,7 @@ function queryFunctionArray(query) {
 
 // runs the SQL query on the postgres data using the pg module
 function do_query(sql, whenDone) {
-  pg.connect(function(err, client, done){
+  pg.connect(function(err, client, done){    
     if (err) {
         return console.error('error fetching client from pool', err)
     }
@@ -178,7 +239,7 @@ function do_query(sql, whenDone) {
           errors += 1;
         }
         done();
-        whenDone();
+        whenDone(err, result);
     });
   });
 }
@@ -225,10 +286,10 @@ function bbl(borough, block, lot) {
   return bbl;
 }
 
-function createAddress(house, streetname) {
-  var strHouse = '' + house;
-  return '' + strHouse.replace('.0', '') + ' ' + streetname
-}
+// function createAddress(house, streetname) {
+//   var strHouse = '' + house;
+//   return '' + strHouse.replace('.0', '') + ' ' + streetname
+// }
 
 function removeWhiteSpace( field ) {
   if (typeof field === 'string') {
@@ -266,24 +327,6 @@ function doubleUp ( str ) {
 //   }) 
 // }
 
-//this function excutes sql
-//used by createDobTable()
-function do_some_SQL (client, sql, callback) {
-  client.connect(function(err){
-    if (err) {
-        return console.error('could not connect to postgres', err);
-    }
-    client.query(sql, function(err, result){
-        if (err) {
-            return console.error('query error', err)
-        }
-        //this disconnects from the database
-        // client.end();
-        typeof callback === 'function' && callback(result);
-    })
-  })
-}
-
 // testing
 // module.exports = {
 //     create_excel_files_arr: create_excel_files_arr,
@@ -293,3 +336,14 @@ function do_some_SQL (client, sql, callback) {
 //     doubleUp: doubleUp,
 //     createAddress: createAddress
 // };
+
+module.exports = {
+  do_query: do_query,
+  removeWhiteSpace: removeWhiteSpace,
+  doubleUp: doubleUp,
+  removeCommas: removeCommas,
+  bbl: bbl,
+  cleanUp: cleanUp,
+  toObjRepresentation: toObjRepresentation
+
+}
