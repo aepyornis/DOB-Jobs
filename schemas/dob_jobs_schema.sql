@@ -1,14 +1,14 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE "jobs_2015"(
-    Job integer,
-    Doc integer,
+CREATE TABLE jobs_2015(
+    Job text,
+    Doc text,
     Borough text,
     House text,
     StreetName text,
-    Block integer,
-    Lot integer,
-    Bin integer,
+    Block text,
+    Lot text,
+    Bin text,
     JobType text,
     JobStatus text,
     JobStatusDescrp text,

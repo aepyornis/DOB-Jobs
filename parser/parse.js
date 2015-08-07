@@ -24,27 +24,17 @@ var pg = require('pg');
   }
 
 // name of table to add data to  
-// FIX THIS LATER
-var table_name = 'dobtest';
+var table_name = 'dob_jobs';
 // var table_name = process.argv[2] || 'jobs_2015';
 // path to excel files directory
 var excel_dir = process.argv[3] || './data/2015';
 
-//my modules
-// var sql = require('./sql');
-// var type_cast = require('./type_casting');
-
 //error counter
 var errors = 0;
 
-//this function creates the table, if that's needed
-// createDobTable(console.log('done'));
-
-//the magic function that does everything
-// insertAllTheFiles(excel_dir);
-
-function insertAllTheFiles (dirPath) {
-
+//takes a directory of excels files, parses the files and inserts the data into postgres.
+// optional callback
+function insertAllTheFiles (dirPath, callback) {
   var filePaths = create_excel_files_arr(dirPath);
   var arr_of_insert_functions = _.map(filePaths, function(filePath){
     return function(callback) {
@@ -53,11 +43,11 @@ function insertAllTheFiles (dirPath) {
   });
   async.series(arr_of_insert_functions, function(err) {
     if (err) console.error(err);
-    console.log('my god - they are done');
+    console.log("whoohoo it's finished!");
     console.log('total errors: ' + errors);
     pg.end();
+    typeof callback === 'function' && callback(null);
   });
-
 }
 
 // creates an array of file paths for excel files in a give directory
@@ -72,13 +62,14 @@ function create_excel_files_arr(dirPath) {
   });
 }
 
-// inserts an excel file into the postgres db
+// inserts an excel file into postgres
+// input: filePath (str)
+// output: callback(null)
 function insertOneFile (filePath, callback){
   // parses an excel file
   read_excel_file(filePath, function(records){
-      // iterates over the excel file's rows (multi-dimensional array) to create sql insert queries
+      // generate array of functions
       var query_array = create_queries_array(records);
-
       // excute the insert queries in parallel 
       async.parallel(query_array, function(err){
           if (err) console.error(err);
@@ -88,21 +79,21 @@ function insertOneFile (filePath, callback){
   });
 }
 
-//input: filePath of excel file
-//callback(records)
-//records is array of arrays
+// input: filePath (str) of excel file
+// output: callback(records)
+// records is array of arrays
 function read_excel_file(filePath, callback){
-    excelParser.parse({
-        inFile: filePath,
-        worksheet: 1,
-        skipEmpty: false,
-    },function(err, records){
-        if (err) console.error(err);
-        typeof callback === 'function' && callback(records);
-    });
+  excelParser.parse({
+      inFile: filePath,
+      worksheet: 1,
+      skipEmpty: false,
+  },function(err, records){
+      if (err) console.error(err);
+      typeof callback === 'function' && callback(records);
+  });
 }
 
-// takes records as nested arrays and returns array of functions that each insert one row in the database
+// takes records returns array of functions that each insert one row in the database
 // input: [[],[]]
 // output [function, function]
 function create_queries_array(records) {
@@ -112,7 +103,7 @@ function create_queries_array(records) {
     .map(toObjRepresentation) // [{}.{}]
     .map(prepareForDatabase)
     .map(addressAndBBL)
-    .map(sqlStatments) // ['','']
+    .map(sqlStatements) // ['','']
     .map(insertFunction) // [function, function]
     .value()
 }
@@ -128,6 +119,7 @@ function cleanUp (record){
 
 // converts to object representation of data
 // [] -> {}
+// the map can be found in fieldmap.js
 function toObjRepresentation(record){
   var lookup = require('./fieldmap')
   return _.reduce(record, function(memo, val, index){
@@ -145,8 +137,7 @@ function addressAndBBL(record) {
   return record;
 }
 
-  
-// prepares the data for inserting in to postgres
+// prepares the data for postgres
 // {} -> {}
 function prepareForDatabase(record) {
   return _.mapObject(record, function(val, key) {
@@ -185,10 +176,11 @@ function prepareForDatabase(record) {
       case "NonProfit":
       case "HorizontalEnlrgmt":
       case "VerticalEnlrgmt":
+      case "ProfessionalCert":
         if (val.trim()) {
-          return "'t'"
+          return true;
         } else {
-          return "'f'"
+          return false;
         }
         break;
       // dates
@@ -208,21 +200,24 @@ function prepareForDatabase(record) {
   })
 
 }
-// input: {} -> str
+
 // takes record and returns corresponding SQL query 
+// input: {} -> str
 function sqlStatements(row) {
   var columnsAndvalues =  _.chain(row)
+    // falsy-values with not be inserted and will remain null in db
     .pick(function(val, key){
       if (val) {
         return true;
       } else {
         return false;
       }
-    })
+    }) 
     .mapObject(function(val, key){
       // these fields WON'T be surrounded by single-quotes
       var numberKeys = ['ExistingZoningSqft', 'ProposedZoningSqft', 'EnlargementSQFootage',"StreetFrontage","ExistingNoofStories","ProposedNoofStories","ExistingHeight","ProposedHeight","ExistingDwellingUnits","ProposedDwellingUnits",'InitialCost', 'TotalEstFee']
-      if (_.contains(numberKeys, key)) {
+      var booleans = ["Cluster","Landmarked","AdultEstab","LoftBoard","CityOwned","Littlee",    "PCFiled",    "eFilingFiled",    "Plumbing",    "Mechanical",    "Boiler",    "FuelBurning",    "FuelStorage",    "Standpipe",    "Sprinkler",    "FireAlarm",    "Equipment",    "FireSuppression",    "CurbCut",    "Other", "ProfessionalCert",    "HorizontalEnlrgmt",    "VerticalEnlrgmt"]
+      if (_.contains(_.union(numberKeys, booleans), key)) {
         return val;
       } else {
         return "'" + val + "'";
@@ -233,7 +228,7 @@ function sqlStatements(row) {
     .value();
 
   return "INSERT INTO " + table_name + " (" + columnsAndvalues[0].join() + ") VALUES (" + columnsAndvalues[1].join() + ")";
-}
+ }
 
 function insertFunction(query) {
   return function(callback) {
@@ -241,7 +236,8 @@ function insertFunction(query) {
   }
 }
 
-// runs the SQL query on the postgres data using the pg module
+// runs an SQL query, db settings are command-line args or global variables, see the top of the page.
+// callback(err, results)
 function do_query(sql, whenDone) {
   pg.connect(function(err, client, done){    
     if (err) {
@@ -259,7 +255,10 @@ function do_query(sql, whenDone) {
 }
 
 // Helper Functions....
+
 // creates the bbl number
+// input: str, int or str, int or str
+// output: str
 function bbl(borough, block, lot) {
   var bor;
   var blk = '' + block;
@@ -300,7 +299,6 @@ function bbl(borough, block, lot) {
   return bbl;
 }
 
-
 function removeWhiteSpace( field ) {
   if (typeof field === 'string') {
     return field.trim();
@@ -325,8 +323,7 @@ function doubleUp ( str ) {
   }
 }
 
-// need to change table schema !
-
+// exports for testing
 module.exports = {
   do_query: do_query,
   removeWhiteSpace: removeWhiteSpace,
@@ -338,6 +335,9 @@ module.exports = {
   prepareForDatabase: prepareForDatabase,
   addressAndBBL: addressAndBBL,
   sqlStatements: sqlStatements,
-  insertFunction: insertFunction
-
+  insertFunction: insertFunction,
+  read_excel_file: read_excel_file,
+  create_queries_array: create_queries_array,
+  create_excel_files_arr: create_excel_files_arr,
+  insertAllTheFiles: insertAllTheFiles
 }
