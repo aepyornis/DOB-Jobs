@@ -24,7 +24,9 @@ var pg = require('pg');
   }
 
 // name of table to add data to  
-var table_name = process.argv[2] || 'jobs_2015';
+// FIX THIS LATER
+var table_name = 'dobtest';
+// var table_name = process.argv[2] || 'jobs_2015';
 // path to excel files directory
 var excel_dir = process.argv[3] || './data/2015';
 
@@ -111,7 +113,7 @@ function create_queries_array(records) {
     .map(prepareForDatabase)
     .map(addressAndBBL)
     .map(sqlStatments) // ['','']
-    .map(queryFunctionArray) // [function, function]
+    .map(insertFunction) // [function, function]
     .value()
 }
 
@@ -184,12 +186,13 @@ function prepareForDatabase(record) {
       case "HorizontalEnlrgmt":
       case "VerticalEnlrgmt":
         if (val.trim()) {
-          return 't'
+          return "'t'"
         } else {
-          return 'f'
+          return "'f'"
         }
         break;
       // dates
+      case "LatestActionDate":
       case "PreFilingDate":
       case "Paid":
       case "FullyPaid":
@@ -209,19 +212,30 @@ function prepareForDatabase(record) {
 // takes record and returns corresponding SQL query 
 function sqlStatements(row) {
   var columnsAndvalues =  _.chain(row)
-    .map(function(val, key, obj){
+    .pick(function(val, key){
       if (val) {
-        return obj;
+        return true;
+      } else {
+        return false;
+      }
+    })
+    .mapObject(function(val, key){
+      // these fields WON'T be surrounded by single-quotes
+      var numberKeys = ['ExistingZoningSqft', 'ProposedZoningSqft', 'EnlargementSQFootage',"StreetFrontage","ExistingNoofStories","ProposedNoofStories","ExistingHeight","ProposedHeight","ExistingDwellingUnits","ProposedDwellingUnits",'InitialCost', 'TotalEstFee']
+      if (_.contains(numberKeys, key)) {
+        return val;
+      } else {
+        return "'" + val + "'";
       }
     })
     .pairs()
     .unzip()
-    .value()
+    .value();
 
   return "INSERT INTO " + table_name + " (" + columnsAndvalues[0].join() + ") VALUES (" + columnsAndvalues[1].join() + ")";
 }
 
-function queryFunctionArray(query) {
+function insertFunction(query) {
   return function(callback) {
     do_query(query, callback)
   }
@@ -286,10 +300,6 @@ function bbl(borough, block, lot) {
   return bbl;
 }
 
-// function createAddress(house, streetname) {
-//   var strHouse = '' + house;
-//   return '' + strHouse.replace('.0', '') + ' ' + streetname
-// }
 
 function removeWhiteSpace( field ) {
   if (typeof field === 'string') {
@@ -317,26 +327,6 @@ function doubleUp ( str ) {
 
 // need to change table schema !
 
-// Use pg to create the table
-// function createDobTable(callback) {
-//   var client = new pg.Client();
-//   do_some_SQL(client, sql.dobTable, function(result){
-//       client.end();
-//       console.log('table created!');
-//       typeof callback === 'function' && callback();
-//   }) 
-// }
-
-// testing
-// module.exports = {
-//     create_excel_files_arr: create_excel_files_arr,
-//     do_some_SQL: do_some_SQL,
-//     read_excel_file: read_excel_file,
-//     create_queries_array: create_queries_array,
-//     doubleUp: doubleUp,
-//     createAddress: createAddress
-// };
-
 module.exports = {
   do_query: do_query,
   removeWhiteSpace: removeWhiteSpace,
@@ -344,6 +334,10 @@ module.exports = {
   removeCommas: removeCommas,
   bbl: bbl,
   cleanUp: cleanUp,
-  toObjRepresentation: toObjRepresentation
+  toObjRepresentation: toObjRepresentation,
+  prepareForDatabase: prepareForDatabase,
+  addressAndBBL: addressAndBBL,
+  sqlStatements: sqlStatements,
+  insertFunction: insertFunction
 
 }
