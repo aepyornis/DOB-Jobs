@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE jobs_2015(
+CREATE TABLE jobs_2010(
     Job text,
     Doc text,
     Borough text,

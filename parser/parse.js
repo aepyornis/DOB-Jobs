@@ -24,15 +24,20 @@ var pg = require('pg');
   }
 
 // name of table to add data to  
-var table_name = 'dob_jobs';
-// var table_name = process.argv[2] || 'jobs_2015';
+var table_name = process.argv[2] || console.log('don\'t forget about the table name!');
+// for testing:
+// var table_name = 'dob_jobs';
+
 // path to excel files directory
-var excel_dir = process.argv[3] || './data/2015';
+var excel_dir = process.argv[3] || console.log('needs excel_dir!')
 
 //error counter
 var errors = 0;
 
-//takes a directory of excels files, parses the files and inserts the data into postgres.
+// the magic function that does everything! 
+// insertAllTheFiles(excel_dir)
+
+//takes a directory of excel files, parses the files and inserts the data into postgres.
 // optional callback
 function insertAllTheFiles (dirPath, callback) {
   var filePaths = create_excel_files_arr(dirPath);
@@ -70,7 +75,7 @@ function insertOneFile (filePath, callback){
   read_excel_file(filePath, function(records){
       // generate array of functions
       var query_array = create_queries_array(records);
-      // excute the insert queries in parallel 
+      // execute the insert queries in parallel 
       async.parallel(query_array, function(err){
           if (err) console.error(err);
           console.log(filePath + ' is done!')
@@ -99,7 +104,7 @@ function read_excel_file(filePath, callback){
 function create_queries_array(records) {
   return  _.chain(records) // [[],[]]
     .slice(3)
-    .map(cleanUp) 
+    .map(cleanUp)
     .map(toObjRepresentation) // [{}.{}]
     .map(prepareForDatabase)
     .map(addressAndBBL)
@@ -191,14 +196,13 @@ function prepareForDatabase(record) {
       case "Assigned":
       case "Approved":
       case "FullyPermitted":
-        return val.replace(/[ ]*00:00:00|0.0/g, '')
+        return val.replace(/[ ]*00:00:00|0\.0/g, '')
         break;
       default:
         return val;
         break; 
     }
   })
-
 }
 
 // takes record and returns corresponding SQL query 
@@ -207,7 +211,10 @@ function sqlStatements(row) {
   var columnsAndvalues =  _.chain(row)
     // falsy-values with not be inserted and will remain null in db
     .pick(function(val, key){
-      if (val) {
+      if (val === 'n' || val === 'N') {
+        return false;
+      }
+      else if (val) {
         return true;
       } else {
         return false;
