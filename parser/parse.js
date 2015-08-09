@@ -34,8 +34,8 @@ var excel_dir = process.argv[3] || console.log('needs excel_dir!')
 //error counter
 var errors = 0;
 
-// the magic function that does everything! 
-// insertAllTheFiles(excel_dir)
+// the magic function that does everything! comment this when testing.
+insertAllTheFiles(excel_dir)
 
 //takes a directory of excel files, parses the files and inserts the data into postgres.
 // optional callback

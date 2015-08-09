@@ -4,7 +4,7 @@ var q = require('q');
 var _ = require('underscore');
 var s = require("underscore.string");
 var through = require('through');
-// var request = require('request');
+var QueryStream = require('pg-query-stream');
 var squel = require('squel')
 squel.useFlavour('postgres');
 //provide squel.count
@@ -12,17 +12,14 @@ squel.count = require('./count_squel');
 // my SELECT
 squel.mySelect = require('./selectNull');
 var pg = require('pg');
-  pg.defaults.database = 'dob';
-  pg.defaults.host = 'localhost';
-  pg.defaults.user = 'mrbuttons';
-  pg.defaults.password = 'mrbuttons';
-var QueryStream = require('pg-query-stream')
-  // open shift settings
-  // pg.defaults.database = 'dobjobs';
-  // pg.defaults.host = process.env.OPENSHIFT_POSTGRESQL_DB_HOST;
-  // pg.defaults.user = process.env.OPENSHIFT_POSTGRESQL_DB_USERNAME;
-  // pg.defaults.password = process.env.OPENSHIFT_POSTGRESQL_DB_PASSWORD;
-  // pg.defaults.port = process.env.OPENSHIFT_POSTGRESQL_DB_PORT;
+  // db settings
+  pg.defaults.database = 'dobjobs';
+  pg.defaults.host = process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost';
+  pg.defaults.user = process.env.OPENSHIFT_POSTGRESQL_DB_USERNAME || 'mrbuttons';
+  pg.defaults.password = process.env.OPENSHIFT_POSTGRESQL_DB_PASSWORD || 'mrbuttons';
+  if (process.env.OPENSHIFT_POSTGRESQL_DB_PORT) {
+    pg.defaults.port = process.env.OPENSHIFT_POSTGRESQL_DB_PORT;
+  }
 
 //initiate app
 var app = express()
@@ -238,9 +235,7 @@ function where_exp(dt) {
         var value = "%" + column.search.value.toUpperCase() + "%";
         x.and(sql, value);
       }
-      
     }
-
   }
 
   function global_search(columnData) {
@@ -279,12 +274,10 @@ function where_exp(dt) {
     } else {
       console.error("issues with number-range-input");
     }
-
   }
 
   function month_match(search) {
     var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    
     if (_.find(months, function(val){
       if (search === val) {
         return true;
@@ -294,9 +287,7 @@ function where_exp(dt) {
     } else {
       return false;
     }
-
   }
-
 }
 
 function applicantQuery(name, year) {
@@ -304,8 +295,8 @@ function applicantQuery(name, year) {
   var tableName = getTableName(year);
 
   return squel.mySelect()
-    .field('applicanttitle')
-    .field('professionallicense')
+    .field('applicantprofessionaltitle')
+    .field('applicantlicense')
     .field('professionalcert')
     .from(tableName)
     .where('applicantname = ?', name)
@@ -321,23 +312,30 @@ function psql_to_dt(rows){
   return _.map(rows, function(row){
       return change_row(row);
   })
+}
  
-  function change_row(row) {
-    var newRow = row;
-    var date = '' + row['latestactiondate'];
-    newRow['latestactiondate'] = date.slice(4,15);
-    if (row.jobdescription){
-        newRow.jobdescription = sentence_capitalize(row.jobdescription)
+function change_row (row) {
+  return _.mapObject(row, function(val, key){
+    if (val) {
+      if (key === 'latestactiondate' || key === 'approved') {
+         if (_.isDate(val)) {
+          return '' + (val.getUTCMonth() + 1) + "-" + val.getUTCDate() + "-" + val.getUTCFullYear().toString()
+         } else {
+          return val.slice(4,15); 
+         }
+      } else if (key === 'jobdescription') {
+        return sentence_capitalize(val);
+      } else if (key === 'ownername' || key === 'applicantname') {
+        return s.titleize(val.toLowerCase())
+      } else if (/existingnoofstories|proposednoofstories|existingdwellingunits|proposeddwellingunits/.test(key)) {
+        return val.replace('.0', '');
+      } else {
+        return val;
+      }
+    } else {
+      return val;
     }
-    if (row.ownername) {
-      newRow.ownername = s.titleize(row.ownername.toLowerCase());
-    }
-    if (row.approveddate) {
-      var date = '' + row.approveddate;
-      newRow.approveddate = date.slice(4, 15);
-    }
-    return newRow;
-  }
+  })
 }
 
 function sentence_capitalize(str) {
@@ -367,11 +365,12 @@ function getTableName(year) {
   }
 }
 
+// returns total records, as of now, this has to be manually updated every month.
 function getTotalRecords(year){
    var yr = '' + year;
    switch(yr) {
     case '2011':
-      return '77715';
+      return '67880';
     case '2012':
       return '79935';
     case '2013':
@@ -379,7 +378,7 @@ function getTotalRecords(year){
     case '2014':
       return '106569';
     case '2015':
-      return '5362';
+      return '61274';
     default:
       console.log('error with year in dt request');
       return 'error';
@@ -424,15 +423,6 @@ function downloadCSV (req, res) {
        this.queue(csv);
     }
 }
-
-// module.exports = {
-
-//   where_exp: where_exp,
-//   sql_query_builder: sql_query_builder,
-//   sentence_capitalize:sentence_capitalize
-
-// }
-
 
 // input address (str)
 // output: {}. address.houseNum / address.street / address.borough / address.zip

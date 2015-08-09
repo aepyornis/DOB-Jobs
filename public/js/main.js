@@ -35,7 +35,7 @@ $( document ).ready(function() {
         searchable: false
        },
        {
-        data: 'cb',
+        data: 'communityboard',
         searchable: false,
         orderable: false
        },
@@ -54,24 +54,24 @@ $( document ).ready(function() {
         orderable: false
        },
        {
-        data: 'approveddate',
+        data: 'approved',
         searchable: false
        },
        {
-        data: 'existstories',
+        data: 'existingnoofstories',
         searchable: false,
         width: '20px'
        },
        {
-        data: 'proposedstories',
+        data: 'proposednoofstories',
         searchable: false
        },
        {
-        data: 'existdwellunits',
+        data: 'existingdwellingunits',
         searchable: false
        },
        {
-        data: 'proposeddwellunits',
+        data: 'proposeddwellingunits',
         searchable: false
        },
        {
@@ -80,7 +80,6 @@ $( document ).ready(function() {
        },
        {
         data: 'applicantname'
-
        }, {
         data: 'bbl'
        }
@@ -143,19 +142,18 @@ $( document ).ready(function() {
     })
     .done(function(data) {
       var info = JSON.parse(data);
-      var html = "<p><strong>Name: </strong>" + applicant + "</p>"
-        html += "<p><strong><Applicant Title: </strong>" + info.applicanttitle + '</p>';
-        html += "<p><strong>Professional License: </strong>" + info.professionallicense + '</p>';
-        html += "<p><strong>Professional Certified: </strong>" + info.professionalcert + '</p>';
+      // var html = "<p><strong>Name: </strong>" + applicant + "</p>"
+      //   html += "<p><strong><Applicant Title: </strong>" + info.applicanttitle + '</p>';
+      //   html += "<p><strong>Professional License: </strong>" + info.professionallicense + '</p>';
+      //   html += "<p><strong>Professional Certified: </strong>" + info.professionalcert + '</p>';
         
-      var tooltip = "Title: " + info.applicanttitle + " / Professional License: " + info.professionallicense + " / Professional Certified: " + info.professionalcert;
+      var tooltip = "Title: " + info.applicantprofessionaltitle + " / Professional License: " + info.applicantlicense + " / Professional Certified: " + info.professionalcert;
       $(jq).attr('title', tooltip);
     })
     .fail(function(err) {
       console.log('some ajax error')
       console.log(err);
     });
-    
 
   }
   
@@ -202,7 +200,6 @@ $( document ).ready(function() {
                 }
                 bbl = bor + blk + lt;
           }
-             
           return bbl;
         }
 
@@ -211,7 +208,7 @@ $( document ).ready(function() {
   function yearSelect() {
 
    $( "#year-container" ).selectable();
-   $('#year-container .year-2014').addClass('ui-selected');
+   $('#year-container .year-2015').addClass('ui-selected');
 
    $( "#year-container" ).on( "selectableselected", function( event, ui ) {
     table.search('').draw();
