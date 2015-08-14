@@ -1,5 +1,10 @@
 $( document ).ready(function() {
+  // used to signal CSV download in for dataTables
   var download = false;
+  // globals for leaflet
+  var map;
+  var markers;
+  
   // used by ajax and download_button to send message to server
   yearSelect();
   // table
@@ -110,7 +115,7 @@ $( document ).ready(function() {
   bblSearch();
   download_button();
   // start map
-  map();
+  mapInit();
 
   // on each draw
   $("#table").on('draw.dt', function(){
@@ -131,6 +136,8 @@ $( document ).ready(function() {
     $("tr td:nth-child(14)").each(function(i, element){
         getApplicantContent(this);
     }).tooltip();
+    // update map
+   updateMap(table.rows().data());
   })
 
   // functions
@@ -243,17 +250,31 @@ $( document ).ready(function() {
   }
 
 
-  function map() {
-    var map = L.map('map', {
+  // initalizes map to center of NYC with osm
+  function mapInit() {
+    // references the variable at top of this page
+    map = L.map('map', {
       center: [40.783435, -73.966249],
       zoom: 11
     });
-
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      
-    }).addTo(map);
-
+    // add osm title layer
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{}).addTo(map);
+    // groupLayer to old markers
+    markers = L.layerGroup().addTo(map);
   }
+
+  // displays table on map upon
+  function updateMap(tableData) {
+    // clear the old markers
+    markers.clearLayers();
+    tableData.each(function(row){
+      var marker = L.circleMarker([row.lat_coord, row.lng_coord],{
+        
+      });
+      markers.addLayer(marker);
+    });
+  }
+  
   
 })
 //end of (document ready)
