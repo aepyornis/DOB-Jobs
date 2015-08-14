@@ -1,8 +1,7 @@
 $( document ).ready(function() {
-  // used by ajax and download_button to send message to server 
   var download = false;
-
-   yearSelect();
+  // used by ajax and download_button to send message to server
+  yearSelect();
   // table
   var table = $('#table').DataTable( {
     serverSide: true,
@@ -82,7 +81,14 @@ $( document ).ready(function() {
         data: 'applicantname'
        }, {
         data: 'bbl'
-       }
+       },
+       {
+        data: 'lat_coord',
+        visible: false
+       },
+      { data: 'lng_coord',
+        visible: false
+      }
     ]
   });
 
@@ -99,11 +105,12 @@ $( document ).ready(function() {
       {column_number: 9, filter_type: "range_number", filter_delay: 300},
       {column_number: 10, filter_type: "range_number", filter_delay: 300},
       {column_number: 11, filter_type: "range_number", filter_delay: 300}
-    
   ]);
   // add BBL search + download button
   bblSearch();
-  download_button()
+  download_button();
+  // start map
+  map();
 
   // on each draw
   $("#table").on('draw.dt', function(){
@@ -124,8 +131,9 @@ $( document ).ready(function() {
     $("tr td:nth-child(14)").each(function(i, element){
         getApplicantContent(this);
     }).tooltip();
-
   })
+
+  // functions
 
   function getApplicantContent(jq) {
 
@@ -154,10 +162,8 @@ $( document ).ready(function() {
       console.log('some ajax error')
       console.log(err);
     });
-
   }
   
- 
   function bblSearch() {
       var html = '<div id="bbl">';
       html += '<select id="bor-select" name="bor"><option value="1">Manhattan (1)</option><option value="2">Bronx (2)</option><option value="3">Brooklyn (3)</option><option value="4">Queens (4)</option><option value="5">SI (5)</option></select>'
@@ -174,14 +180,14 @@ $( document ).ready(function() {
         var block = $('#block-input').val();
         var lot = $('#lot-input').val();
         table.columns(14).search(bbl(bor,block,lot)).draw();
-      })
+      });
       // reset
       $('#bbl-reset').click(function(){
         // $('#bor-select').val();
         $('#block-input').val('');
         $('#lot-input').val('');
         table.columns(14).search('').draw();
-      })
+      });
 
        function bbl(borough, block, lot) {
           var bor = '' + borough;
@@ -206,27 +212,21 @@ $( document ).ready(function() {
   }
 
   function yearSelect() {
-
    $( "#year-container" ).selectable();
    $('#year-container .year-2015').addClass('ui-selected');
-
    $( "#year-container" ).on( "selectableselected", function( event, ui ) {
     table.search('').draw();
-   })    
-
+   });    
   }
 
   function download_button() {
-    
     $('#download-button').click(function(){
       download = true; 
       table.search('').draw();
-    })  
-
+    });  
   }
   // server-side script not ready yet
   function addSearch() {
-
     var html = '<div id="address-search-container">'
     html += '<input id="add-input" type="text" class="address-input" placeholder="house & street"></input>';
     html += '<select id="address-bor-select"><option>MN</option><option>BX</option><option>BK</option><option>QN</option><option>SI</option></select>'
@@ -234,16 +234,27 @@ $( document ).ready(function() {
     html += '</div>';
 
     $('thead tr th:first').append(html);
-
     $('#address-submit').click(function(){
         var formatted_address = $('#add-input').val();
         formatted_address += ';';
         formatted_address += $('#address-bor-select').val();
        table.columns(0).search(formatted_address).draw();
-    })
-
+    });
   }
 
+
+  function map() {
+    var map = L.map('map', {
+      center: [40.783435, -73.966249],
+      zoom: 11
+    });
+
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      
+    }).addTo(map);
+
+  }
+  
 })
 //end of (document ready)
 

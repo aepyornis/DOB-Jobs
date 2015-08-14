@@ -136,7 +136,7 @@ table thead tr th {
 }
 
 #year-container .ui-selecting { 
-  background: #FECA40; 
+  background: #FECA40;
 }
 #year-container .ui-selected { 
   background: #666666; color: white; 
@@ -150,3 +150,9 @@ table thead tr th {
 #selectable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
 
 #selectable li { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px; }
+
+/* map stuff */
+
+#map {
+    height: 500px;
+}

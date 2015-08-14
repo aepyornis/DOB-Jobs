@@ -5,13 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dob jobs - the table</title>
-   
+
     <link rel="stylehseet" href="css/jquery-ui.min.css">
     <link rel="stylehseet" href="css/jquery-ui.structure.min">
     <link rel="stylesheet" href="css/theme.css">
 <!--  <link rel="stylesheet" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css"> -->
     <link rel="stylesheet" href="css/jquery.dataTables.yadcf.css">
     <link rel="stylesheet" href="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/jqueryui/dataTables.jqueryui.css">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <link rel="stylesheet" href="css/style.css">
 
     <!-- jQuery and jQuery UI -->
@@ -23,8 +24,9 @@
     <script src="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/jqueryui/dataTables.jqueryui.js"></script>
     <!-- yadcf - datatables plugin -->
     <script type="text/javascript" src="js/jquery.dataTables.yadcf.js"></script>
+   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script src="js/main.js"></script>
-
+    <script src="js/map.js"></script>
   </head>
   <body>
     <div id="title">
@@ -56,15 +58,20 @@
                 <th>Initial Cost</th>
                 <th>Applicant</th>
                 <th>BBL</th>
+                <th style="display:none;">lat</th>
+                <th style="display:none;">lng</th>
             </tr>
-   
+
         </thead>
-        
+
     </div>
     </table>
     <div id="download">
             <button id="download-button">Download CSV</button>
-        </div>
+    </div>
+    <div id="map">
+    </div>
+
     <div id="main-text">
 
         <p>This table and database contains all 'jobs' from the Department of Buildings from 2011 through 2015. A job or application can contain multiple permits. The source for the data comes from DOB monthly reports, <a href="http://www.nyc.gov/html/dob/html/codes_and_reference_materials/foilmonthly_2014.shtml">available here</a>. Note that this contains jobs and applications that were denied, changed, and/or never built. </p>
@@ -83,4 +90,3 @@
 
   </body>
 </html>
-
