@@ -114,6 +114,8 @@ $( document ).ready(function() {
   // add BBL search + download button
   bblSearch();
   download_button();
+  // toggles
+  toggles();
   // start map
   mapInit();
 
@@ -267,7 +269,7 @@ $( document ).ready(function() {
   function updateMap(tableData) {
     // clear the old markers
     markers.clearLayers();
-    console.log(tableData[0]);
+    
     tableData.each(function(row){
       var marker = L.circleMarker([row.lat_coord, row.lng_coord],{
         // style goes here
@@ -283,7 +285,17 @@ $( document ).ready(function() {
           "</p><p><b>Latest Action Date:  </b>" + row.latestactiondate +
           "</p><p>Description:  </b>" + row.jobdescription + '</p></div>';
   }
-  
+
+
+  // creates toggle for map and table
+  function toggles() {
+    $('#table-toggle').click(function(){
+      $('.dataTables_scrollBody').toggle();
+    });
+    $('#map-toggle').click(function(){
+      $('#map').toggle();
+    });
+  }
   
 })
 //end of (document ready)
