@@ -88,14 +88,11 @@ table thead tr th {
 }
 
 .bbl-input {
-
   margin-left: 5px;
   max-width: 60px;
-
 }
 
 .address-input {
-
   max-width: 120px;
 }
 
@@ -105,7 +102,6 @@ table thead tr th {
 }*/
 
 #address-submit {
-
   display: inline;
 }
 
@@ -132,12 +128,12 @@ table thead tr th {
     text-align: center;
     font-size: 1.4em;
     padding: .3em;
-
 }
 
 #year-container .ui-selecting { 
   background: #FECA40;
 }
+
 #year-container .ui-selected { 
   background: #666666; color: white; 
 }
@@ -155,4 +151,8 @@ table thead tr th {
 
 #map {
     height: 500px;
+}
+
+.popup p {
+     margin: 2px 0 6px 0;
 }

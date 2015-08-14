@@ -267,12 +267,21 @@ $( document ).ready(function() {
   function updateMap(tableData) {
     // clear the old markers
     markers.clearLayers();
+    console.log(tableData[0]);
     tableData.each(function(row){
       var marker = L.circleMarker([row.lat_coord, row.lng_coord],{
-        
+        // style goes here
       });
+      marker.bindPopup(markerPopupHTML(row));
       markers.addLayer(marker);
     });
+  }
+
+  // generates html for marker
+  function markerPopupHTML(row) {
+    return '<div class="popup"><p><b>Address:  </b>' + row.address + "</p><p><b>Job Type:  </b>" + row.jobtype +
+          "</p><p><b>Latest Action Date:  </b>" + row.latestactiondate +
+          "</p><p>Description:  </b>" + row.jobdescription + '</p></div>';
   }
   
   
