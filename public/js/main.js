@@ -10,7 +10,11 @@ $( document ).ready(function() {
   // table
   var table = $('#table').DataTable( {
     serverSide: true,
-      "scrollX": true,
+    "scrollX": true,
+    // page length options 
+    "lengthMenu": [ 1, 10, 25, 50, 100 ],
+    // starts with 10
+    "pageLength": 10,
     ajax: {
       url: '/datatables',
       type: 'GET',
