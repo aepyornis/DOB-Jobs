@@ -6,7 +6,7 @@ $( document ).ready(function() {
   var markers;
   
   // used by ajax and download_button to send message to server
-  yearSelect();
+  //  yearSelect();
   // table
   var table = $('#table').DataTable( {
     serverSide: true,
@@ -15,7 +15,7 @@ $( document ).ready(function() {
       url: '/datatables',
       type: 'GET',
       data: function ( d ) {
-        d.year = $('#year-container .ui-selected').text();
+        d.year = $("#year-select :radio:checked").attr('id');
         if (download) {
           d.download = 'true';
           // download_ajax_call;
@@ -119,6 +119,8 @@ $( document ).ready(function() {
   // start map
   mapInit();
 
+  yearSelect();
+
   // on each draw
   $("#table").on('draw.dt', function(){
     // align some columns
@@ -136,7 +138,8 @@ $( document ).ready(function() {
     })
     // tooltip for applicant
     $("tr td:nth-child(14)").each(function(i, element){
-        getApplicantContent(this);
+      // appliicant disabled for now.
+      //  getApplicantContent(this);
     }).tooltip();
     // update map
    updateMap(table.rows().data());
@@ -220,14 +223,12 @@ $( document ).ready(function() {
 
   }
 
-  function yearSelect() {
-   $( "#year-container" ).selectable();
-   $('#year-container .year-2015').addClass('ui-selected');
-   $( "#year-container" ).on( "selectableselected", function( event, ui ) {
-    table.search('').draw();
-   });    
+  function yearSelect () {
+   $("#year-select :input:radio").click(function(){
+     table.search('').draw();
+    });
   }
-
+  
   function download_button() {
     $('#download-button').click(function(){
       download = true; 
@@ -271,11 +272,13 @@ $( document ).ready(function() {
     markers.clearLayers();
     
     tableData.each(function(row){
-      var marker = L.circleMarker([row.lat_coord, row.lng_coord],{
-        // style goes here
-      });
-      marker.bindPopup(markerPopupHTML(row));
-      markers.addLayer(marker);
+      if (row.lat_coord && row.lng_coord) {
+        var marker = L.circleMarker([row.lat_coord, row.lng_coord],{
+          // style goes here
+        });
+        marker.bindPopup(markerPopupHTML(row));
+        markers.addLayer(marker);
+      }
     });
   }
 
@@ -290,7 +293,7 @@ $( document ).ready(function() {
   // creates toggle for map and table
   function toggles() {
     $('#table-toggle').click(function(){
-      $('.dataTables_scrollBody').toggle();
+      $('tbody').toggle();
     });
     $('#map-toggle').click(function(){
       $('#map').toggle();

@@ -24,20 +24,23 @@
     <script src="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/jqueryui/dataTables.jqueryui.js"></script>
     <!-- yadcf - datatables plugin -->
     <script type="text/javascript" src="js/jquery.dataTables.yadcf.js"></script>
-   <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-    <script src="js/main.js"></script>
+   <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> -->
+   <script src="js/leaflet-src.js"></script>
+   <script src="js/main.js"></script>
     <script src="js/map.js"></script>
   </head>
   <body>
     <div id="title">
         <h2>Dob Jobs</h2>
-        <ol id="year-container" style="padding-left: 0px;">
-            <li class="year">2011</li>
-            <li class="year">2012</li>
-            <li class="year">2013</li>
-            <li class="year year-2014">2014</li>
-            <li class="year year-2015">2015</li>
-        </ol>
+        <div id="year-select">
+          <form>
+            <input type="radio" id="2011" name="radio"><label for="2011">2011</label>
+            <input type="radio" id="2012" name="radio"><label for="2012">2012</label>
+            <input type="radio" id="2013" name="radio"><label for="2013">2013</label>
+            <input type="radio" id="2014" name="radio"><label for="2014">2014</label>
+            <input type="radio" id="2015" name="radio" checked><label for="2015">2015</label>
+          </form>
+         </div
     <div class="toggle">
          <button id="table-toggle">TOGGLE TABLE</button>
          <button id="map-toggle">TOGGLE MAP</button>
