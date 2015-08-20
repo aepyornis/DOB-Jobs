@@ -325,10 +325,19 @@ $( document ).ready(function() {
       $('#map').toggle();
       // updates isTheMapVisible and re-loads the map 
       if (isTheMapVisible) {
+        // map is turning off...
         isTheMapVisible = false;
+        // set bounds back to ''
+        bounds = '';
         table.draw();
       } else {
+        // map is turning on...
         isTheMapVisible = true;
+        // reset map to initial settings
+        map.setView( [40.783435, -73.966249] );
+        map.setZoom(11);
+        // set bounds to map bounds
+        bounds = map.getBounds().toBBoxString();
         table.draw();
       }
     });

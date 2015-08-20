@@ -5,7 +5,7 @@ var _ = require('underscore');
 var s = require("underscore.string");
 var through = require('through');
 var QueryStream = require('pg-query-stream');
-var squel = require('squel')
+var squel = require('squel');
 squel.useFlavour('postgres');
 //provide squel.count
 squel.count = require('./count_squel');
@@ -22,7 +22,7 @@ var pg = require('pg');
   }
 
 //initiate app
-var app = express()
+var app = express();
 
 //exposes ajax data in req.body
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -44,25 +44,24 @@ app.get('/datatables', function(req, res){
   //create SQL query and count query
   var sql_query = sql_query_builder(req.query)[0];
   var countQuery = sql_query_builder(req.query)[1];
-  console.log(sql_query);
-  // console.log(req);
-
+  // console.log(sql_query);
+ 
   var count_promise = do_query(countQuery)
     .then(function(result){
       response.recordsFiltered = result[0].c;
-  })
+  });
 
   var sql_promise = do_query(sql_query)
     .then(function(result){
       response.data = result;
-  })
+  });
     
   q.all([count_promise, sql_promise])
     .then(function(){
       res.send(JSON.stringify(response));
-    })
+    });
           
-})
+});
 
 // get applicant data
 app.post('/applicant', function(req, res){
@@ -70,8 +69,8 @@ app.post('/applicant', function(req, res){
   var applicant_query = do_query_raw(sql)
     .then(function(result){
        res.send(JSON.stringify(result[0]));    
-    })
-})
+    });
+});
 
 app.get('/csv', downloadCSV);
 
@@ -81,8 +80,8 @@ var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || 'localhost';
 var server = app.listen(server_port, server_ip_address, function () {
   var host = server.address().address;
   var port = server.address().port;
-  console.log('app listening at http://%s:%s', host, port)
-})
+  console.log('app listening at http://%s:%s', host, port);
+});
 
 function do_query(sql) {
   var def = q.defer();
@@ -125,7 +124,7 @@ function do_query_raw(sql) {
           }
           def.resolve(result.rows);
           done();
-        })
+        });
       }
   })
   return def.promise;
@@ -134,7 +133,7 @@ function do_query_raw(sql) {
 //input: datatables request object, optional: false as second arg to disable limit/offset
 //output: [sql-query, count-query]
 function sql_query_builder(dt, limit) {
-  console.log(dt);
+ //  console.log(dt);
   //these are returned
   var rows_query;
   var count_query;
@@ -183,6 +182,7 @@ function sql_query_builder(dt, limit) {
   count_query = squel.count()
     .from(tableName)
     .where( where_exp(dt) );
+
   if (dt.mapVisible === 'true' && dt.bounds) {
     count_query.where( boundsWhere(dt) );
   }
@@ -262,7 +262,7 @@ function where_exp(dt) {
 
   function numberRangeSQL(search, column) {
 
-    var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[1]
+    var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[1];
     var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[2];
 
     if (s.isBlank(low_value) && s.isBlank(high_value)) {
@@ -270,7 +270,7 @@ function where_exp(dt) {
     } else if (s.isBlank(low_value) && high_value) {
       //no low_value, yes high_value
     
-      var sql = column['data'] + " <= ?"
+      var sql = column['data'] + " <= ?";
       x.and(sql, high_value);
       var lowSQL = column['data'] + " >= ?";
       x.and(lowSQL, 0);
@@ -284,7 +284,7 @@ function where_exp(dt) {
       //both low and high
       var lowSQL = column['data'] + " >= ?";
       x.and(lowSQL, low_value);
-      var highSQL = column['data'] + " <= ?"
+      var highSQL = column['data'] + " <= ?";
       x.and(highSQL, high_value);
 
     } else {
@@ -293,7 +293,7 @@ function where_exp(dt) {
   }
 
   function month_match(search) {
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     if (_.find(months, function(val){
       if (search === val) {
         return true;
@@ -409,12 +409,12 @@ function getTotalRecords(year){
 
 function downloadCSV (req, res) {
   // set headers for attachment
-  res.set("Content-Disposition", "attachment; filename=\"dobjobs.csv\"")
+  res.set("Content-Disposition", "attachment; filename=\"dobjobs.csv\"");
   res.set('Content-Type', 'text/plain');
 
   var columnNames = _.map(req.query.columns, function(col){
       return col.data;
-  })
+  });
   // write columnNames
   res.write(columnNames.join(',') + '\n');
   // generate SQL
@@ -431,7 +431,7 @@ function downloadCSV (req, res) {
       // this.queue(null);
       res.end();
     }).pipe(res);
-  })
+  });
     // transform stream from objects to csv
     function write_one_row(row) {
        var arr = _.map(columnNames, function(name){
@@ -451,19 +451,19 @@ function downloadCSV (req, res) {
 // still a work in progress (!)
 function address_to_bbl(address) {
     var def = q.defer();
-    var split = address.split(';')
+    var split = address.split(';');
     var house_street = /(\d+\S*)[ ]+(\w+[ ]?\w*)/.exec(split[0]);
     var house = house_street[1];
     var street = house_street[2];
     var bor = format_bor(split[1]);
   
-    var url = 'https://api.cityofnewyork.us/geoclient/v1/address.json?'
+    var url = 'https://api.cityofnewyork.us/geoclient/v1/address.json?';
     url += 'houseNumber=' + encodeURIComponent(house) + '&street=' + encodeURIComponent(street) + '&borough=' + bor;
     url += '&app_id=a24f63ab&app_key=47bd8f72f07c547b4cfc72e7f0a6ad67';
 
     request(url, function(err, responce, body) {
       if(err) {
-        def.reject(err)
+        def.reject(err);
       } else {
         var address = JSON.parse(body);
         def.resolve(address.address.bbl);
