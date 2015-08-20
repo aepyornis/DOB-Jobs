@@ -241,14 +241,14 @@ $( document ).ready(function() {
 
   function yearSelect () {
    $("#year-select :input:radio").click(function(){
-     table.search('').draw();
+     table.draw();
     });
   }
   
   function download_button() {
     $('#download-button').click(function(){
       download = true; 
-      table.search('').draw();
+      table.draw();
     });  
   }
   // server-side script not ready yet
@@ -289,7 +289,7 @@ $( document ).ready(function() {
       // update bounds
       bounds = map.getBounds().toBBoxString();
       // refresh map
-      table.search('').draw();
+      table.draw();
     });
   }
 
@@ -326,10 +326,10 @@ $( document ).ready(function() {
       // updates isTheMapVisible and re-loads the map 
       if (isTheMapVisible) {
         isTheMapVisible = false;
-        table.search('').draw();
+        table.draw();
       } else {
         isTheMapVisible = true;
-        table.search('').draw();
+        table.draw();
       }
     });
   }
