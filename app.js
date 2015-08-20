@@ -44,7 +44,8 @@ app.get('/datatables', function(req, res){
   //create SQL query and count query
   var sql_query = sql_query_builder(req.query)[0];
   var countQuery = sql_query_builder(req.query)[1];
-  // console.log(sql_query);
+  console.log(sql_query);
+  // console.log(req);
 
   var count_promise = do_query(countQuery)
     .then(function(result){
@@ -94,13 +95,19 @@ function do_query(sql) {
           if (err) {
             def.reject(err);
             console.log(err);
+          } 
+          // when there is a sql syntax error
+          else if (typeof result.rows === 'undefined') {
+            def.reject(result);
+            console.log('SYNTAX ERROR? No rows');
+          } else {
+            var prepare = psql_to_dt(result.rows);
+            def.resolve(prepare);
+            done();
           }
-          var prepare = psql_to_dt(result.rows);
-          def.resolve(prepare);
-          done();
-        })
+        });
       }
-  })
+  });
   return def.promise;
 }
 
@@ -127,11 +134,12 @@ function do_query_raw(sql) {
 //input: datatables request object, optional: false as second arg to disable limit/offset
 //output: [sql-query, count-query]
 function sql_query_builder(dt, limit) {
+  console.log(dt);
   //these are returned
   var rows_query;
   var count_query;
   //create squel select obj.
-  var query = squel.mySelect()
+  var query = squel.mySelect();
   //parse datatables request
 
   var tableName = getTableName(dt.year);
@@ -139,10 +147,15 @@ function sql_query_builder(dt, limit) {
   //get fields
   _.each(dt.columns, function(col){
     query.field(col.data);
-  })
+  });
   // TABLE AND WHERES
   query.from(tableName)
     .where( where_exp(dt) );
+  // lat/lng contraints 
+  if (dt.mapVisible === 'true' && dt.bounds) {
+    query.where( boundsWhere(dt) );
+  }
+
   // order if they exist
   if (!_.isEmpty(dt.order)) {
     _.each(dt.order, function(order){
@@ -153,8 +166,7 @@ function sql_query_builder(dt, limit) {
       } else {
         query.nullOrder('LAST');
       }
-      
-    })
+    });
   }
   // limit and offset
   // pass false as second argument to prevent limit
@@ -170,8 +182,11 @@ function sql_query_builder(dt, limit) {
 
   count_query = squel.count()
     .from(tableName)
-    .where( where_exp(dt) )
-    .toParam();
+    .where( where_exp(dt) );
+  if (dt.mapVisible === 'true' && dt.bounds) {
+    count_query.where( boundsWhere(dt) );
+  }
+  count_query = count_query.toParam();
 
     return [rows_query, count_query];
 }
@@ -190,13 +205,14 @@ function where_exp(dt) {
   // do global search on searchable columns
   if (dt.search.value){
       _.each(searchable_columns, function(col) {
-        global_search(col)}
+        global_search(col);
+        }
       );
   }
 
     // do local searches. 
     _.each(dt.columns, function(c,i) {
-      local_search(c, i)
+      local_search(c, i);
     });
 
   return x;
@@ -290,6 +306,12 @@ function where_exp(dt) {
   }
 }
 
+function boundsWhere(dt) {
+  var bounds = dt.bounds.split(',');
+  return "( (lng_coord BETWEEN " +  bounds[0] + "  AND " + bounds[2] + ") AND (lat_coord BETWEEN " + bounds[1] + " AND " + bounds[3] + ") )"; 
+}
+
+
 function applicantQuery(name, year) {
 
   var tableName = getTableName(year);
@@ -360,7 +382,7 @@ function getTableName(year) {
     case '2015':
       return 'jobs_2015';
     default:
-      console.log('error with year in dt request: ' + yr);
+      console.log('error with year in dt request: ' + year);
       return 'jobs_2014';
   }
 }

@@ -1,17 +1,22 @@
 $( document ).ready(function() {
   // used to signal CSV download in for dataTables
   var download = false;
+  // holds bounds data
+  var bounds = '';
+  // signal that map is visible
+  var isTheMapVisible = true;
   // globals for leaflet
   var map;
   var markers;
   
   // used by ajax and download_button to send message to server
-  //  yearSelect();
-  // table
+  // yearSelect();
+  
+// table
   var table = $('#table').DataTable( {
     serverSide: true,
     "scrollX": true,
-    // page length options 
+    // page length optins 
     "lengthMenu": [ 1, 10, 25, 50, 100 ],
     // starts with 10
     "pageLength": 10,
@@ -20,6 +25,8 @@ $( document ).ready(function() {
       type: 'GET',
       data: function ( d ) {
         d.year = $("#year-select :radio:checked").attr('id');
+        d.bounds = bounds;
+        d.mapVisible = isTheMapVisible;
         if (download) {
           d.download = 'true';
           // download_ajax_call;
@@ -93,10 +100,12 @@ $( document ).ready(function() {
        },
        {
         data: 'lat_coord',
-        visible: false
+        visible: false,
+        searchable: false
        },
       { data: 'lng_coord',
-        visible: false
+        visible: false,
+        searchable: false
       }
     ]
   });
@@ -115,6 +124,7 @@ $( document ).ready(function() {
       {column_number: 10, filter_type: "range_number", filter_delay: 300},
       {column_number: 11, filter_type: "range_number", filter_delay: 300}
   ]);
+
   // add BBL search + download button
   bblSearch();
   download_button();
@@ -122,7 +132,9 @@ $( document ).ready(function() {
   toggles();
   // start map
   mapInit();
-
+  // movemovent updates bounds
+  mapMovement();
+  // create year selections
   yearSelect();
 
   // on each draw
@@ -139,15 +151,15 @@ $( document ).ready(function() {
 
     $("tr td:nth-child(7)").each(function(i, element){
          // $( this ).tooltip();
-    })
+    });
     // tooltip for applicant
     $("tr td:nth-child(14)").each(function(i, element){
       // appliicant disabled for now.
       //  getApplicantContent(this);
     }).tooltip();
     // update map
-   updateMap(table.rows().data());
-  })
+    updateMap(table.rows().data());
+  });
 
   // functions
 
@@ -175,7 +187,7 @@ $( document ).ready(function() {
       $(jq).attr('title', tooltip);
     })
     .fail(function(err) {
-      console.log('some ajax error')
+      console.log('some ajax error');
       console.log(err);
     });
   }
@@ -256,7 +268,6 @@ $( document ).ready(function() {
     });
   }
 
-
   // initalizes map to center of NYC with osm
   function mapInit() {
     // references the variable at top of this page
@@ -268,6 +279,18 @@ $( document ).ready(function() {
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{}).addTo(map);
     // groupLayer to old markers
     markers = L.layerGroup().addTo(map);
+    // set bounds to map bounds
+    bounds = map.getBounds().toBBoxString();
+  }
+
+  function mapMovement() {
+    // on end of movement
+    map.on('moveend', function(e) {
+      // update bounds
+      bounds = map.getBounds().toBBoxString();
+      // refresh map
+      table.search('').draw();
+    });
   }
 
   // displays table on map upon
@@ -293,7 +316,6 @@ $( document ).ready(function() {
           "</p><p>Description:  </b>" + row.jobdescription + '</p></div>';
   }
 
-
   // creates toggle for map and table
   function toggles() {
     $('#table-toggle').click(function(){
@@ -301,10 +323,17 @@ $( document ).ready(function() {
     });
     $('#map-toggle').click(function(){
       $('#map').toggle();
+      // updates isTheMapVisible and re-loads the map 
+      if (isTheMapVisible) {
+        isTheMapVisible = false;
+        table.search('').draw();
+      } else {
+        isTheMapVisible = true;
+        table.search('').draw();
+      }
     });
   }
   
-})
+});
 //end of (document ready)
-
 
