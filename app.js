@@ -1,3 +1,4 @@
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var q = require('q');
@@ -61,15 +62,6 @@ app.get('/datatables', function(req, res){
       res.send(JSON.stringify(response));
     });
           
-});
-
-// get applicant data
-app.post('/applicant', function(req, res){
-  var sql = applicantQuery(req.body.applicant, req.body.year);
-  var applicant_query = do_query_raw(sql)
-    .then(function(result){
-       res.send(JSON.stringify(result[0]));    
-    });
 });
 
 app.get('/csv', downloadCSV);
@@ -309,21 +301,6 @@ function where_exp(dt) {
 function boundsWhere(dt) {
   var bounds = dt.bounds.split(',');
   return "( (lng_coord BETWEEN " +  bounds[0] + "  AND " + bounds[2] + ") AND (lat_coord BETWEEN " + bounds[1] + " AND " + bounds[3] + ") )"; 
-}
-
-
-function applicantQuery(name, year) {
-
-  var tableName = getTableName(year);
-
-  return squel.mySelect()
-    .field('applicantprofessionaltitle')
-    .field('applicantlicense')
-    .field('professionalcert')
-    .from(tableName)
-    .where('applicantname = ?', name)
-    .limit(1)
-    .toParam();
 }
 
 // input: rows from psql query

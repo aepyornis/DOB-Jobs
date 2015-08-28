@@ -153,47 +153,12 @@
     $("tr td:nth-child(7)").each(function(i, element){
          // $( this ).tooltip();
     });
-    // tooltip for applicant
-    $("tr td:nth-child(14)").each(function(i, element){
-      // appliicant disabled for now.
-      //  getApplicantContent(this);
-    }).tooltip();
-    // update map
-    updateMap(table.rows().data());
+        updateMap(table.rows().data());
   });
 
   // functions
 
-  function getApplicantContent(jq) {
-
-    var applicant = table.cell(jq).data();
-    var year = $('#year-container .ui-selected').text()
-
-    $.ajax({
-      url: '/applicant',
-      type: 'POST',
-      data: {
-        'applicant': applicant,
-        'year': year
-      }
-    })
-    .done(function(data) {
-      var info = JSON.parse(data);
-      // var html = "<p><strong>Name: </strong>" + applicant + "</p>"
-      //   html += "<p><strong><Applicant Title: </strong>" + info.applicanttitle + '</p>';
-      //   html += "<p><strong>Professional License: </strong>" + info.professionallicense + '</p>';
-      //   html += "<p><strong>Professional Certified: </strong>" + info.professionalcert + '</p>';
-        
-      var tooltip = "Title: " + info.applicantprofessionaltitle + " / Professional License: " + info.applicantlicense + " / Professional Certified: " + info.professionalcert;
-      $(jq).attr('title', tooltip);
-    })
-    .fail(function(err) {
-      console.log('some ajax error');
-      console.log(err);
-    });
-  }
-  
-  function bblSearch() {
+    function bblSearch() {
       var html = '<div id="bbl">';
       html += '<select id="bor-select" name="bor"><option value="1">Manhattan (1)</option><option value="2">Bronx (2)</option><option value="3">Brooklyn (3)</option><option value="4">Queens (4)</option><option value="5">SI (5)</option></select>'
       html += '<input id="block-input" class="bbl-input" type="text" inputmode="numberic" maxlength="5" placeholder="Block"></input>';
