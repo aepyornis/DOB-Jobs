@@ -1,4 +1,4 @@
-$( document ).ready(function() {
+ $( document ).ready(function() {
   // used to signal CSV download in for dataTables
   var download = false;
   // holds bounds data
@@ -76,6 +76,7 @@ $( document ).ready(function() {
         data: 'existingnoofstories',
         searchable: false,
         width: '20px'
+
        },
        {
         data: 'proposednoofstories',
@@ -132,7 +133,7 @@ $( document ).ready(function() {
   toggles();
   // start map
   mapInit();
-  // movemovent updates bounds
+  // handles movement
   mapMovement();
   // create year selections
   yearSelect();
@@ -301,7 +302,10 @@ $( document ).ready(function() {
     tableData.each(function(row){
       if (row.lat_coord && row.lng_coord) {
         var marker = L.circleMarker([row.lat_coord, row.lng_coord],{
-          // style goes here
+          fillColor: "#1f78b4",
+          fillOpacity: 0.8,
+          radius: 10,
+          color: "#FFFFFF"
         });
         marker.bindPopup(markerPopupHTML(row));
         markers.addLayer(marker);
