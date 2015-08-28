@@ -307,17 +307,24 @@
           radius: 10,
           color: "#FFFFFF"
         });
-        marker.bindPopup(markerPopupHTML(row));
+        marker.bindPopup(markerPopup(row));
         markers.addLayer(marker);
       }
     });
   }
 
-  // generates html for marker
-  function markerPopupHTML(row) {
-    return '<div class="popup"><p><b>Address:  </b>' + row.address + "</p><p><b>Job Type:  </b>" + row.jobtype +
+  // generates popup for marker
+  function markerPopup(row) {
+    var html =  '<div class="popup"><p><b>Address:  </b>' + row.address +
+          "</p><p><b>Job Type:  </b>" + row.jobtype +
           "</p><p><b>Latest Action Date:  </b>" + row.latestactiondate +
           "</p><p>Description:  </b>" + row.jobdescription + '</p></div>';
+
+    var popup =  L.popup({
+      autoPan: false
+    });
+
+    return popup.setContent(html);
   }
 
   // creates toggle for map and table
