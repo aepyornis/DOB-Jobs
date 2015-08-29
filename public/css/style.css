@@ -4,7 +4,7 @@ body {
 
 table thead tr th {
    text-align: center;
-   font-size: 16px;
+   font-size: 14px;
 }
 
 
@@ -17,9 +17,7 @@ table thead tr th {
     font-size: 12px;
 }
 
-/*input#yadcf-filter-table-3 {
-  width: 90px;
-}
+/*
 
 .yadcf-filter {
   padding-right: 4px;
@@ -32,7 +30,6 @@ table thead tr th {
 */
 
 #main-text {
-
   padding-top: 25px;
   padding-left: 8%;
   padding-right: 8%;
@@ -155,4 +152,15 @@ table thead tr th {
 
 .popup p {
      margin: 2px 0 6px 0;
+}
+
+
+/* adjust yadcf filters */
+
+.yadcf-filter {
+  max-width: 70%; 
+}
+
+.yadcf-filter-wrapper {
+  display: block;
 }

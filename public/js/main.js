@@ -119,11 +119,11 @@
       {column_number: 3, filter_type: "select", data: ['A1', 'A2', 'A3', 'NB', 'DM', 'PA', 'SI', 'SC']},
       {column_number: 4, filter_type: 'text', filter_delay: 300},
       {column_number: 5, filter_type: 'text', filter_delay: 300},
-      {column_number: 6, filter_type: 'text', filter_delay: 300},
-      {column_number: 8, filter_type: "range_number", filter_delay: 300},
-      {column_number: 9, filter_type: "range_number", filter_delay: 300},
-      {column_number: 10, filter_type: "range_number", filter_delay: 300},
-      {column_number: 11, filter_type: "range_number", filter_delay: 300}
+      {column_number: 6, filter_type: 'text', filter_delay: 300}
+      // {column_number: 8, filter_type: "range_number", filter_delay: 300},
+      // {column_number: 9, filter_type: "range_number", filter_delay: 300},
+      // {column_number: 10, filter_type: "range_number", filter_delay: 300},
+      // {column_number: 11, filter_type: "range_number", filter_delay: 300}
   ]);
 
   // add BBL search + download button
@@ -285,7 +285,7 @@ function bblSearch ()  {
     var html =  '<div class="popup"><p><b>Address:  </b>' + row.address +
           "</p><p><b>Job Type:  </b>" + row.jobtype +
           "</p><p><b>Latest Action Date:  </b>" + row.latestactiondate +
-          "</p><p>Description:  </b>" + row.jobdescription + '</p></div>';
+          "</p><p><b>Description:  </b>" + row.jobdescription + '</p></div>';
 
     var popup =  L.popup({
       autoPan: false
