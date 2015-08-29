@@ -158,7 +158,7 @@
 
   // functions
 
-    function bblSearch() {
+function bblSearch ()  {
       var html = '<div id="bbl">';
       html += '<select id="bor-select" name="bor"><option value="1">Manhattan (1)</option><option value="2">Bronx (2)</option><option value="3">Brooklyn (3)</option><option value="4">Queens (4)</option><option value="5">SI (5)</option></select>'
       html += '<input id="block-input" class="bbl-input" type="text" inputmode="numberic" maxlength="5" placeholder="Block"></input>';
@@ -202,7 +202,6 @@
           }
           return bbl;
         }
-
   }
 
   function yearSelect () {
@@ -242,7 +241,10 @@
       zoom: 11
     });
     // add osm title layer
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{}).addTo(map);
+    L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',{
+      subdomains: ["1", "2", "3"]
+     }).addTo(map);
+    
     // groupLayer to old markers
     markers = L.layerGroup().addTo(map);
     // set bounds to map bounds
