@@ -4,7 +4,7 @@ body {
 
 table thead tr th {
    text-align: center;
-   font-size: 14px;
+   font-size: 12px;
 }
 
 
@@ -17,6 +17,10 @@ table thead tr th {
     font-size: 12px;
 }
 
+/* reduce height of columns */
+table.dataTable tbody th, table.dataTable tbody td {
+  padding: 4px 10px;
+}
 /*
 
 .yadcf-filter {
@@ -80,6 +84,16 @@ table thead tr th {
 
 }
 
+#year-select {
+  padding-top: 5px;
+  padding-bottom: 3px;
+}
+
+.toggle {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
 #download {
   padding-left: 4%;
 }
@@ -108,10 +122,14 @@ table thead tr th {
   position: relative;
   text-align: center;
 }
+
+#title p {
+  padding: 0px;
+  margin: .5px;
+}
 #title h2 {
   margin: 0 auto;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 6px;
 }
 
 #year-container ul{
@@ -147,13 +165,18 @@ table thead tr th {
 /* map stuff */
 
 #map {
-    height: 500px;
+  height: 500px;
+  margin-top: 5px;
 }
 
 .popup p {
      margin: 2px 0 6px 0;
 }
 
+input, select {
+  max-width: 100%;
+  font-size: 10px;
+}
 
 /* adjust yadcf filters */
 

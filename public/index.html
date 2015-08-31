@@ -9,29 +9,39 @@
     <link rel="stylehseet" href="css/jquery-ui.min.css">
     <link rel="stylehseet" href="css/jquery-ui.structure.min">
     <link rel="stylesheet" href="css/theme.css">
-<!--  <link rel="stylesheet" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css"> -->
+
+    <!-- use only either regular dt css or jqueryui intergration css -->
+    <!-- <link rel="stylesheet" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css"> -->
+        
     <link rel="stylesheet" href="css/jquery.dataTables.yadcf.css">
     <link rel="stylesheet" href="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/jqueryui/dataTables.jqueryui.css">
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <link rel="stylesheet" href="css/style.css">
 
     <!-- jQuery and jQuery UI -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    
     <!-- datatables -->
     <script type="text/javascript" language="javascript" src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+    
     <!-- jQueryUI/datatables integration -->
     <script src="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/jqueryui/dataTables.jqueryui.js"></script>
+
     <!-- yadcf - datatables plugin -->
     <script type="text/javascript" src="js/jquery.dataTables.yadcf.js"></script>
-   <!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> -->
-   <script src="js/leaflet-src.js"></script>
-   <script src="js/main.js"></script>
-    <script src="js/map.js"></script>
+
+    <!-- leaflet -->
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <!-- <script src="js/leaflet-src.js"></script>   -->
+    
+    <script src="js/main.js"></script>
+   
   </head>
   <body>
     <div id="title">
-        <h2>Dob Jobs</h2>
+      <h2>Dob Jobs</h2>
+      <p>An interactive query tool for Department of Buildings data</p>
         <div id="year-select">
           <form>
             <input type="radio" id="2011" name="radio"><label for="2011">2011</label>
@@ -40,7 +50,7 @@
             <input type="radio" id="2014" name="radio"><label for="2014">2014</label>
             <input type="radio" id="2015" name="radio" checked><label for="2015">2015</label>
           </form>
-         </div
+         </div>
     <div class="toggle">
          <button id="table-toggle">TOGGLE TABLE</button>
          <button id="map-toggle">TOGGLE MAP</button>
@@ -50,11 +60,10 @@
     <table id="table" class="display compact">
         <thead>
           <tr>
-
                 <th>Address</th>
                 <th>latest Action Date</th>
-                <th style="max-width:110px;">CB</th>
-                <th>Job Type</th>
+                <th style="max-width:100px;">Community Board</th>
+                <th style="max-width:100px;">Job Type</th>
                 <th>Owner Name</th>
                 <th>Owner's Business</th>
                 <th>Job Description</th>
@@ -77,13 +86,13 @@
     <div id="download">
             <button id="download-button">Download CSV</button>
     </div>
-
+ 
     <div id="map">
     </div>
 
     <div id="main-text">
 
-        <p>This table and database contains all 'jobs' from the Department of Buildings from 2011 through 2015. A job or application can contain multiple permits. The source for the data comes from DOB monthly reports, <a href="http://www.nyc.gov/html/dob/html/codes_and_reference_materials/foilmonthly_2014.shtml">available here</a>. Note that this contains jobs and applications that were denied, changed, and/or never built. </p>
+        <p>This table and database contains all 'jobs' from the Department of Buildings from 2011 through 2015.  A job is an application to do work on a building. A single job can contain multiple permits. The source for the data comes from DOB monthly reports, <a href="http://www.nyc.gov/html/dob/html/codes_and_reference_materials/foilmonthly_2014.shtml">available here</a>. Note that this contains jobs and applications that were denied, changed, and/or never built. </p>
 
         <p>This site is a work in progress. Please check back regularly for more updates and features, including the ability to download reports, visualizations, and permit data.</p>
 

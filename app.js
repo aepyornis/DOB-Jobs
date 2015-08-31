@@ -45,7 +45,7 @@ app.get('/datatables', function(req, res){
   //create SQL query and count query
   var sql_query = sql_query_builder(req.query)[0];
   var countQuery = sql_query_builder(req.query)[1];
-  // console.log(sql_query);
+  console.log(sql_query);
  
   var count_promise = do_query(countQuery)
     .then(function(result){
