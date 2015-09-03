@@ -1,22 +1,14 @@
-# DOB-Jobs
+# [DOB-Jobs](http://www.dobjobs.org/)
 
-Tools for making the NYC Department of Building Jobs data more accessible.
+An interactive query tool for Department of Buildings data.
 
 ## Runs on:
 
 - Node.js
-- jQuery Data Tables
+- DataTables & Leaflet
 - PostgreSQL
-- GDAL
-
-## Installation:
-...
 
 ## LICENSE
 
-  -  The ONLY restriction: NON-COMMERICAL use. This may not be used by real estate or for ANY profit-making purpose. 
-
-## ISSUES
-
-  - Null values should be excluded from ordering?
+-  The ONLY restriction: NON-COMMERICAL use. This may not be used by real estate or for ANY profit-making purpose. 
 
