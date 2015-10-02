@@ -4,7 +4,7 @@ var parser = require('./parse');
 var async = require('async');
 var pg = require('pg');
 var _ = require('underscore');
-var sql = require('./sql')
+var sql = require('./sql');
 //default settings
   pg.defaults.database = 'dobtest';
   pg.defaults.host = 'localhost';

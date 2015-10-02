@@ -29,13 +29,13 @@ var table_name = process.argv[2] || console.log('don\'t forget about the table n
 // var table_name = 'dob_jobs';
 
 // path to excel files directory
-var excel_dir = process.argv[3] || console.log('needs excel_dir!')
+var excel_dir = process.argv[3] || console.log('needs excel_dir!');
 
 //error counter
 var errors = 0;
 
 // the magic function that does everything! comment this when testing.
-insertAllTheFiles(excel_dir)
+ insertAllTheFiles(excel_dir)
 
 //takes a directory of excel files, parses the files and inserts the data into postgres.
 // optional callback
@@ -91,7 +91,7 @@ function read_excel_file(filePath, callback){
   excelParser.parse({
       inFile: filePath,
       worksheet: 1,
-      skipEmpty: false,
+      skipEmpty: false
   },function(err, records){
       if (err) console.error(err);
       typeof callback === 'function' && callback(records);
@@ -234,7 +234,8 @@ function sqlStatements(row) {
     .unzip()
     .value();
 
-  return "INSERT INTO " + table_name + " (" + columnsAndvalues[0].join() + ") VALUES (" + columnsAndvalues[1].join() + ")";
+  var sql =  "INSERT INTO " + table_name + " (" + columnsAndvalues[0].join() + ") VALUES (" + columnsAndvalues[1].join() + ")";
+    return sql;
  }
 
 function insertFunction(query) {
