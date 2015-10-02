@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE (
+CREATE TABLE jobs (
     Job text,
     Doc text,
     Borough text,
