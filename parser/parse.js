@@ -26,7 +26,7 @@ var pg = require('pg');
 // name of table to add data to  
 var table_name = process.argv[2] || console.log('don\'t forget about the table name!');
 // uncomment for testing:
-table_name = 'dob_jobs';
+//table_name = 'dob_jobs';
 
 // path to excel files directory
 var excel_dir = process.argv[3] || console.log('needs excel_dir!');
@@ -35,7 +35,7 @@ var excel_dir = process.argv[3] || console.log('needs excel_dir!');
 var errors = 0;
 
 // the magic function that does everything! comment this when testing.
-//insertAllTheFiles(excel_dir)
+insertAllTheFiles(excel_dir)
 
 //takes a directory of excel files, parses the files and inserts the data into postgres.
 // optional callback
