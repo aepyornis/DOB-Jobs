@@ -25,11 +25,11 @@ var pg = require('pg');
 
 // name of table to add data to  
 var table_name = process.argv[2] || console.log('don\'t forget about the table name!');
-// for testing:
-// var table_name = 'dob_jobs';
+// uncomment for testing:
+//table_name = 'dob_jobs';
 
 // path to excel files directory
-var excel_dir = process.argv[3] || console.log('needs excel_dir!')
+var excel_dir = process.argv[3] || console.log('needs excel_dir!');
 
 //error counter
 var errors = 0;
@@ -70,15 +70,18 @@ function create_excel_files_arr(dirPath) {
 // inserts an excel file into postgres
 // input: filePath (str)
 // output: callback(null)
+// y2k bug: will produce wrong sourceyear for years before 2000. 
 function insertOneFile (filePath, callback){
   // parses an excel file
   read_excel_file(filePath, function(records){
-      // generate array of functions
-      var query_array = create_queries_array(records);
+    // get year from filePath
+    var sourceYear =  "20" +  /job[\d]{2}([\d]{2}).xls/g.exec(filePath)[1];
+        // generate array of functions
+    var query_array = create_queries_array(records, sourceYear);
       // execute the insert queries in parallel 
       async.parallel(query_array, function(err){
           if (err) console.error(err);
-          console.log(filePath + ' is done!')
+          console.log(filePath + ' is done!');
           callback(null);
       });
   });
@@ -91,23 +94,26 @@ function read_excel_file(filePath, callback){
   excelParser.parse({
       inFile: filePath,
       worksheet: 1,
-      skipEmpty: false,
+      skipEmpty: false
   },function(err, records){
       if (err) console.error(err);
       typeof callback === 'function' && callback(records);
   });
 }
 
-// takes records returns array of functions that each insert one row in the database
-// input: [[],[]]
+// takes records and the source-year of the data;  returns an array of functions that each insert one row in the database
+// input: [[],[]], 'str'
 // output [function, function]
-function create_queries_array(records) {
+function create_queries_array(records, sourceYear) {
+  // create  addYear function
+  var addYear = addYearConstructor(sourceYear);
   return  _.chain(records) // [[],[]]
     .slice(3)
     .map(cleanUp)
     .map(toObjRepresentation) // [{}.{}]
     .map(prepareForDatabase)
     .map(addressAndBBL)
+    .map(addYear)
     .map(sqlStatements) // ['','']
     .map(insertFunction) // [function, function]
     .value()
@@ -140,6 +146,16 @@ function addressAndBBL(record) {
   record.address = record.House + " " + record.StreetName
   record.BBL = bbl(record.Borough, record.Block, record.Lot)
   return record;
+}
+
+
+// creates a function that up adds new sourceyear field to a record
+// str -> function
+function addYearConstructor(sourceyear) {
+  return function (record){
+    record.sourceyear = sourceyear;
+    return record;
+  };  
 }
 
 // prepares the data for postgres
@@ -234,7 +250,8 @@ function sqlStatements(row) {
     .unzip()
     .value();
 
-  return "INSERT INTO " + table_name + " (" + columnsAndvalues[0].join() + ") VALUES (" + columnsAndvalues[1].join() + ")";
+  var sql =  "INSERT INTO " + table_name + " (" + columnsAndvalues[0].join() + ") VALUES (" + columnsAndvalues[1].join() + ")";
+    return sql;
  }
 
 function insertFunction(query) {
@@ -346,5 +363,6 @@ module.exports = {
   read_excel_file: read_excel_file,
   create_queries_array: create_queries_array,
   create_excel_files_arr: create_excel_files_arr,
-  insertAllTheFiles: insertAllTheFiles
+  insertAllTheFiles: insertAllTheFiles,
+  insertOneFile:  insertOneFile
 }

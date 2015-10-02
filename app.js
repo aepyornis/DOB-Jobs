@@ -133,7 +133,7 @@ function sql_query_builder(dt, limit) {
   var query = squel.mySelect();
   //parse datatables request
 
-  var tableName = getTableName(dt.year);
+  var tableName = "jobs";
 
   //get fields
   _.each(dt.columns, function(col){
@@ -146,6 +146,8 @@ function sql_query_builder(dt, limit) {
   if (dt.mapVisible === 'true' && dt.bounds) {
     query.where( boundsWhere(dt) );
   }
+  // year
+  query.where( "sourceyear = '" + dt.year + "'" );
 
   // order if they exist
   if (!_.isEmpty(dt.order)) {

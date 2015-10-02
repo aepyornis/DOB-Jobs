@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE jobs_2010(
+CREATE TABLE jobs (
     Job text,
     Doc text,
     Borough text,
@@ -78,7 +78,8 @@ CREATE TABLE jobs_2010(
     OwnerPhone text,
     JobDescription text,
     address text,
-    BBL text
+    BBL text,
+    sourceyear text
 );
 
 END TRANSACTION;

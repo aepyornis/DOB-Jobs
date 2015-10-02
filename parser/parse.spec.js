@@ -4,7 +4,7 @@ var parser = require('./parse');
 var async = require('async');
 var pg = require('pg');
 var _ = require('underscore');
-var sql = require('./sql')
+var sql = require('./sql');
 //default settings
   pg.defaults.database = 'dobtest';
   pg.defaults.host = 'localhost';
@@ -102,7 +102,7 @@ describe('sqlStatements', function(){
 describe('read_excel_file', function(){
   this.timeout(10000)
   it('returns a nested array', function(done){
-    parser.read_excel_file(__dirname + '/test.xls', function(records){
+    parser.read_excel_file(__dirname + '/test_job1214.xls', function(records){
       _.isArray(records).should.be.true
       _.isArray(records[2]).should.be.true
       done()
@@ -116,20 +116,10 @@ describe('create_excel_files_arr', function(){
   })
 })
 
-describe('testing the test data(text.xls)', function(){
+describe('testing the test data(test_job1214.xls)', function(){
   this.timeout(40000)
 
-  var parsed_records;
-
-  before(function(done){
-    parser.read_excel_file('test.xls', function(records){
-      parsed_records = records;
-      done()
-    })
-  })
-
-
-  it('connection should work', function(done) {
+    it('connection should work', function(done) {
     pg.connect(function(err, client, finished){
       should.not.exist(err)
       finished()
@@ -145,8 +135,7 @@ describe('testing the test data(text.xls)', function(){
   })
 
   it('should excute all the functions in parallel', function(done){
-     async.parallel(parser.create_queries_array(parsed_records),function(err){
-      should.not.exist(err)
+    parser.insertOneFile(__dirname + '/test_job1214.xls', function(){
       done()
     })
   })
@@ -166,6 +155,7 @@ describe('testing the test data(text.xls)', function(){
       result.rows[0].littlee.should.be.true
       result.rows[0].ownerbusinessname.should.eql('HENEGAN CONSTRUCTION')
       result.rows[0].zoningdist1.should.eql('M1-6D')
+      result.rows[0].sourceyear.should.eql('2014')
       should.not.exist(result.rows[0].zoningdist2)
       done();
     })
