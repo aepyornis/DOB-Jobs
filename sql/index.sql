@@ -15,6 +15,7 @@ create index on jobs (lng_coord);
 
 -- Latest Action Date 
  CREATE INDEX ON jobs (latestactiondate DESC NULLS LAST);
+ CREATE INDEX ON jobs (latestactiondate DESC);
  
 --latestactiondate + lat/lng
 create index on jobs (lat_coord, lng_coord, latestactiondate DESC NULLS LAST);
