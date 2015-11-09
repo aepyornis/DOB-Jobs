@@ -35,7 +35,7 @@ var excel_dir = process.argv[3] || console.log('needs excel_dir!');
 var errors = 0;
 
 // the magic function that does everything! comment this when testing.
-insertAllTheFiles(excel_dir)
+insertAllTheFiles(excel_dir);
 
 //takes a directory of excel files, parses the files and inserts the data into postgres.
 // optional callback
@@ -143,8 +143,8 @@ function toObjRepresentation(record){
 // adds two new fields to the record: address and BBL
 // {} -> {}
 function addressAndBBL(record) {
-  record.address = record.House + " " + record.StreetName
-  record.BBL = bbl(record.Borough, record.Block, record.Lot)
+  record.address = record.House + " " + record.StreetName;
+  record.BBL = bbl(record.Borough, record.Block, record.Lot);
   return record;
 }
 

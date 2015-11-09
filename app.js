@@ -1,4 +1,3 @@
-
 var express = require('express');
 var bodyParser = require('body-parser');
 var q = require('q');
@@ -40,7 +39,7 @@ app.get('/datatables', function(req, res){
   var response = {};
   response.draw = req.query.draw;
   // total number of records in database.
-  response.recordsTotal = getTotalRecords(req.query.year);
+  response.recordsTotal = getTotalRecords();
   
   //create SQL query and count query
   var sql_query = sql_query_builder(req.query)[0];
@@ -146,9 +145,7 @@ function sql_query_builder(dt, limit) {
   if (dt.mapVisible === 'true' && dt.bounds) {
     query.where( boundsWhere(dt) );
   }
-  // year
-  query.where( "sourceyear = '" + dt.year + "'" );
-
+  
   // order if they exist
   if (!_.isEmpty(dt.order)) {
     _.each(dt.order, function(order){
@@ -212,6 +209,7 @@ function where_exp(dt) {
   return x;
 
   // where_exp helper functions
+  // this creates the sql search for individual columns
   function local_search(column, i) {
     // search = search value
     var search = column.search.value;
@@ -235,6 +233,18 @@ function where_exp(dt) {
     // if number-range
     else if (/-yadcf_delim-/.test(search)){
       numberRangeSQL(search, column);
+    }
+    else if (column.data === 'sourceyear') {
+
+      if (search === 'all') {
+        // do nothing which will search everything
+      } else {
+        // otherwise we filter by year:
+        var sql = column['data'] + " = ?";
+        var year = search;
+        x.and(sql, search);
+      }
+
     }
     else {
       // if GeoclientAPI stuff!
@@ -347,43 +357,9 @@ function sentence_capitalize(str) {
   return capitalized_arr.join('. ');
 }
 
-function getTableName(year) {
-  var yr = '' + year;
-  switch(yr) {
-    case '2011':
-      return 'jobs_2011';
-    case '2012':
-      return 'jobs_2012';
-    case '2013':
-      return 'jobs_2013';
-    case '2014':
-      return 'jobs_2014';
-    case '2015':
-      return 'jobs_2015';
-    default:
-      console.log('error with year in dt request: ' + year);
-      return 'jobs_2014';
-  }
-}
-
 // returns total records, as of now, this has to be manually updated every month.
-function getTotalRecords(year){
-   var yr = '' + year;
-   switch(yr) {
-    case '2011':
-      return '67880';
-    case '2012':
-      return '79935';
-    case '2013':
-      return '91657';
-    case '2014':
-      return '106569';
-    case '2015':
-      return '61274';
-    default:
-      console.log('error with year in dt request');
-      return 'error';
-  }
+function getTotalRecords(){
+  return '441616';
 }
 
 function downloadCSV (req, res) {
