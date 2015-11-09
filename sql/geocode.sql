@@ -9,7 +9,7 @@ CREATE TABLE bbl_lookup (
 );
 
 -- I believe this has to be an absolute path
-COPY bbl_lookup(lat, lng, bbl) from '/path/to/bbl_lat_lng.txt' CSV HEADER;
+COPY bbl_lookup(lat, lng, bbl) from 'C:\cygwin64\home\ziggy\code\DOB-Jobs\data\pluto\bbl_lat_lng.txt' CSV HEADER;
 
 
 -- this updates the jobs table with lat/lng from the bbl table. BEGIN;

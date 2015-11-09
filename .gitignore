@@ -5,3 +5,4 @@ dump
 geojson
 .DS_Store
 snapshots
+out
