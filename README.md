@@ -64,3 +64,11 @@ Go to http://localhost:3000 and you should have a working app.
 
 http://www.nyc.gov/html/dob/html/codes_and_reference_materials/foilmonthly.shtml
 
+## csv parser
+
+
+``` bash
+export DOBJOBS_CONNECTION='connection string'
+
+```
+sample string: "dbname=dobjobs user=ziggy"

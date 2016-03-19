@@ -6,3 +6,4 @@ geojson
 .DS_Store
 snapshots
 out
+venv
