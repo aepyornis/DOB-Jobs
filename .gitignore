@@ -7,3 +7,5 @@ geojson
 snapshots
 out
 venv
+__pycache__/
+config.js
