@@ -7,10 +7,12 @@ import psycopg2
 import csv
 import datetime
 import os
+import sys
 import util
 
 db_connection_string = os.environ['DOBJOBS_CONNECTION']
-csv_file = 'path/to/DOB_Job_Application_Filings.csv'
+csv_file = sys.argv[1]
+# csv_file = 'path/to/DOB_Job_Application_Filings.csv'
 
 conn = psycopg2.connect(db_connection_string)
 cur = conn.cursor()
@@ -27,6 +29,7 @@ def create_table(cur):
 def get_headers():
     with open('headers.txt', 'r') as f:
         return f.read().replace('\n', '').split(',')
+
 
 lookup = util.sql_type_dir('schema.sql')
 def insert_row(row):

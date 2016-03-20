@@ -80,6 +80,6 @@ create table dobjobs (
   OwnersPhone text,
   JobDescription text,
   DOBRunDate date,
-  bbl text,
+  bbl char(10),
   id SERIAL PRIMARY KEY
 )

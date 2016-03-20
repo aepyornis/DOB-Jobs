@@ -35,5 +35,4 @@ CREATE INDEX on jobs (communityboard);
 --job description
 create index on jobs USING gin (jobdescription gin_trgm_ops);
 
--- bbl
 create index on jobs (bbl);

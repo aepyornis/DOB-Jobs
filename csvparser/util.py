@@ -19,8 +19,20 @@ def boro_to_code(boro):
     return code
 
 
+def lot_length_helper(lot):
+    if len(lot) == 5:
+        return  lot[1:]
+    elif len(lot) < 5:
+        return lot.zfill(4)
+    else:
+        print(lot + " is more than 5 chars long!")
+        return '0000'
+
+
 def bbl(boro, block, lot):
-    return boro_to_code(boro) + block.zfill(5) + lot.zfill(4)
+    updated_lot = lot_length_helper(lot)
+    bbl =  boro_to_code(boro) + block.zfill(5) + updated_lot
+    return bbl
 
 
 def placeholders(num):
@@ -50,7 +62,7 @@ def sql_type_dir(sql_file):
     d = {}
     with open(sql_file, 'r') as f:
         for line in f:
-            if ')' not in line:
+            if ')' not in line or 'char' in line:
                 key = line.strip().replace(',', '').split(' ')[0]
                 val = ' '.join(line.strip().replace(',', '').split(' ')[1:])
                 d[key] = val
@@ -71,6 +83,8 @@ def type_cast(key, val, lookup):
     if val.strip() == '':
         return None
     elif datatype == 'text':
+        return val.strip()
+    elif 'char' in datatype:
         return val.strip()
     elif datatype == 'integer':
         return int(val.strip())

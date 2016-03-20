@@ -1,6 +1,9 @@
 -- this adds a bbl_lookup table
 BEGIN;
 
+-- index bbl
+create index on dobjobs (bbl);
+
 
 CREATE TABLE bbl_lookup (
        lat numeric,
@@ -8,21 +11,19 @@ CREATE TABLE bbl_lookup (
        bbl text primary key
 );
 
--- I believe this has to be an absolute path
-COPY bbl_lookup(lat, lng, bbl) from 'C:\cygwin64\home\ziggy\code\DOB-Jobs\data\pluto\bbl_lat_lng.txt' CSV HEADER;
-
+COPY bbl_lookup(lat, lng, bbl) from '/home/michael/data/pluto/bbl_lat_lng.txt' CSV HEADER;
 
 -- this updates the jobs table with lat/lng from the bbl table. BEGIN;
-alter table jobs add column lat_coord numeric;
-alter table jobs add column lng_coord numeric;
+alter table dobjobs add column lat_coord numeric;
+alter table dobjobs add column lng_coord numeric;
 
-update jobs
+update dobjobs
        set lat_coord = bbl_lookup.lat,
        lng_coord = bbl_lookup.lng     
 from
    bbl_lookup
 where
-   bbl_lookup.bbl = jobs.bbl;
+   bbl_lookup.bbl = dobjobs.bbl;
 
 
 COMMIT;
