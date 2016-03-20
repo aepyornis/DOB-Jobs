@@ -38,9 +38,8 @@
     },
      "order": [[ 1, "desc" ]],
     columns: [
-      // TODO: change to address
        {
-        data: 'streetname',
+        data: 'address',
         'searchable': false,
         'orderable': false
        },
@@ -57,9 +56,8 @@
         data: 'jobtype',
         searchable: false
        },
-     // TODO: change to owner full name  (create column or function)
        {
-        data: 'ownerslastname'
+        data: 'ownername'
        },
        {
         data: 'ownersbusinessname'
@@ -94,9 +92,8 @@
         data: 'initialcost',
         searchable: false
        },
-      // TODO: change to Applicant's Full Name 
        {
-         data: 'applicantslastname'
+         data: 'applicantname'
        }, 
        {
         data: 'bbl'

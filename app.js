@@ -118,6 +118,21 @@ function do_query_raw(sql) {
   return def.promise;
 }
 
+
+// input: str, object
+function fromFields(field, query) {
+  if (field === 'address') {
+    query.field("house || ' ' || streetname || ', ' || zip as address");
+  } else if (field === 'ownername') {
+    query.field("ownersfirstname || ' ' || ownerslastname as ownername");
+  } else if (field === 'applicantname') {
+    query.field("applicantsfirstname || ' ' || applicantsfirstname as applicantname");
+  } else {
+    query.field(field);
+  }
+}
+
+
 //input: datatables request object, optional: false as second arg to disable limit/offset
 //output: [sql-query, count-query]
 function sql_query_builder(dt, limit) {
@@ -133,7 +148,7 @@ function sql_query_builder(dt, limit) {
 
   //get fields
   _.each(dt.columns, function(col){
-    query.field(col.data);
+    fromFields(col.data, query);
   });
   // TABLE AND WHERES
   query.from(tableName)
