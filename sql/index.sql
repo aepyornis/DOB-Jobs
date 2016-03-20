@@ -1,38 +1,39 @@
 -- create pg_trgm extension
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
--- year
-CREATE INDEX ON jobs (sourceyear);
-
 -- multi-column index
-CREATE INDEX ON jobs (lat_coord, lng_coord);
-
+create index on dobjobs (lat_coord, lng_coord);
 -- lat
-create index on jobs (lat_coord);
-
+create index on dobjobs (lat_coord);
 -- lng
-create index on jobs (lng_coord);
+create index on dobjobs (lng_coord);
 
 -- Latest Action Date 
- CREATE INDEX ON jobs (latestactiondate DESC NULLS LAST);
- CREATE INDEX ON jobs (latestactiondate DESC);
+create index on dobjobs (LatestActionDate DESC NULLS LAST);
+create index on dobjobs (LatestActionDate DESC);
  
 --latestactiondate + lat/lng
-create index on jobs (lat_coord, lng_coord, latestactiondate DESC NULLS LAST);
+create index on dobjobs (lat_coord, lng_coord, LatestActionDate DESC NULLS LAST);
 
--- jobtype index
-CREATE INDEX ON jobs (jobtype);
+-- jobtype
+create index on dobjobs (JobType);
+-- job status
+create index on dobjobs (JobStatus);
+-- community board
+create index on dobjobs (CommunityBoard);
+-- existing/proposed # of stories
+create index on dobjobs (ExistingNoofStories);
+create index on dobjobs (ProposedNoofStories);
+
+-- FULL TEXT search columns
 
 -- owner businessname
-create index on jobs USING gin (ownerbusinessname gin_trgm_ops);
-
+create index on dobjobs USING gin (OwnersBusinessName gin_trgm_ops);
 -- owner name
-create index on jobs USING gin (ownername gin_trgm_ops);
-
--- community board
-CREATE INDEX on jobs (communityboard);
-
+create index on dobjobs USING gin (OwnersFirstName gin_trgm_ops);
+create index on dobjobs USING gin (OwnersLastName gin_trgm_ops);
 --job description
-create index on jobs USING gin (jobdescription gin_trgm_ops);
+create index on dobjobs USING gin (JobDescription gin_trgm_ops);
 
-create index on jobs (bbl);
+
+
