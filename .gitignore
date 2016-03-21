@@ -6,3 +6,6 @@ geojson
 .DS_Store
 snapshots
 out
+venv
+__pycache__/
+config.js

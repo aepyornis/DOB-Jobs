@@ -11,15 +11,13 @@ squel.useFlavour('postgres');
 squel.count = require('./count_squel');
 // my SELECT
 squel.mySelect = require('./selectNull');
+var config = require('./config');
 var pg = require('pg');
   // db settings
-  pg.defaults.database = 'dobjobs';
-  pg.defaults.host = process.env.OPENSHIFT_POSTGRESQL_DB_HOST || 'localhost';
-  pg.defaults.user = process.env.OPENSHIFT_POSTGRESQL_DB_USERNAME || 'mrbuttons';
-  pg.defaults.password = process.env.OPENSHIFT_POSTGRESQL_DB_PASSWORD || 'mrbuttons';
-  if (process.env.OPENSHIFT_POSTGRESQL_DB_PORT) {
-    pg.defaults.port = process.env.OPENSHIFT_POSTGRESQL_DB_PORT;
-  }
+pg.defaults.database = config.database;
+pg.defaults.host = config.host;
+pg.defaults.user =  config.user;
+pg.defaults.password = config.password;
 
 //initiate app
 var app = express();
@@ -44,7 +42,6 @@ app.get('/datatables', function(req, res){
   //create SQL query and count query
   var sql_query = sql_query_builder(req.query)[0];
   var countQuery = sql_query_builder(req.query)[1];
-  console.log(sql_query);
  
   var count_promise = do_query(countQuery)
     .then(function(result){
@@ -65,8 +62,8 @@ app.get('/datatables', function(req, res){
 
 app.get('/csv', downloadCSV);
 
-var server_port = process.env.OPENSHIFT_NODEJS_PORT || '3000';
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || 'localhost';
+var server_port = config.port;
+var server_ip_address = config.ip;
 //start listening 
 var server = app.listen(server_port, server_ip_address, function () {
   var host = server.address().address;
@@ -117,9 +114,24 @@ function do_query_raw(sql) {
           done();
         });
       }
-  })
+  });
   return def.promise;
 }
+
+
+// input: str, object
+function fromFields(field, query) {
+  if (field === 'address') {
+    query.field("house || ' ' || streetname || ', ' || zip as address");
+  } else if (field === 'ownername') {
+    query.field("ownersfirstname || ' ' || ownerslastname as ownername");
+  } else if (field === 'applicantname') {
+    query.field("applicantsfirstname || ' ' || applicantsfirstname as applicantname");
+  } else {
+    query.field(field);
+  }
+}
+
 
 //input: datatables request object, optional: false as second arg to disable limit/offset
 //output: [sql-query, count-query]
@@ -132,11 +144,11 @@ function sql_query_builder(dt, limit) {
   var query = squel.mySelect();
   //parse datatables request
 
-  var tableName = "jobs";
+  var tableName = config.tableName;
 
   //get fields
   _.each(dt.columns, function(col){
-    query.field(col.data);
+    fromFields(col.data, query);
   });
   // TABLE AND WHERES
   query.from(tableName)
@@ -150,8 +162,8 @@ function sql_query_builder(dt, limit) {
   if (!_.isEmpty(dt.order)) {
     _.each(dt.order, function(order){
       var direction = (order.dir === "desc") ? false : true;
-      query.order(dt.columns[order.column].data, direction)
-      if (order.dir === true && order.columnData === 'approveddate') {
+      query.order(dt.columns[order.column].data, direction);
+      if (order.dir === true && order.columnData === 'Approved') {
         query.nullOrder('FIRST');
       } else {
         query.nullOrder('LAST');
@@ -219,7 +231,7 @@ function where_exp(dt) {
     } 
     // if number
     else if (/^\d+$/.test(search)){
-      var sql = column.data + " = ?"
+      var sql = column.data + " = ?";
       // coverts to INT. Change to with work with decimals. 
       var value = s.toNumber(search);
       x.and(sql, value);
@@ -227,13 +239,14 @@ function where_exp(dt) {
     } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
       var date = /(\d{2})\/(\d{2})\/(\d{4})/.exec(search);
       var date_str = date[3] + "/" + date[1] + "/" + date[2];
-      var sql = column['data'] + " = ?"
+      var sql = column['data'] + " = ?";
       x.and(sql, date_str);
     } 
     // if number-range
     else if (/-yadcf_delim-/.test(search)){
       numberRangeSQL(search, column);
     }
+    // TODO: remove this
     else if (column.data === 'sourceyear') {
 
       if (search === 'all') {
@@ -246,12 +259,13 @@ function where_exp(dt) {
       }
 
     }
+    // TODO: fix or remove this!
     else {
       // if GeoclientAPI stuff!
       if (column.data === 'address') {
         // nothing here now
       } else {
-        var sql = column['data'] + " LIKE ?"
+        var sql = column['data'] + " LIKE ?";
         var value = "%" + column.search.value.toUpperCase() + "%";
         x.and(sql, value);
       }
@@ -330,34 +344,39 @@ function change_row (row) {
     if (val) {
       if (key === 'latestactiondate' || key === 'approved') {
          if (_.isDate(val)) {
-          return '' + (val.getUTCMonth() + 1) + "-" + val.getUTCDate() + "-" + val.getUTCFullYear().toString()
+           return '' + (val.getUTCMonth() + 1) + "-" + val.getUTCDate() + "-" + val.getUTCFullYear().toString();
          } else {
           return val.slice(4,15); 
          }
-      } else if (key === 'jobdescription') {
+      } else if (key === 'jobdescriptiong') {
         return sentence_capitalize(val);
+      // TODO: Fix key? Does owner Name still exist?
       } else if (key === 'ownername' || key === 'applicantname') {
-        return s.titleize(val.toLowerCase())
-      } else if (/existingnoofstories|proposednoofstories|existingdwellingunits|proposeddwellingunits/.test(key)) {
-        return val.replace('.0', '');
-      } else {
+        return s.titleize(val.toLowerCase());
+      // TODO: No longer necessary?
+      } 
+      // else if (/existingnoofstories|proposednoofstories|existingdwellingunits|proposeddwellingunits/.test(key)) {
+      //  return val.replace('.0', '');
+      // } 
+      else {
         return val;
       }
     } else {
       return val;
     }
-  })
+  });
 }
 
 function sentence_capitalize(str) {
   var lowercase = str.toLowerCase();
   var capitalized_arr = _.map(lowercase.split('. '), function(val) {
     return s.capitalize(val);
-  })
+  });
   return capitalized_arr.join('. ');
 }
 
 // returns total records, as of now, this has to be manually updated every month.
+// TODO: find a better solution for this! 
 function getTotalRecords(){
   return '441616';
 }
@@ -381,7 +400,7 @@ function downloadCSV (req, res) {
     var stream = client.query(query);
     //release the client when the stream is finished
     stream.on('end', done);
-    // pipe data to responce
+    // pipe data to response
     stream.pipe(through(write_one_row), function(){
       // this.queue(null);
       res.end();
@@ -396,8 +415,8 @@ function downloadCSV (req, res) {
               return row[name];
           }
        });
-       var csv = arr.join(',') + '\n'
-       this.queue(csv);
+      var csv = arr.join(',') + '\n';
+      this.queue(csv);
     }
 }
 
