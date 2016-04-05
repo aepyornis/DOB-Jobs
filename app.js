@@ -13,7 +13,7 @@ squel.count = require('./count_squel');
 squel.mySelect = require('./selectNull');
 var config = require('./config');
 var pg = require('pg');
-  // db settings
+// db settings
 pg.defaults.database = config.database;
 pg.defaults.host = config.host;
 pg.defaults.user =  config.user;
@@ -35,6 +35,7 @@ app.use("/css", express.static(__dirname + '/css'));
 app.get('/datatables', function(req, res){
   //create response object
   var response = {};
+
   response.draw = req.query.draw;
   // total number of records in database.
   response.recordsTotal = getTotalRecords();
@@ -378,7 +379,7 @@ function sentence_capitalize(str) {
 // returns total records, as of now, this has to be manually updated every month.
 // TODO: find a better solution for this! 
 function getTotalRecords(){
-  return '441616';
+  return '213771';
 }
 
 function downloadCSV (req, res) {

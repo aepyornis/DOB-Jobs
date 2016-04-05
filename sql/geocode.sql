@@ -5,6 +5,8 @@ BEGIN;
 create index on dobjobs (bbl);
 
 
+DROP TABLE IF EXISTS bbl_lookup;
+
 CREATE TABLE bbl_lookup (
        lat numeric,
        lng numeric,
@@ -13,7 +15,7 @@ CREATE TABLE bbl_lookup (
 
 COPY bbl_lookup(lat, lng, bbl) from '/home/michael/data/pluto/bbl_lat_lng.txt' CSV HEADER;
 
--- this updates the jobs table with lat/lng from the bbl table. BEGIN;
+-- this updates the jobs table with lat/lng from the bbl table.
 alter table dobjobs add column lat_coord numeric;
 alter table dobjobs add column lng_coord numeric;
 

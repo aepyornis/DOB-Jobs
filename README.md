@@ -51,6 +51,10 @@ Add indexes, which requires pg_trgm extension. You can install this module with 
 
 ``` sudo apt-get install postgresql-contrib  ```
 
+```
+psql -d dobjobs -f sql/index.sql
+```
+
 Create a file, config.js, that contains the postgres connection & server info:
 
 ``` javascript
