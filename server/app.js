@@ -1,3 +1,5 @@
+'use strict';
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var q = require('q');
@@ -26,10 +28,10 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // serve index.html from public folder
-app.use(express.static(__dirname + '/public'));
+app.use(express.static('../public'));
 // allow index.html to use js & css folders
-app.use("/js", express.static(__dirname + '/js'));
-app.use("/css", express.static(__dirname + '/css'));
+app.use("/js", express.static('../js'));
+app.use("/css", express.static('../css'));
 
 // datatables draw
 app.get('/datatables', function(req, res){
@@ -175,7 +177,7 @@ function sql_query_builder(dt, limit) {
 }
 
 //input: global search (str or false), [], [], []
-//output squel.expr() or blank str
+//output squel.expr() 
 function where_exp(dt) {
   var x = squel.expr();
 
@@ -184,123 +186,100 @@ function where_exp(dt) {
       return true;
     }
   }).pluck('data').value();
-
+  
   // do global search on searchable columns
   if (dt.search.value){
-      _.each(searchable_columns, function(col) {
-        global_search(col);
-        }
-      );
+        _.each(searchable_columns, function(col) {
+         global_search(x, dt,col);
+      }
+    );
   }
 
-    // do local searches. 
+  // do local searches. 
     _.each(dt.columns, function(c,i) {
-      local_search(c, i);
-    });
+      local_search(x, c, i);
+  });
 
   return x;
+  
+}
 
-  // where_exp helper functions
-  // this creates the sql search for individual columns
-  function local_search(column, i) {
-    // search = search value
-    var search = column.search.value;
-    // if blank
+/*
+ * where_exp helper functions
+ */
+
+// where_exp helper functions
+// this creates the sql search for individual columns
+function local_search(expr, column, i) {
+    const search = column.search.value;
+
     if(s.isBlank(search)) {
       return;
-    } 
-    // if number
-    else if (/^\d+$/.test(search)){
-      var sql = column.data + " = ?";
-      // coverts to INT. Change to with work with decimals. 
-      var value = s.toNumber(search);
-      x.and(sql, value);
+    } else if (/^\d+$/.test(search)){ // if number
+      let sql = column.data + " = ?";
+      let value = s.toNumber(search); // coverts to INT. Change to with work with decimals. 
+      expr.and(sql, value);
     // if date 
     } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
-      var date = /(\d{2})\/(\d{2})\/(\d{4})/.exec(search);
-      var date_str = date[3] + "/" + date[1] + "/" + date[2];
-      var sql = column['data'] + " = ?";
-      x.and(sql, date_str);
-    } 
-    // if number-range
-    else if (/-yadcf_delim-/.test(search)){
-      numberRangeSQL(search, column);
+      let date = /(\d{2})\/(\d{2})\/(\d{4})/.exec(search);
+      let date_str = date[3] + "/" + date[1] + "/" + date[2];
+      let sql = column.data + " = ?";
+      expr.and(sql, date_str);
+    } else {
+      let sql = column.data + " LIKE ?";
+      let value = "%" + search.toUpperCase() + "%";
+      expr.and(sql, value);
     }
-    // TODO: remove this
-    else if (column.data === 'sourceyear') {
+}
 
-      if (search === 'all') {
-        // do nothing which will search everything
-      } else {
-        // otherwise we filter by year:
-        var sql = column['data'] + " = ?";
-        var year = search;
-        x.and(sql, search);
-      }
+function global_search(x,dt,columnData) {
 
-    }
-    // TODO: fix or remove this!
-    else {
-      // if GeoclientAPI stuff!
-      if (column.data === 'address') {
-        // nothing here now
-      } else {
-        var sql = column['data'] + " LIKE ?";
-        var value = "%" + column.search.value.toUpperCase() + "%";
-        x.and(sql, value);
-      }
-    }
-  }
+  var sql = columnData + " LIKE ?";
+  var value = "%" + dt.search.value.toUpperCase() + "%";
+  x.or(sql, value);
+}
 
-  function global_search(columnData) {
-      var sql = columnData + " LIKE ?";
-      var value = "%" + dt.search.value.toUpperCase() + "%";
-      x.or(sql, value);
-  }
+function numberRangeSQL(x, search, column) {
+  var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[1];
+  var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[2];
 
-  function numberRangeSQL(search, column) {
-
-    var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[1];
-    var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[2];
-
-    if (s.isBlank(low_value) && s.isBlank(high_value)) {
-      //if both blank, do nothing
-    } else if (s.isBlank(low_value) && high_value) {
-      //no low_value, yes high_value
+  if (s.isBlank(low_value) && s.isBlank(high_value)) {
+    //if both blank, do nothing
+  } else if (s.isBlank(low_value) && high_value) {
+    //no low_value, yes high_value
     
-      var sql = column['data'] + " <= ?";
-      x.and(sql, high_value);
-      var lowSQL = column['data'] + " >= ?";
-      x.and(lowSQL, 0);
+    var sql = column['data'] + " <= ?";
+    x.and(sql, high_value);
+    var lowSQL = column['data'] + " >= ?";
+    x.and(lowSQL, 0);
 
-    } else if (low_value && s.isBlank(high_value)) {
-      // yes low_value, no high_value.
-      var sql = column['data'] + " >= ?";
-      x.and(sql, low_value);
+  } else if (low_value && s.isBlank(high_value)) {
+    // yes low_value, no high_value.
+    var sql = column['data'] + " >= ?";
+    x.and(sql, low_value);
 
-    } else if (low_value && high_value) {
-      //both low and high
-      var lowSQL = column['data'] + " >= ?";
-      x.and(lowSQL, low_value);
-      var highSQL = column['data'] + " <= ?";
-      x.and(highSQL, high_value);
+  } else if (low_value && high_value) {
+    //both low and high
+    var lowSQL = column['data'] + " >= ?";
+    x.and(lowSQL, low_value);
+    var highSQL = column['data'] + " <= ?";
+    x.and(highSQL, high_value);
 
-    } else {
-      console.error("issues with number-range-input");
-    }
+  } else {
+    console.error("issues with number-range-input");
   }
+}
 
-  function month_match(search) {
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    if (_.find(months, function(val){
-      if (search === val) {
-        return true;
-      }
-    })) {
-      return true; 
-    } else {
-      return false;
+function month_match(search) {
+  var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  if (_.find(months, function(val){
+    if (search === val) {
+      return true;
     }
+  })) {
+    return true; 
+  } else {
+    return false;
   }
 }
 
@@ -309,14 +288,15 @@ function boundsWhere(dt) {
   return "( (lng_coord BETWEEN " +  bounds[0] + "  AND " + bounds[2] + ") AND (lat_coord BETWEEN " + bounds[1] + " AND " + bounds[3] + ") )"; 
 }
 
+
+
 // input: rows from psql query
 // output: modified rows
 // [ {}, {} ]
 function psql_to_dt(rows){
-
   return _.map(rows, function(row){
       return change_row(row);
-  })
+  });
 }
  
 function change_row (row) {
@@ -448,5 +428,7 @@ function address_to_bbl(address) {
 
 module.exports = {
   do_query: do_query,
-  fromFields: fromFields
-}
+  fromFields: fromFields,
+  where_exp: where_exp,
+  local_search: local_search
+};

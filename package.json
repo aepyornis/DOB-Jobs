@@ -33,6 +33,7 @@
     "npm": ">= 1.0.0"
   },
   "devDependencies": {
+    "lodash": "^4.8.2",
     "should": "^8.3.0"
   }
 }
