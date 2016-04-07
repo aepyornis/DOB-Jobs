@@ -34,7 +34,6 @@
     "npm": ">= 1.0.0"
   },
   "devDependencies": {
-    "blanket": "^1.2.3",
     "istanbul": "^0.4.3",
     "lodash": "^4.8.2",
     "mocha": "^2.4.5",

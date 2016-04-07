@@ -253,13 +253,10 @@ function change_row (row) {
   });
 }
 
-function sentence_capitalize(str) {
-  var lowercase = str.toLowerCase();
-  var capitalized_arr = _.map(lowercase.split('. '), function(val) {
-    return s.capitalize(val);
-  });
-  return capitalized_arr.join('. ');
-}
+const sentence_capitalize = (str) => {
+  return _.map(str.toLowerCase().split('. '), (val) => s.capitalize(val))
+    .join('. ');
+};
 
 // returns total records, as of now, this has to be manually updated every month.
 // TODO: find a better solution for this! 
@@ -359,5 +356,6 @@ module.exports = {
   local_search: local_search,
   global_search: global_search,
   boundsWhere: boundsWhere,
-  sql_query_builder: sql_query_builder
-};
+  sql_query_builder: sql_query_builder,
+  sentence_capitalize: sentence_capitalize
+}

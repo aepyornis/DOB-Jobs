@@ -253,4 +253,10 @@ describe('boundsWhere', () =>{
   });
 
 });
-  
+
+describe('sentence_capitalize', () => {
+  it('capitalizes sample sentence', () =>{
+    const sample = "I AM HERE. ARE YOU.";
+    app.sentence_capitalize(sample).should.eql('I am here. Are you.');
+  });
+});
