@@ -99,27 +99,6 @@ function do_query(sql) {
   return def.promise;
 }
 
-function do_query_raw(sql) {
-  var def = q.defer();
-  pg.connect(function(err, client, done){
-    if (err) {
-        def.reject(err);
-        console.log(err);
-    } else {
-        client.query(sql, function(err, result){
-          if (err) {
-            def.reject(err);
-            console.log(err);
-          }
-          def.resolve(result.rows);
-          done();
-        });
-      }
-  });
-  return def.promise;
-}
-
-
 // input: str, object
 function fromFields(field, query) {
   if (field === 'address') {
@@ -466,3 +445,8 @@ function address_to_bbl(address) {
 
  }
 
+
+module.exports = {
+  do_query: do_query,
+  fromFields: fromFields
+}

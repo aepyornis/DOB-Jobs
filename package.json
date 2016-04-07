@@ -31,5 +31,8 @@
   "engines": {
     "node": ">= 4.0",
     "npm": ">= 1.0.0"
+  },
+  "devDependencies": {
+    "should": "^8.3.0"
   }
 }
