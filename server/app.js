@@ -37,7 +37,7 @@ app.use("/css", express.static('../css'));
 app.get('/datatables', function(req, res){
   //create response object
   var response = {};
-
+  console.log(req.query.bounds);
   response.draw = req.query.draw;
   // total number of records in database.
   response.recordsTotal = getTotalRecords();
@@ -217,7 +217,7 @@ function local_search(expr, column, i) {
       return;
     } else if (/^\d+$/.test(search)){ // if number
       let sql = column.data + " = ?";
-      let value = s.toNumber(search); // coverts to INT. Change to with work with decimals. 
+      let value = s.toNumber(search); // coverts to int. Will not work with decimals. 
       expr.and(sql, value);
     // if date 
     } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
@@ -232,62 +232,16 @@ function local_search(expr, column, i) {
     }
 }
 
-function global_search(x,dt,columnData) {
-
-  var sql = columnData + " LIKE ?";
+function global_search(x,dt,columnName) {
+  var sql = columnName + " LIKE ?";
   var value = "%" + dt.search.value.toUpperCase() + "%";
   x.or(sql, value);
 }
 
-function numberRangeSQL(x, search, column) {
-  var low_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[1];
-  var high_value = /(\d*)-yadcf_delim-(\d*)/.exec(search)[2];
-
-  if (s.isBlank(low_value) && s.isBlank(high_value)) {
-    //if both blank, do nothing
-  } else if (s.isBlank(low_value) && high_value) {
-    //no low_value, yes high_value
-    
-    var sql = column['data'] + " <= ?";
-    x.and(sql, high_value);
-    var lowSQL = column['data'] + " >= ?";
-    x.and(lowSQL, 0);
-
-  } else if (low_value && s.isBlank(high_value)) {
-    // yes low_value, no high_value.
-    var sql = column['data'] + " >= ?";
-    x.and(sql, low_value);
-
-  } else if (low_value && high_value) {
-    //both low and high
-    var lowSQL = column['data'] + " >= ?";
-    x.and(lowSQL, low_value);
-    var highSQL = column['data'] + " <= ?";
-    x.and(highSQL, high_value);
-
-  } else {
-    console.error("issues with number-range-input");
-  }
-}
-
-function month_match(search) {
-  var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  if (_.find(months, function(val){
-    if (search === val) {
-      return true;
-    }
-  })) {
-    return true; 
-  } else {
-    return false;
-  }
-}
-
 function boundsWhere(dt) {
-  var bounds = dt.bounds.split(',');
-  return "( (lng_coord BETWEEN " +  bounds[0] + "  AND " + bounds[2] + ") AND (lat_coord BETWEEN " + bounds[1] + " AND " + bounds[3] + ") )"; 
+  const bounds = dt.bounds.split(',');
+  return "( (lng_coord BETWEEN " +  bounds[0] + " AND " + bounds[2] + ") AND (lat_coord BETWEEN " + bounds[1] + " AND " + bounds[3] + ") )"; 
 }
-
 
 
 // input: rows from psql query
@@ -430,5 +384,7 @@ module.exports = {
   do_query: do_query,
   fromFields: fromFields,
   where_exp: where_exp,
-  local_search: local_search
+  local_search: local_search,
+  global_search: global_search,
+  boundsWhere: boundsWhere
 };

@@ -89,3 +89,33 @@ describe('local_search', () =>{
   });
 
 });
+
+describe('global_search', () =>{
+  const dt = testdata('initquery');
+  
+  before(()=>{
+    dt.search.value = "thing";
+  });
+
+  it('generates LIKE statement for provided column', () =>{
+    let x = squel.expr();
+    app.global_search(x,dt,'applicantname');
+    x.toString().should.eql("applicantname LIKE '%THING%'");
+  });
+
+});
+
+describe('boundsWhere', () =>{
+  const dt = testdata('initquery');
+  
+  before(()=>{
+    dt.bounds = "-74.1,40.6,-73.7,40.8";
+  });
+
+  it('returns a query that limits withint a lat/lng range', ()=>{
+    let boundsQuery = "( (lng_coord BETWEEN -74.1 AND -73.7) AND (lat_coord BETWEEN 40.6 AND 40.8) )";
+    app.boundsWhere(dt).should.eql(boundsQuery);    
+  });
+
+});
+  
