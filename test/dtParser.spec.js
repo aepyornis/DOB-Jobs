@@ -1,4 +1,4 @@
-var should = require('should');
+/*var should = require('should');
 
 var parser = require('../dtParser');
 
@@ -122,7 +122,8 @@ describe('getOrders', function(){
 
     })
 
-
+ node node_modules/istanbul cover _mocha -- -R spec
 
 })
 
+*/

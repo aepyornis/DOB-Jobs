@@ -4,7 +4,8 @@
   "description": "Mapping NYC Department of Building's Jobs",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+      "start": "node app.js",
+      "test": "./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha"
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,10 @@
     "npm": ">= 1.0.0"
   },
   "devDependencies": {
+    "blanket": "^1.2.3",
+    "istanbul": "^0.4.3",
     "lodash": "^4.8.2",
+    "mocha": "^2.4.5",
     "should": "^8.3.0"
   }
 }

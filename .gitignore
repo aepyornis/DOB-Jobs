@@ -9,3 +9,4 @@ out
 venv
 __pycache__/
 config.js
+coverage/

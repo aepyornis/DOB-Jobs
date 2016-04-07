@@ -7,7 +7,7 @@ const _ = require('lodash');
 const fs = require('fs');
 //const superagent = require('superagent');
 
-const testdata = (file) => JSON.parse(fs.readFileSync("testdata/" + file + ".json"));
+const testdata = (file) => JSON.parse(fs.readFileSync("test/testdata/" + file + ".json"));
 
 describe('do_query', () => {
   it('returns a promise', () => {
