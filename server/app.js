@@ -101,44 +101,26 @@ function do_query(sql) {
   return def.promise;
 }
 
-// input: str, object
-function fromFields(field, query) {
-  if (field === 'address') {
-    query.field("house || ' ' || streetname || ', ' || zip as address");
-  } else if (field === 'ownername') {
-    query.field("ownersfirstname || ' ' || ownerslastname as ownername");
-  } else if (field === 'applicantname') {
-    query.field("applicantsfirstname || ' ' || applicantsfirstname as applicantname");
-  } else {
-    query.field(field);
-  }
-}
-
-
-//input: datatables request object, optional: false as second arg to disable limit/offset
-//output: [sql-query, count-query]
+// input: datatables request object, optional: false as second arg to disable limit/offset
+// output: [sql-query, count-query]
 function sql_query_builder(dt, limit) {
+  limit = (_.isUndefined(limit)) ? true : limit;
   let rows_query;
   let count_query;
-  //create squel select obj.
-  var query = squel.mySelect();
-  //parse datatables request
+  const tableName = config.tableName;
+  const query = squel.mySelect(); //create squel select obj.
+  
 
-  var tableName = config.tableName;
-
-  //get fields
-  _.each(dt.columns, function(col){
-    fromFields(col.data, query);
-  });
-  // TABLE AND WHERES
-  query.from(tableName)
-    .where( where_exp(dt) );
-  // lat/lng contraints 
+  _.each(dt.columns, (col) => fromFields(col.data, query)); // get fiends (SELECT)
+  query.from(tableName); // FROM
+  query.where( where_exp(dt) ); // WHERE
+  
+  // lat/lng constraints 
   if (dt.mapVisible === 'true' && dt.bounds) {
     query.where( boundsWhere(dt) );
   }
   
-  // order if they exist
+  // order if necessary
   if (!_.isEmpty(dt.order)) {
     _.each(dt.order, function(order){
       const direction = (order.dir === "desc") ? false : true;
@@ -150,27 +132,28 @@ function sql_query_builder(dt, limit) {
     });
   }
   // limit and offset
-  // pass false as second argument to prevent limit
-  if (typeof limit === 'undefined') {
+  if (limit) {
     query.limit(dt.length).offset(dt.start);
-  } else if (limit === false) {
-    // don't limit the function! 
-  } else {
-    query.limit(dt.length).offset(dt.start);
-  }
-
-  rows_query = query.toParam();
+  }  
 
   count_query = squel.count()
     .from(tableName)
     .where( where_exp(dt) );
 
-  if (dt.mapVisible === 'true' && dt.bounds) {
-    count_query.where( boundsWhere(dt) );
+  return [query.toParam(), count_query.toParam()];
+}
+
+// input: str, object
+function fromFields(field, query) {
+  if (field === 'address') {
+    query.field("house || ' ' || streetname || ', ' || zip as address");
+  } else if (field === 'ownername') {
+    query.field("ownersfirstname || ' ' || ownerslastname as ownername");
+  } else if (field === 'applicantname') {
+    query.field("applicantsfirstname || ' ' || applicantsfirstname as applicantname");
+  } else {
+    query.field(field);
   }
-  count_query = count_query.toParam();
-  
-  return [rows_query, count_query];
 }
 
 //input: datatables obj

@@ -88,7 +88,7 @@ describe('sql_query_builder', () => {
     let dtquery = _.cloneDeep(dt);
     dtquery.order[0].dir = 'asc';
     let result = require('./baseQuery')
-          + "ORDER BY latestactiondate ASC NULLS LAST LIMIT 25";+ "LIMIT 25";
+          + "ORDER BY latestactiondate ASC NULLS LAST LIMIT 25";
     app.sql_query_builder(dtquery)[0].text.should.eql(result);
   });
 
@@ -106,6 +106,47 @@ describe('sql_query_builder', () => {
     let result = require('./baseQuery')
           + "ORDER BY approved DESC NULLS LAST LIMIT 25";
     app.sql_query_builder(dtquery)[0].text.should.eql(result);
+  });
+
+  it('disables limit when false is passed as second argument', () => {
+    let result = require('./baseQuery') + "ORDER BY latestactiondate DESC NULLS LAST";
+    app.sql_query_builder(dt, false)[0].text.should.eql(result);
+  });
+
+  it('does limit and offset correctly', () =>{
+    let dtquery = _.cloneDeep(dt);
+    dtquery.start = "100";
+    dtquery.length = "30";
+    let result = require('./baseQuery')
+          + "ORDER BY latestactiondate DESC NULLS LAST LIMIT 30 OFFSET 100";
+    app.sql_query_builder(dtquery)[0].text.should.eql(result);
+  });
+
+  it('calculates correct query containing wheres', () => {
+    let dtquery = _.cloneDeep(dt);
+    dtquery.columns[0].search.value = "123 Main Street";
+    dtquery.columns[2].search.value = "204";
+    dtquery.search.value = "thing";
+    let localSearchResult = "address LIKE $6 AND communityboard = $7";
+    let globalSearchResult = "ownername LIKE $1 OR ownersbusinessname LIKE $2 OR jobdescription LIKE $3 OR applicantname LIKE $4 OR bbl LIKE $5";
+    let wheres = `(${globalSearchResult} AND ${localSearchResult})`;
+    let result = require('./baseQuery') + "WHERE "
+          + wheres +  " ORDER BY latestactiondate DESC NULLS LAST LIMIT 25";
+    app.sql_query_builder(dtquery)[0].text.should.eql(result);
+    app.sql_query_builder(dtquery)[0].values.should.have.length(7);
+  });
+  
+  it('calculates correct count query containing wheres', () => {
+    let dtquery = _.cloneDeep(dt);
+    dtquery.columns[0].search.value = "123 Main Street";
+    dtquery.columns[2].search.value = "204";
+    dtquery.search.value = "thing";
+    let localSearchResult = "address LIKE $6 AND communityboard = $7";
+    let globalSearchResult = "ownername LIKE $1 OR ownersbusinessname LIKE $2 OR jobdescription LIKE $3 OR applicantname LIKE $4 OR bbl LIKE $5";
+    let wheres = `(${globalSearchResult} AND ${localSearchResult})`;
+    let result = "SELECT COUNT(*) as c FROM dobjobs WHERE " + wheres;
+    app.sql_query_builder(dtquery)[1].text.should.eql(result);
+    app.sql_query_builder(dtquery)[1].values.should.have.length(7);
   });
   
 });
