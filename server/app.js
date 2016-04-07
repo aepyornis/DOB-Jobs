@@ -176,32 +176,25 @@ function sql_query_builder(dt, limit) {
     return [rows_query, count_query];
 }
 
-//input: global search (str or false), [], [], []
+//input: datatables obj
 //output squel.expr() 
 function where_exp(dt) {
-  var x = squel.expr();
+  const x = squel.expr();
 
-  var searchable_columns = _.chain(dt.columns).filter(function(column) {
-    if (column.searchable === 'true') {
-      return true;
-    }
-  }).pluck('data').value();
-  
-  // do global search on searchable columns
+  // do global searches
   if (dt.search.value){
-        _.each(searchable_columns, function(col) {
-         global_search(x, dt,col);
-      }
-    );
+    let searchable_columns = _.chain(dt.columns)
+          .filter( (col) => col.searchable === 'true' )
+          .pluck('data')
+          .value();
+    
+    _.each(searchable_columns, (col) => global_search(x, dt,col));
   }
 
   // do local searches. 
-    _.each(dt.columns, function(c,i) {
-      local_search(x, c, i);
-  });
+  _.each(dt.columns, (col) => local_search(x, col));
 
   return x;
-  
 }
 
 /*
@@ -242,7 +235,6 @@ function boundsWhere(dt) {
   const bounds = dt.bounds.split(',');
   return "( (lng_coord BETWEEN " +  bounds[0] + " AND " + bounds[2] + ") AND (lat_coord BETWEEN " + bounds[1] + " AND " + bounds[3] + ") )"; 
 }
-
 
 // input: rows from psql query
 // output: modified rows

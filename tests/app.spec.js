@@ -51,6 +51,33 @@ describe('where_exp', () =>{
     app.where_exp(dt).toString().should.eql('');
   });
 
+  it('makes an expression with local searches', () =>{
+    let dtquery = _.cloneDeep(dt);
+    dtquery.columns[0].search.value = "123 Main Street";
+    dtquery.columns[2].search.value = "204";
+    let result = "address LIKE '%123 MAIN STREET%' AND communityboard = 204";
+    app.where_exp(dtquery).toString().should.eql(result);
+  });
+
+  it('makes an expression with global searches', () =>{
+    let dtquery = _.cloneDeep(dt);
+    dtquery.search.value = "thing";
+    let result = "ownername LIKE '%THING%' OR ownersbusinessname LIKE '%THING%' OR jobdescription LIKE '%THING%' OR applicantname LIKE '%THING%' OR bbl LIKE '%THING%'";
+    app.where_exp(dtquery).toString().should.eql(result);
+  });
+
+  it('makes an expression with global and local searches', () =>{
+    let dtquery = _.cloneDeep(dt);
+    dtquery.columns[0].search.value = "123 Main Street";
+    dtquery.columns[2].search.value = "204";
+    dtquery.search.value = "thing";
+    
+    let localSearchResult = "address LIKE '%123 MAIN STREET%' AND communityboard = 204";
+    let globalSearchResult = "ownername LIKE '%THING%' OR ownersbusinessname LIKE '%THING%' OR jobdescription LIKE '%THING%' OR applicantname LIKE '%THING%' OR bbl LIKE '%THING%'";
+    let result = `${globalSearchResult} AND ${localSearchResult}`;
+    app.where_exp(dtquery).toString().should.eql(result);
+  });
+
 });
 
 
