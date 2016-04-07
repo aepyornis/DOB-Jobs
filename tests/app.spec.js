@@ -42,6 +42,74 @@ describe('fromFields', () => {
     });
 });
 
+describe('sql_query_builder', () => {
+  const dt = testdata('initquery');
+  
+  it('returns an array with 2 elements: the query and count query as objects', () =>{
+    let sql = app.sql_query_builder(dt);
+    sql.should.have.length(2);
+    sql[0].should.have.keys('text', 'values');
+    sql[1].should.have.keys('text', 'values');
+  });
+  
+  it('returns correct query for initial request', () => {
+    let sql = app.sql_query_builder(dt);
+    let result = require('./baseQuery')
+          + "ORDER BY latestactiondate DESC NULLS LAST LIMIT 25";
+    sql[0].text.should.eql(result);
+    sql[0].values.should.have.length(0);
+  });
+
+  it('returns correct count query for initial request', () =>{
+    let countSQL = "SELECT COUNT(*) as c FROM dobjobs";
+    app.sql_query_builder(dt)[1].text.should.eql(countSQL);
+    app.sql_query_builder(dt)[1].values.should.have.length(0);
+  });
+
+  it('adds bounds query when the map is visible', () => {
+    let dtquery = _.cloneDeep(dt);
+    dtquery.bounds = "-74.1,40.6,-73.7,40.8";
+    dtquery.mapVisible = 'true';
+    let result = require('./baseQuery')
+          + "WHERE (( (lng_coord BETWEEN -74.1 AND -73.7) AND (lat_coord BETWEEN 40.6 AND 40.8) )) "
+          + "ORDER BY latestactiondate DESC NULLS LAST LIMIT 25";
+    app.sql_query_builder(dtquery)[0].text.should.eql(result);
+  });
+
+  it('does not add ORDER BY when there is an empty order array', () =>{
+    let dtquery = _.cloneDeep(dt);
+    dtquery.order = [];
+    let result = require('./baseQuery')
+          + "LIMIT 25";
+    app.sql_query_builder(dtquery)[0].text.should.eql(result);
+  });
+
+  it('can order by ASC', () =>{
+    let dtquery = _.cloneDeep(dt);
+    dtquery.order[0].dir = 'asc';
+    let result = require('./baseQuery')
+          + "ORDER BY latestactiondate ASC NULLS LAST LIMIT 25";+ "LIMIT 25";
+    app.sql_query_builder(dtquery)[0].text.should.eql(result);
+  });
+
+  it('orders approved column asc with nulls first', () => {
+    let dtquery = _.cloneDeep(dt);
+    dtquery.order[0] = {column: '7', dir: 'asc'};
+    let result = require('./baseQuery')
+          + "ORDER BY approved ASC NULLS FIRST LIMIT 25";
+    app.sql_query_builder(dtquery)[0].text.should.eql(result);
+  });
+
+  it('orders approved column desc with nulls last', () => {
+    let dtquery = _.cloneDeep(dt);
+    dtquery.order[0] = {column: '7', dir: 'desc'};
+    let result = require('./baseQuery')
+          + "ORDER BY approved DESC NULLS LAST LIMIT 25";
+    app.sql_query_builder(dtquery)[0].text.should.eql(result);
+  });
+  
+});
+
 describe('where_exp', () =>{
 
   const dt = testdata('initquery');
@@ -79,7 +147,6 @@ describe('where_exp', () =>{
   });
 
 });
-
 
 describe('local_search', () =>{
 

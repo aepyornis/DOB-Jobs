@@ -118,10 +118,8 @@ function fromFields(field, query) {
 //input: datatables request object, optional: false as second arg to disable limit/offset
 //output: [sql-query, count-query]
 function sql_query_builder(dt, limit) {
- //  console.log(dt);
-  //these are returned
-  var rows_query;
-  var count_query;
+  let rows_query;
+  let count_query;
   //create squel select obj.
   var query = squel.mySelect();
   //parse datatables request
@@ -143,13 +141,12 @@ function sql_query_builder(dt, limit) {
   // order if they exist
   if (!_.isEmpty(dt.order)) {
     _.each(dt.order, function(order){
-      var direction = (order.dir === "desc") ? false : true;
+      const direction = (order.dir === "desc") ? false : true;
+      const approvedColumnAsc = (direction === true)
+              && (dt.columns[order.column].data === 'approved');
+
       query.order(dt.columns[order.column].data, direction);
-      if (order.dir === true && order.columnData === 'Approved') {
-        query.nullOrder('FIRST');
-      } else {
-        query.nullOrder('LAST');
-      }
+      (approvedColumnAsc) ? query.nullOrder('FIRST') : query.nullOrder('LAST');
     });
   }
   // limit and offset
@@ -172,8 +169,8 @@ function sql_query_builder(dt, limit) {
     count_query.where( boundsWhere(dt) );
   }
   count_query = count_query.toParam();
-
-    return [rows_query, count_query];
+  
+  return [rows_query, count_query];
 }
 
 //input: datatables obj
@@ -378,5 +375,6 @@ module.exports = {
   where_exp: where_exp,
   local_search: local_search,
   global_search: global_search,
-  boundsWhere: boundsWhere
+  boundsWhere: boundsWhere,
+  sql_query_builder: sql_query_builder
 };
