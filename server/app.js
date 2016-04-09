@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+
 const bodyParser = require('body-parser');
 const q = require('q');
 const _ = require('underscore');
@@ -8,9 +9,6 @@ const s = require("underscore.string");
 const through = require('through');
 const QueryStream = require('pg-query-stream');
 const squel = require('squel');
-squel.useFlavour('postgres');
-//provide squel.count
-squel.count = require('./count_squel');
 // my SELECT
 squel.mySelect = require('./selectNull');
 const config = require('./config');
@@ -24,7 +22,7 @@ pg.defaults.password = config.password;
 //initiate app
 const app = express();
 
-//exposes ajax data in req.body
+//exposes Ajax data in req.body
 app.use(bodyParser.urlencoded({ extended: false }));
 // serve index.html from public folder
 app.use(express.static(config.publicFolder));
@@ -41,15 +39,17 @@ app.get('/datatables', (req, res)=> {
   response.recordsTotal = getTotalRecords();
   //create SQL query and count query
   const [sql_query, countQuery] = sql_query_builder(req.query);
- 
+  
   const count_promise = do_query(countQuery)
-          .then((result) => response.recordsFiltered = result[0].c );
+          .then((result) => response.recordsFiltered = result[0].c);
 
   const sql_promise = do_query(sql_query)
           .then((rows) => response.data = psql_to_dt(rows));
-    
-  q.all([count_promise, sql_promise])
-    .then(() => res.json(response));
+
+  const sendJSON = () => res.json(response);
+  const handleError = (err) => console.log('postgres error: ' + err);  
+  
+  q.all([count_promise, sql_promise]).then(sendJSON, handleError);
 
 });
 
@@ -65,17 +65,13 @@ function do_query(sql) {
   pg.connect(function(err, client, done){
     if (err) {
         def.reject(err);
-        console.log(err);
     } else {
         client.query(sql, function(err, result){
           if (err) {
             def.reject(err);
-            console.log(err);
           } 
-          // when there is a sql syntax error
           else if (typeof result.rows === 'undefined') {
             def.reject(result);
-            console.log('SYNTAX ERROR? No rows');
           } else {
             def.resolve(result.rows);
             done();
@@ -93,9 +89,8 @@ function sql_query_builder(dt, limit) {
   let rows_query;
   let count_query;
   const tableName = config.tableName;
-  const query = squel.mySelect(); //create squel select obj.
+  const query = squel.mySelect({numberedParameters: true}); //create squel select obj.
   
-
   _.each(dt.columns, (col) => fromFields(col.data, query)); // get fiends (SELECT)
   query.from(tableName); // FROM
   query.where( where_exp(dt) ); // WHERE
@@ -121,7 +116,8 @@ function sql_query_builder(dt, limit) {
     query.limit(dt.length).offset(dt.start);
   }  
 
-  count_query = squel.count()
+  count_query = squel.select({numberedParameters: true})
+    .field("COUNT(*) as c")
     .from(tableName)
     .where( where_exp(dt) );
 
@@ -153,7 +149,7 @@ function where_exp(dt) {
           .pluck('data')
           .value();
     
-    _.each(searchable_columns, (col) => global_search(x, dt,col));
+    _.each(searchable_columns, (col) => global_search(x, dt ,col));
   }
 
   // do local searches. 
@@ -212,7 +208,9 @@ function psql_to_dt(rows){
 function change_row (row) {
   return _.mapObject(row, (val, key) => {
     
-    if (_.isDate(val)) {
+    if (!val) {
+      return val;
+    } else if (_.isDate(val)) {
       return `${(val.getUTCMonth() + 1)}-${val.getUTCDate()}-${val.getUTCFullYear()}`;
     } else if (key === 'ownername' || key === 'applicantname') {
       return s.titleize(val.toLowerCase());

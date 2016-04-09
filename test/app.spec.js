@@ -48,7 +48,9 @@ describe('fromFields', () => {
 
   it('adds correct field to query for address', () => {
     let query = squel.select().from('x');
+    
     app.fromFields('address', query);
+    
     query.toString().should.eql("SELECT house || ' ' || streetname || ', ' || zip as address FROM x");
   });
 
