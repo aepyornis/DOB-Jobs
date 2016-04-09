@@ -260,3 +260,37 @@ describe('sentence_capitalize', () => {
     app.sentence_capitalize(sample).should.eql('I am here. Are you.');
   });
 });
+
+describe('change_row', () => {
+  
+  it('returns val is val is falsy', () =>{
+    let row = {approved: null, x: 1234};
+    should(row.approved).be.null();
+  });
+
+  it('retuns a formated date', ()=>{
+    let r = {approved: new Date(2015, 11, 3)};
+    app.change_row(r).approved.should.eql('12-3-2015');
+  });
+  
+  it('titlizes owername & applicant name', () =>{
+    let r = {ownername: 'EVIL LANDLORD', applicantname: 'ALICE THE CONTRACTOR'};
+    app.change_row(r).ownername.should.eql('Evil Landlord');
+    app.change_row(r).applicantname.should.eql('Alice The Contractor');
+  });
+
+});
+
+describe('format_bor', ()=>{
+
+  it('returns formated borough or undefined', ()=>{
+
+    app.format_bor("MN").should.eql("Manhattan");
+    app.format_bor("BX").should.eql("Bronx");
+    app.format_bor("BK").should.eql("Brooklyn");
+    app.format_bor("QN").should.eql("Queens");
+    app.format_bor("SI").should.eql("Staten Island");
+    should.not.exist(app.format_bor("XX"));
+  });
+
+});

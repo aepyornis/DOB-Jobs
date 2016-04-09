@@ -28,10 +28,11 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // serve index.html from public folder
-app.use(express.static('../public'));
+app.use(express.static(config.publicFolder));
 // allow index.html to use js & css folders
-app.use("/js", express.static('../js'));
-app.use("/css", express.static('../css'));
+app.use("/js", express.static(config.publicFolder + '/js'));
+app.use("/css", express.static(config.publicFolder + '/css'));
+
 
 // datatables draw
 app.get('/datatables', function(req, res){
@@ -91,6 +92,8 @@ function do_query(sql) {
             def.reject(result);
             console.log('SYNTAX ERROR? No rows');
           } else {
+            //console.log(result.rows[0].latestactiondate);
+            //console.log(_.isDate(result.rows[0].latestactiondate));
             var prepare = psql_to_dt(result.rows);
             def.resolve(prepare);
             done();
@@ -181,7 +184,6 @@ function where_exp(dt) {
  * where_exp helper functions
  */
 
-// where_exp helper functions
 // this creates the sql search for individual columns
 function local_search(expr, column, i) {
     const search = column.search.value;
@@ -206,8 +208,8 @@ function local_search(expr, column, i) {
 }
 
 function global_search(x,dt,columnName) {
-  var sql = columnName + " LIKE ?";
-  var value = "%" + dt.search.value.toUpperCase() + "%";
+  const sql = columnName + " LIKE ?";
+  const value = "%" + dt.search.value.toUpperCase() + "%";
   x.or(sql, value);
 }
 
@@ -226,31 +228,17 @@ function psql_to_dt(rows){
 }
  
 function change_row (row) {
-  return _.mapObject(row, function(val, key){
-    if (val) {
-      if (key === 'latestactiondate' || key === 'approved') {
-         if (_.isDate(val)) {
-           return '' + (val.getUTCMonth() + 1) + "-" + val.getUTCDate() + "-" + val.getUTCFullYear().toString();
-         } else {
-          return val.slice(4,15); 
-         }
-      } else if (key === 'jobdescriptiong') {
-        return sentence_capitalize(val);
-      // TODO: Fix key? Does owner Name still exist?
-      } else if (key === 'ownername' || key === 'applicantname') {
-        return s.titleize(val.toLowerCase());
-      // TODO: No longer necessary?
-      } 
-      // else if (/existingnoofstories|proposednoofstories|existingdwellingunits|proposeddwellingunits/.test(key)) {
-      //  return val.replace('.0', '');
-      // } 
-      else {
-        return val;
-      }
+  return _.mapObject(row, (val, key) => {
+    
+    if (_.isDate(val)) {
+      return `${(val.getUTCMonth() + 1)}-${val.getUTCDate()}-${val.getUTCFullYear()}`;
+    } else if (key === 'ownername' || key === 'applicantname') {
+      return s.titleize(val.toLowerCase());
     } else {
       return val;
     }
   });
+
 }
 
 const sentence_capitalize = (str) => {
@@ -328,26 +316,24 @@ function address_to_bbl(address) {
     });
 
     return def.promise;
-
-    function format_bor(b){
-      switch(b) {
-        case "MN":
-          return "Manhattan";
-        case "BX":
-          return "Bronx";
-        case "BK":
-          return "Brooklyn";
-        case "QN":
-          return "Queens";
-        case "SI":
-          return "Staten Island";
-        default:
-          return;
-      }
-    }
-
  }
 
+function format_bor(b){
+  switch(b) {
+  case "MN":
+    return "Manhattan";
+  case "BX":
+    return "Bronx";
+  case "BK":
+    return "Brooklyn";
+  case "QN":
+    return "Queens";
+  case "SI":
+    return "Staten Island";
+  default:
+    return;
+  }
+}
 
 module.exports = {
   do_query: do_query,
@@ -357,5 +343,7 @@ module.exports = {
   global_search: global_search,
   boundsWhere: boundsWhere,
   sql_query_builder: sql_query_builder,
-  sentence_capitalize: sentence_capitalize
-}
+  sentence_capitalize: sentence_capitalize,
+  change_row: change_row,
+  format_bor: format_bor
+};

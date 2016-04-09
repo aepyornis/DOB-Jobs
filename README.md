@@ -65,7 +65,8 @@ module.exports = {
   password: 'pgpassword',
   port: '3000',
   ip: 'localhost',
-  tableName: 'dobjobs'
+  tableName: 'dobjobs',
+  publicFolder: '/path/to/public/folder/'
 };
 
 ```
