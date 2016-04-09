@@ -1,20 +1,20 @@
 'use strict';
 
-var express = require('express');
-var bodyParser = require('body-parser');
-var q = require('q');
-var _ = require('underscore');
-var s = require("underscore.string");
-var through = require('through');
-var QueryStream = require('pg-query-stream');
-var squel = require('squel');
+const express = require('express');
+const bodyParser = require('body-parser');
+const q = require('q');
+const _ = require('underscore');
+const s = require("underscore.string");
+const through = require('through');
+const QueryStream = require('pg-query-stream');
+const squel = require('squel');
 squel.useFlavour('postgres');
 //provide squel.count
 squel.count = require('./count_squel');
 // my SELECT
 squel.mySelect = require('./selectNull');
-var config = require('./config');
-var pg = require('pg');
+const config = require('./config');
+const pg = require('pg');
 // db settings
 pg.defaults.database = config.database;
 pg.defaults.host = config.host;
@@ -22,57 +22,42 @@ pg.defaults.user =  config.user;
 pg.defaults.password = config.password;
 
 //initiate app
-var app = express();
+const app = express();
 
 //exposes ajax data in req.body
 app.use(bodyParser.urlencoded({ extended: false }));
-
 // serve index.html from public folder
 app.use(express.static(config.publicFolder));
 // allow index.html to use js & css folders
 app.use("/js", express.static(config.publicFolder + '/js'));
 app.use("/css", express.static(config.publicFolder + '/css'));
 
-
 // datatables draw
-app.get('/datatables', function(req, res){
+app.get('/datatables', (req, res)=> {
   //create response object
-  var response = {};
-  console.log(req.query.bounds);
+  const response = {};
   response.draw = req.query.draw;
   // total number of records in database.
   response.recordsTotal = getTotalRecords();
-  
   //create SQL query and count query
-  var sql_query = sql_query_builder(req.query)[0];
-  var countQuery = sql_query_builder(req.query)[1];
+  const [sql_query, countQuery] = sql_query_builder(req.query);
  
-  var count_promise = do_query(countQuery)
-    .then(function(result){
-      response.recordsFiltered = result[0].c;
-  });
+  const count_promise = do_query(countQuery)
+          .then((result) => response.recordsFiltered = result[0].c );
 
-  var sql_promise = do_query(sql_query)
-    .then(function(result){
-      response.data = result;
-  });
+  const sql_promise = do_query(sql_query)
+          .then((rows) => response.data = psql_to_dt(rows));
     
   q.all([count_promise, sql_promise])
-    .then(function(){
-      res.send(JSON.stringify(response));
-    });
-          
+    .then(() => res.json(response));
+
 });
 
 app.get('/csv', downloadCSV);
-
-var server_port = config.port;
-var server_ip_address = config.ip;
 //start listening 
-var server = app.listen(server_port, server_ip_address, function () {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log('app listening at http://%s:%s', host, port);
+const server = app.listen(config.port, config.ip, ()=> {
+  let {address, port} = server.address();
+  console.log('app listening at http://%s:%s', address, port);
 });
 
 function do_query(sql) {
@@ -92,10 +77,7 @@ function do_query(sql) {
             def.reject(result);
             console.log('SYNTAX ERROR? No rows');
           } else {
-            //console.log(result.rows[0].latestactiondate);
-            //console.log(_.isDate(result.rows[0].latestactiondate));
-            var prepare = psql_to_dt(result.rows);
-            def.resolve(prepare);
+            def.resolve(result.rows);
             done();
           }
         });

@@ -5,9 +5,38 @@ const squel = require('squel');
 const app = require('../server/app');
 const _ = require('lodash');
 const fs = require('fs');
-//const superagent = require('superagent');
+const request = require('superagent');
 
 const testdata = (file) => JSON.parse(fs.readFileSync("test/testdata/" + file + ".json"));
+
+describe('/datatables', () =>{
+
+  let response;
+
+  before( done => {
+    request.get(require('./datatablesGetUrl'))
+      .end((err, res)=> {
+        response = res;
+        done();
+      });
+  });
+  
+  describe('response.body', () =>{
+    it('returns object with correct shape', () =>{
+      response.body.should.be.an.Object();
+      response.body.data.should.be.an.Array();
+      response.body.draw.should.exist;
+      response.body.recordsTotal.should.exist;
+      response.body.recordsFiltered.should.exist;
+    });
+
+    it('has correct number of records', ()=>{
+      response.body.data.should.have.lengthOf(25);
+    });
+  
+  });
+
+});
 
 describe('do_query', () => {
   it('returns a promise', () => {
