@@ -1,17 +1,20 @@
 'use strict';
+const config = require('./config');
 
 const express = require('express');
-
 const bodyParser = require('body-parser');
+
 const q = require('q');
-const _ = require('underscore');
-const s = require("underscore.string");
+const _ = require('lodash');
+const titleize = require("underscore.string/titleize");
+const capitalize = require("underscore.string/capitalize");
+const toNumber = require("underscore.string/toNumber");
 const through = require('through');
-const QueryStream = require('pg-query-stream');
+
 const squel = require('squel');
-// my SELECT
-squel.mySelect = require('./selectNull');
-const config = require('./config');
+squel.mySelect = require('./selectNull'); // Select with Null Order
+
+const QueryStream = require('pg-query-stream');
 const pg = require('pg');
 // db settings
 pg.defaults.database = config.database;
@@ -22,38 +25,34 @@ pg.defaults.password = config.password;
 //initiate app
 const app = express();
 
-//exposes Ajax data in req.body
 app.use(bodyParser.urlencoded({ extended: false }));
-// serve index.html from public folder
 app.use(express.static(config.publicFolder));
-// allow index.html to use js & css folders
 app.use("/js", express.static(config.publicFolder + '/js'));
 app.use("/css", express.static(config.publicFolder + '/css'));
 
 // datatables draw
-app.get('/datatables', (req, res)=> {
-  //create response object
-  const response = {};
+app.get('/datatables', (req, res) => {
+  const response = {}; //create response object
   response.draw = req.query.draw;
-  // total number of records in database.
-  response.recordsTotal = getTotalRecords();
-  //create SQL query and count query
-  const [sql_query, countQuery] = sql_query_builder(req.query);
+  response.recordsTotal = getTotalRecords(); // total number of records in database.
+  // get sql queries
+  const [sqlQuery, countQuery] = sql_query_builder(req.query);
   
   const count_promise = do_query(countQuery)
           .then((result) => response.recordsFiltered = result[0].c);
 
-  const sql_promise = do_query(sql_query)
-          .then((rows) => response.data = psql_to_dt(rows));
+  const sql_promise = do_query(sqlQuery)
+          .then((rows) => response.data = _.map(rows,change_row));
 
   const sendJSON = () => res.json(response);
-  const handleError = (err) => console.log('postgres error: ' + err);  
+  const handleError = (err) => console.log('postgres error: ' + err);
   
   q.all([count_promise, sql_promise]).then(sendJSON, handleError);
 
 });
 
 app.get('/csv', downloadCSV);
+
 //start listening 
 const server = app.listen(config.port, config.ip, ()=> {
   let {address, port} = server.address();
@@ -61,12 +60,12 @@ const server = app.listen(config.port, config.ip, ()=> {
 });
 
 function do_query(sql) {
-  var def = q.defer();
-  pg.connect(function(err, client, done){
+  const def = q.defer();
+  pg.connect((err, client, done) => {
     if (err) {
         def.reject(err);
     } else {
-        client.query(sql, function(err, result){
+        client.query(sql, (err, result)=> {
           if (err) {
             def.reject(err);
           } 
@@ -88,11 +87,11 @@ function sql_query_builder(dt, limit) {
   limit = (_.isUndefined(limit)) ? true : limit;
   let rows_query;
   let count_query;
-  const tableName = config.tableName;
+
   const query = squel.mySelect({numberedParameters: true}); //create squel select obj.
   
   _.each(dt.columns, (col) => fromFields(col.data, query)); // get fiends (SELECT)
-  query.from(tableName); // FROM
+  query.from(config.tableName); // FROM
   query.where( where_exp(dt) ); // WHERE
   
   // lat/lng constraints 
@@ -102,7 +101,7 @@ function sql_query_builder(dt, limit) {
   
   // order if necessary
   if (!_.isEmpty(dt.order)) {
-    _.each(dt.order, function(order){
+    _.each(dt.order, (order) => {
       const direction = (order.dir === "desc") ? false : true;
       const approvedColumnAsc = (direction === true)
               && (dt.columns[order.column].data === 'approved');
@@ -118,7 +117,7 @@ function sql_query_builder(dt, limit) {
 
   count_query = squel.select({numberedParameters: true})
     .field("COUNT(*) as c")
-    .from(tableName)
+    .from(config.tableName)
     .where( where_exp(dt) );
 
   return [query.toParam(), count_query.toParam()];
@@ -144,12 +143,10 @@ function where_exp(dt) {
 
   // do global searches
   if (dt.search.value){
-    let searchable_columns = _.chain(dt.columns)
-          .filter( (col) => col.searchable === 'true' )
-          .pluck('data')
-          .value();
-    
-    _.each(searchable_columns, (col) => global_search(x, dt ,col));
+      _(dt.columns)
+        .filter(['searchable', 'true'])  
+        .map('data')
+        .each( col => global_search(x, dt, col));
   }
 
   // do local searches. 
@@ -164,13 +161,13 @@ function where_exp(dt) {
 
 // this creates the sql search for individual columns
 function local_search(expr, column, i) {
-    const search = column.search.value;
+  const search = column.search.value;
 
-    if(s.isBlank(search)) {
+  if (search === '') {
       return;
     } else if (/^\d+$/.test(search)){ // if number
       let sql = column.data + " = ?";
-      let value = s.toNumber(search); // coverts to int. Will not work with decimals. 
+      let value = toNumber(search); // coverts to int. Will not work with decimals. 
       expr.and(sql, value);
     // if date 
     } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
@@ -196,24 +193,15 @@ function boundsWhere(dt) {
   return "( (lng_coord BETWEEN " +  bounds[0] + " AND " + bounds[2] + ") AND (lat_coord BETWEEN " + bounds[1] + " AND " + bounds[3] + ") )"; 
 }
 
-// input: rows from psql query
-// output: modified rows
-// [ {}, {} ]
-function psql_to_dt(rows){
-  return _.map(rows, function(row){
-      return change_row(row);
-  });
-}
- 
 function change_row (row) {
-  return _.mapObject(row, (val, key) => {
+  return _.mapValues(row, (val, key) => {
     
     if (!val) {
       return val;
     } else if (_.isDate(val)) {
       return `${(val.getUTCMonth() + 1)}-${val.getUTCDate()}-${val.getUTCFullYear()}`;
     } else if (key === 'ownername' || key === 'applicantname') {
-      return s.titleize(val.toLowerCase());
+      return titleize(val.toLowerCase());
     } else {
       return val;
     }
@@ -222,7 +210,7 @@ function change_row (row) {
 }
 
 const sentence_capitalize = (str) => {
-  return _.map(str.toLowerCase().split('. '), (val) => s.capitalize(val))
+  return _.map(str.toLowerCase().split('. '), (val) => capitalize(val))
     .join('. ');
 };
 
@@ -270,33 +258,6 @@ function downloadCSV (req, res) {
       this.queue(csv);
     }
 }
-
-// input address (str)
-// output: {}. address.houseNum / address.street / address.borough / address.zip
-// still a work in progress (!)
-function address_to_bbl(address) {
-    var def = q.defer();
-    var split = address.split(';');
-    var house_street = /(\d+\S*)[ ]+(\w+[ ]?\w*)/.exec(split[0]);
-    var house = house_street[1];
-    var street = house_street[2];
-    var bor = format_bor(split[1]);
-  
-    var url = 'https://api.cityofnewyork.us/geoclient/v1/address.json?';
-    url += 'houseNumber=' + encodeURIComponent(house) + '&street=' + encodeURIComponent(street) + '&borough=' + bor;
-    url += '&app_id=a24f63ab&app_key=47bd8f72f07c547b4cfc72e7f0a6ad67';
-
-    request(url, function(err, responce, body) {
-      if(err) {
-        def.reject(err);
-      } else {
-        var address = JSON.parse(body);
-        def.resolve(address.address.bbl);
-      }
-    });
-
-    return def.promise;
- }
 
 function format_bor(b){
   switch(b) {

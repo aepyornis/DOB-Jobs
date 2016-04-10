@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node --harmony_destructuring server/app.js",
     "test": "node --harmony_destructuring ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha",
-    "cov": "firefox coverage/lcov-report/index.html"
+    "cov": "firefox coverage/lcov-report/index.html",
+    "watch": "./node_modules/mocha/bin/mocha --harmony_destructuring --watch"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,7 @@
     "express": "^4.10.6",
     "pg": "^4.5.3",
     "q": "~1.4.1",
-    "underscore": "^1.7.0",
+    "lodash": "^4.8.2",
     "underscore.string": "^3.3.4",
     "squel": "~4.4.2",
     "through": "~2.3.6",
@@ -34,7 +35,6 @@
   },
   "devDependencies": {
     "istanbul": "^0.4.3",
-    "lodash": "^4.8.2",
     "mocha": "^2.4.5",
     "should": "^8.3.0",
     "superagent": "^1.8.3",

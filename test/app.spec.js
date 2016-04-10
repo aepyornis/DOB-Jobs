@@ -125,6 +125,7 @@ describe('sql_query_builder', () => {
 
   it('orders approved column asc with nulls first', () => {
     let dtquery = _.cloneDeep(dt);
+
     dtquery.order[0] = {column: '7', dir: 'asc'};
     let result = require('./baseQuery')
           + "ORDER BY approved ASC NULLS FIRST LIMIT 25";
