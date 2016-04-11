@@ -1,14 +1,13 @@
-var squel = require('squel');
+const squel = require('squel');
 
-/* OOP Inheritance mechanism (substitute your own favourite library for this!) */
+/* OOP Inheritance mechanism */
 Function.prototype.inheritsFrom = function( parentClassOrObject ) {
   this.prototype = new parentClassOrObject;
   this.prototype.constructor = this;
   this.prototype.parent = parentClassOrObject.prototype;
 };
 
-/* Create the 'command' clause */
- 
+/* Create the 'NULL' clause */
 var NullBlock = function() {};
 NullBlock.inheritsFrom(squel.cls.Block);
 
@@ -30,8 +29,8 @@ NullBlock.prototype.buildParam = function() {
   return {
     text: this.buildStr(),
     values: []
-  }
-}
+  };
+};
 
 var mySelect = function(options) {
   return squel.select(options, [
@@ -49,9 +48,8 @@ var mySelect = function(options) {
       new squel.cls.UnionBlock(options)
   ]);
 };
-// mySelect.inheritsFrom(squel.cls.QueryBuilder);
 
 module.exports = function(options) {
-  return new mySelect(options)
-}
+  return new mySelect(options);
+};
 

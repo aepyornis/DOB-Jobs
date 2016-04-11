@@ -14,8 +14,8 @@ const through = require('through');
 const squel = require('squel');
 squel.mySelect = require('./selectNull'); // Select with Null Order
 
-const QueryStream = require('pg-query-stream');
 const pg = require('pg');
+const QueryStream = require('pg-query-stream');
 // db settings
 pg.defaults.database = config.database;
 pg.defaults.host = config.host;
@@ -42,13 +42,13 @@ app.get('/datatables', (req, res) => {
   const [sqlQuery, countQuery] = sql_query_builder(req.query);
   
   const count_promise = do_query(countQuery)
-          .then((result) => response.recordsFiltered = result[0].c);
+          .then( result => response.recordsFiltered = result[0].c);
 
   const sql_promise = do_query(sqlQuery)
-          .then((rows) => response.data = _.map(rows,change_row));
+          .then( rows => response.data = _.map(rows,change_row));
 
   const sendJSON = () => res.json(response);
-  const handleError = (err) => console.log('postgres error: ' + err);
+  const handleError = (err) => res.json({error: 'postgres error: ' + err});
   
   q.all([count_promise, sql_promise]).then(sendJSON, handleError);
 
@@ -168,21 +168,21 @@ function local_search(expr, column, i) {
 
   if (search === '') {
       return;
-    } else if (/^\d+$/.test(search)){ // if number
+  } else if (/^\d+$/.test(search)){ // if number
       let sql = column.data + " = ?";
       let value = toNumber(search); // coverts to int. Will not work with decimals. 
       expr.and(sql, value);
     // if date 
-    } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
+  } else if (/\d{2}\/\d{2}\/\d{4}/.test(search)) {
       let date = /(\d{2})\/(\d{2})\/(\d{4})/.exec(search);
       let date_str = date[3] + "/" + date[1] + "/" + date[2];
       let sql = column.data + " = ?";
       expr.and(sql, date_str);
-    } else {
+  } else {
       let sql = column.data + " LIKE ?";
       let value = "%" + search.toUpperCase() + "%";
       expr.and(sql, value);
-    }
+  }
 }
 
 function global_search(x,dt,columnName) {
