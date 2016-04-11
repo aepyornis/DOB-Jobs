@@ -1,35 +1,44 @@
 {
   "name": "dob-jobs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Mapping NYC Department of Building's Jobs",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node --harmony_destructuring server/app.js",
+    "test": "node --harmony_destructuring ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha",
+    "cov": "firefox coverage/lcov-report/index.html",
+    "watch": "./node_modules/mocha/bin/mocha --harmony_destructuring --watch"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/aepyornis/DOB-Jobs.git"
   },
   "author": "ziggy",
+    "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/aepyornis/DOB-Jobs/issues"
   },
   "dependencies": {
-    "async": "~0.9.0",
-    "body-parser": "~1.10.1",
-    "excel-parser": "^0.2.2",
-    "express": "~4.10.6",
-    "pg": "^4.2.0",
-    "q": "~1.1.2",
-    "underscore": "^1.7.0",
-    "xlsjs": "~0.7.2",
-    "underscore.string": "~3.0.2",
-    "squel": "~3.10.0",
+    "body-parser": "^1.15.0",
+    "express": "^4.10.6",
+    "pg": "^4.5.3",
+    "q": "~1.4.1",
+    "lodash": "^4.8.2",
+    "underscore.string": "^3.3.4",
+    "squel": "~4.4.2",
     "through": "~2.3.6",
     "pg-query-stream": "~0.7.0"
   },
   "engines": {
     "node": ">= 4.0",
-    "npm": ">= 1.0.0"
+    "npm": ">= 2.0.0"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.3",
+    "mocha": "^2.4.5",
+    "should": "^8.3.0",
+    "superagent": "^1.8.3",
+    "excel-parser": "^0.2.2",
+    "xlsjs": "~0.7.2"
   }
 }
