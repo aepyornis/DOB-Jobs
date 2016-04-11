@@ -25,6 +25,9 @@ pg.defaults.password = config.password;
 //initiate app
 const app = express();
 
+var totalRecords = null;
+getTotalRecords().done( count => totalRecords = count);
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(config.publicFolder));
 app.use("/js", express.static(config.publicFolder + '/js'));
@@ -34,7 +37,7 @@ app.use("/css", express.static(config.publicFolder + '/css'));
 app.get('/datatables', (req, res) => {
   const response = {}; //create response object
   response.draw = req.query.draw;
-  response.recordsTotal = getTotalRecords(); // total number of records in database.
+  response.recordsTotal = totalRecords;
   // get sql queries
   const [sqlQuery, countQuery] = sql_query_builder(req.query);
   
@@ -214,10 +217,9 @@ const sentence_capitalize = (str) => {
     .join('. ');
 };
 
-// returns total records, as of now, this has to be manually updated every month.
-// TODO: find a better solution for this! 
 function getTotalRecords(){
-  return '213771';
+  return do_query("SELECT COUNT(*) as count FROM " + config.tableName)
+    .get(0).get('count');
 }
 
 function downloadCSV (req, res) {
@@ -286,5 +288,6 @@ module.exports = {
   sql_query_builder: sql_query_builder,
   sentence_capitalize: sentence_capitalize,
   change_row: change_row,
-  format_bor: format_bor
+  format_bor: format_bor,
+  getTotalRecords: getTotalRecords
 };

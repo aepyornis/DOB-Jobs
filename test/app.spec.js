@@ -9,34 +9,6 @@ const request = require('superagent');
 
 const testdata = (file) => JSON.parse(fs.readFileSync("test/testdata/" + file + ".json"));
 
-describe('/datatables', () =>{
-
-  let response;
-
-  before( done => {
-    request.get(require('./datatablesGetUrl'))
-      .end((err, res)=> {
-        response = res;
-        done();
-      });
-  });
-  
-  describe('response.body', () =>{
-    it('returns object with correct shape', () =>{
-      response.body.should.be.an.Object();
-      response.body.data.should.be.an.Array();
-      response.body.draw.should.exist;
-      response.body.recordsTotal.should.exist;
-      response.body.recordsFiltered.should.exist;
-    });
-
-    it('has correct number of records', ()=>{
-      response.body.data.should.have.lengthOf(25);
-    });
-  
-  });
-
-});
 
 describe('do_query', () => {
   it('returns a promise', () => {
@@ -323,6 +295,51 @@ describe('format_bor', ()=>{
     app.format_bor("QN").should.eql("Queens");
     app.format_bor("SI").should.eql("Staten Island");
     should.not.exist(app.format_bor("XX"));
+  });
+
+});
+
+describe('getTotalRecords', ()=>{
+  
+  it('returns a promise', ()=>{
+    app.getTotalRecords().should.be.a.Promise();
+    
+  });
+
+  it('returns a value greater than 200,000', (done) =>{
+    app.getTotalRecords().done( (count) => {
+      _.gt(_.toNumber(count), 200000).should.eql(true);
+      done();
+    });
+  });
+
+});
+
+describe('/datatables', () =>{
+
+  let response;
+
+  before( done => {
+    request.get(require('./datatablesGetUrl'))
+      .end((err, res)=> {
+        response = res;
+        done();
+      });
+  });
+  
+  describe('response.body', () =>{
+    it('returns object with correct shape', () =>{
+      response.body.should.be.an.Object();
+      response.body.data.should.be.an.Array();
+      response.body.draw.should.exist;
+      response.body.recordsTotal.should.exist;
+      response.body.recordsFiltered.should.exist;
+    });
+
+    it('has correct number of records', ()=>{
+      response.body.data.should.have.lengthOf(25);
+    });
+    
   });
 
 });
