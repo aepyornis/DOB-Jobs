@@ -1,8 +1,6 @@
-module.exports = "SELECT house || ' ' || streetname || ', ' || zip as address, "  
-      + "latestactiondate, communityboard, jobtype, "
-      + "ownersfirstname || ' ' || ownerslastname as ownername, "
+module.exports = "SELECT address, "  
+      + "latestactiondate, communityboard, jobtype, ownername, "
       + "ownersbusinessname, jobdescription, approved, existingnoofstories, proposednoofstories, "
-      + "existingdwelling, proposeddwellingunits, initialcost, "
-      + "applicantsfirstname || ' ' || applicantsfirstname as applicantname, "
+      + "existingdwelling, proposeddwellingunits, initialcost, applicantname, "
       + "bbl, lat_coord, lng_coord "
       + "FROM dobjobs ";

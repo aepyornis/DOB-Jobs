@@ -18,6 +18,7 @@ describe('do_query', () => {
 
 describe('fromFields', () => {
 
+  /*
   it('adds correct field to query for address', () => {
     let query = squel.select().from('x');
     
@@ -38,6 +39,7 @@ describe('fromFields', () => {
     query.toString().should.eql("SELECT applicantsfirstname || ' ' || applicantsfirstname as applicantname FROM x");
   });
 
+   */
   it('adds correct field for any provided string', ()=>{
     let query = squel.select().from('x');
     app.fromFields('corporateoverlord', query);

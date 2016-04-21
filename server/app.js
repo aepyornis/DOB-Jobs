@@ -128,15 +128,7 @@ function sql_query_builder(dt, limit) {
 
 // input: str, object
 function fromFields(field, query) {
-  if (field === 'address') {
-    query.field("house || ' ' || streetname || ', ' || zip as address");
-  } else if (field === 'ownername') {
-    query.field("ownersfirstname || ' ' || ownerslastname as ownername");
-  } else if (field === 'applicantname') {
-    query.field("applicantsfirstname || ' ' || applicantsfirstname as applicantname");
-  } else {
-    query.field(field);
-  }
+  query.field(field);
 }
 
 //input: datatables obj
