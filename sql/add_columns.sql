@@ -7,6 +7,6 @@ alter table dobjobs add column applicantname text;
 update dobjobs
        set address = house || ' ' || streetname || ', ' || zip,
        ownername = ownersfirstname || ' ' || ownerslastname,
-       applicantname = applicantsfirstname || ' ' || applicantsfirstname;
+       applicantname = applicantsfirstname || ' ' || applicantslastname;
 
 COMMIT;
