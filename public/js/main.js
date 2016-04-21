@@ -57,10 +57,12 @@
         searchable: false
        },
        {
-        data: 'ownername'
+         data: 'ownername',
+         searchable: true
        },
        {
-        data: 'ownersbusinessname'
+         data: 'ownersbusinessname',
+         searchable: true
        },
        {
         data: 'jobdescription',

@@ -30,10 +30,10 @@ create index on dobjobs (ProposedNoofStories);
 -- owner businessname
 create index on dobjobs USING gin (OwnersBusinessName gin_trgm_ops);
 -- owner name
-create index on dobjobs USING gin (OwnersFirstName gin_trgm_ops);
-create index on dobjobs USING gin (OwnersLastName gin_trgm_ops);
+create index on dobjobs USING gin (ownername gin_trgm_ops);
 --job description
 create index on dobjobs USING gin (JobDescription gin_trgm_ops);
-
+--applicant name
+create index on dobjobs USING gin (applicantname gin_trgm_ops);
 
 

@@ -47,6 +47,12 @@ cd ..
 psql -d dobjobs -f sql/geocode.sql
 ```
 
+add columns:
+
+``` 
+psql -d dobjobs -f sql/add_columns.sql
+```
+
 Add indexes, which requires pg_trgm extension. You can install this module with the postgresql-contrib package:
 
 ``` sudo apt-get install postgresql-contrib  ```
@@ -74,6 +80,12 @@ module.exports = {
 install node modules: ``` npm install ```
 
 run app: ``` npm start ```
+
+I run the app on the server using forever with this command:
+
+```
+forever start -a --uid "dobjobs" -c "node --harmony_destructuring" /srv/DOB-Jobs/server/app.js
+```
 
 ## data source:
 
