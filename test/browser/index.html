@@ -1,0 +1,28 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>dobjobs tests</title>
+  <link href="../../node_modules/mocha/mocha.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="../../node_modules/mocha/mocha.js"></script>
+  <script src="../../node_modules/should/should.js"></script>
+
+  <script>mocha.setup('bdd')</script>
+
+  <script>
+    describe('test', function(){
+     it('should fail', function(){
+       'x'.should.eql('y');
+      });
+    });
+  </script>
+
+  <script>
+    mocha.checkLeaks();
+    mocha.run();
+  </script>
+</body>
+</html>
+
