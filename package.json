@@ -4,8 +4,8 @@
   "description": "Mapping NYC Department of Building's Jobs",
   "main": "app.js",
   "scripts": {
-    "start": "node --harmony_destructuring server/app.js",
-    "test": "node --harmony_destructuring ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha",
+    "start": "node server/app.js",
+    "test": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha",
     "cov": "firefox coverage/lcov-report/index.html",
     "watch": "./node_modules/mocha/bin/mocha --harmony_destructuring --watch"
   },
@@ -30,7 +30,7 @@
     "pg-query-stream": "~0.7.0"
   },
   "engines": {
-    "node": ">= 4.0",
+    "node": ">= 6.0",
     "npm": ">= 2.0.0"
   },
   "devDependencies": {
