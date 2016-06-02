@@ -90,8 +90,10 @@ forever start -a --uid "dobjobs" -c "node --harmony_destructuring" /srv/DOB-Jobs
 ## data source:
 
 https://data.cityofnewyork.us/Housing-Development/DOB-Job-Application-Filings/ic3t-wcy2
-http://www.nyc.gov/html/dob/html/codes_and_reference_materials/foilmonthly.shtml
 
+Excel data can be found now here: http://www1.nyc.gov/site/buildings/about/metrics-reports-archive.page
+
+This link where I originally got the data from -- http://www.nyc.gov/html/dob/html/codes_and_reference_materials/foilmonthly.shtml -- is no longer valid.
 
 ## LICENSE: GPLv3
 
