@@ -19,9 +19,9 @@
     "url": "https://github.com/aepyornis/DOB-Jobs/issues"
   },
   "dependencies": {
-    "body-parser": "^1.15.0",
-    "express": "^4.10.6",
-    "pg": "^4.5.5",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "pg": "^6.0.1",
     "q": "~1.4.1",
     "lodash": "^4.13.1",
     "underscore.string": "^3.3.4",
