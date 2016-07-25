@@ -254,11 +254,16 @@ function downloadCSV (req, res) {
     }
 }
 
-function cdRecordsSql(cd, limit) {
-  return pgsquel.select()
+function cdRecordsSql(cd, limit, jobtype) {
+  let query = pgsquel.select()
     .from(config.tableName)
-    .where("communityboard = ?", cd)
-    .order("latestactiondate", false)
+    .where("communityboard = ?", cd);
+
+  if (jobtype) {
+    query.where("jobtype = ?", jobtype);
+  }
+  
+  return query.order("latestactiondate", false)
     .limit(limit)
     .toParam();
 }
@@ -268,7 +273,8 @@ function recordsByCD(req, res) {
     return res.sendStatus(404);
   }
   const limit = (req.query.limit) ? req.query.limit : 10;
-  const sql = cdRecordsSql(req.query.cd, limit);
+  const jobtype = (req.query.jobtype) ? req.query.jobtype : false;
+  const sql = cdRecordsSql(req.query.cd, limit, jobtype);
 
   do_query(sql)
     .then( 

@@ -348,10 +348,16 @@ describe('/datatables', () =>{
 
 describe('cdRecordsSql', () =>{
   
-  it('generates correct sql statement', ()=>{
-    let sql = app.cdRecordsSql(100, 8);
+  it('generates correct sql statement with no jobtype', ()=>{
+    let sql = app.cdRecordsSql(100, 8, false);
     sql.text.should.eql("SELECT * FROM dobjobs WHERE (communityboard = $1) ORDER BY latestactiondate DESC LIMIT 8");
     sql.values.should.eql([100]);
+  });
+
+  it('works with jobtype', ()=>{
+    let sql = app.cdRecordsSql(100, 8, 'A1');
+    sql.text.should.eql("SELECT * FROM dobjobs WHERE (communityboard = $1) AND (jobtype = $2) ORDER BY latestactiondate DESC LIMIT 8");
+    sql.values.should.eql([100, 'A1']);
   });
 
 });
