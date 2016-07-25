@@ -234,10 +234,11 @@ function bblSearch ()  {
       center: [40.783435, -73.966249],
       zoom: 11
     });
-    // add osm title layer
-    L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',{
-      subdomains: ["1", "2", "3"]
-     }).addTo(map);
+    // add statem-osm title layer
+    var tileUrl = "https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png";
+    var attr = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.';
+    
+    L.tileLayer(tileUrl,{attribution: attr}).addTo(map);
     
     // groupLayer to old markers
     markers = L.layerGroup().addTo(map);
