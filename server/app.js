@@ -12,6 +12,7 @@ const toNumber = require("underscore.string/toNumber");
 const through = require('through');
 
 const squel = require('squel');
+const pgsquel = squel.useFlavour('postgres');
 squel.mySelect = require('./selectNull'); // Select with Null Order
 
 const pg = require('pg');
@@ -55,7 +56,7 @@ app.get('/datatables', (req, res) => {
 });
 
 app.get('/csv', downloadCSV);
-
+app.get('/cd', recordsByCD);
 //start listening 
 const server = app.listen(config.port, config.ip, ()=> {
   let {address, port} = server.address();
@@ -63,6 +64,7 @@ const server = app.listen(config.port, config.ip, ()=> {
 });
 
 function do_query(sql) {
+  console.log(sql);
   const def = q.defer();
   pg.connect((err, client, done) => {
     if (err) {
@@ -254,16 +256,25 @@ function downloadCSV (req, res) {
 }
 
 function cdRecordsSql(cd, limit) {
-  return squel.select()
+  return pgsquel.select()
     .from(config.tableName)
-    .where("cd = ?", cd)
+    .where("communityboard = ?", cd)
     .order("latestactiondate", false)
     .limit(limit)
     .toParam();
 }
 
-function recordsByCD(cd, limit) {
-    
+function recordsByCD(req, res) {
+  if (_.isNil(req.query.cd)) {
+    return res.sendStatus(404);
+  }
+  const limit = (req.query.limit) ? req.query.limit : 10;
+  const sql = cdRecordsSql(req.query.cd, limit);
+
+  do_query(sql)
+    .then( 
+      result => res.json(result), 
+      err => {console.log(err); res.sendStatus(404); });
 }
 
 function format_bor(b){
