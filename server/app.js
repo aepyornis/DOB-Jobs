@@ -64,7 +64,6 @@ const server = app.listen(config.port, config.ip, ()=> {
 });
 
 function do_query(sql) {
-  console.log(sql);
   const def = q.defer();
   pg.connect((err, client, done) => {
     if (err) {

@@ -21,9 +21,9 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
-    "pg": "^6.0.1",
+    "pg": "^6.0.3",
     "q": "~1.4.1",
-    "lodash": "^4.13.1",
+    "lodash": "^4.14.0",
     "underscore.string": "^3.3.4",
     "squel": "~4.4.2",
     "through": "~2.3.6",
@@ -34,9 +34,9 @@
     "npm": ">= 2.0.0"
   },
   "devDependencies": {
-    "istanbul": "^0.4.3",
-    "mocha": "^2.4.5",
-    "should": "^8.3.0",
+    "istanbul": "^0.4.4",
+    "mocha": "^2.5.3",
+    "should": "^10.0.0",
     "superagent": "^1.8.3",
     "excel-parser": "^0.2.2",
     "xlsjs": "~0.7.2"
