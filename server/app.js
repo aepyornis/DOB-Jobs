@@ -253,6 +253,19 @@ function downloadCSV (req, res) {
     }
 }
 
+function cdRecordsSql(cd, limit) {
+  return squel.select()
+    .from(config.tableName)
+    .where("cd = ?", cd)
+    .order("latestactiondate", false)
+    .limit(limit)
+    .toParam();
+}
+
+function recordsByCD(cd, limit) {
+    
+}
+
 function format_bor(b){
   switch(b) {
   case "MN":
@@ -281,5 +294,6 @@ module.exports = {
   sentence_capitalize: sentence_capitalize,
   change_row: change_row,
   format_bor: format_bor,
-  getTotalRecords: getTotalRecords
+  getTotalRecords: getTotalRecords,
+  cdRecordsSql: cdRecordsSql
 };

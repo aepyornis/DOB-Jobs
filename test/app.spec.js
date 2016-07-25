@@ -345,3 +345,13 @@ describe('/datatables', () =>{
   });
 
 });
+
+describe('cdRecordsSql', () =>{
+  
+  it('generates correct sql statement', ()=>{
+    let sql = app.cdRecordsSql(100, 8);
+    sql.text.should.eql("SELECT * FROM dobjobs WHERE (cd = ?) ORDER BY latestactiondate DESC LIMIT 8");
+    sql.values.should.eql([100]);
+  });
+
+});
