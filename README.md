@@ -77,6 +77,13 @@ module.exports = {
 
 ```
 
+Set db permissions if needed:
+
+```
+psql -d dobjobs -c "GRANT USAGE ON SCHEMA public to pgusername"
+psql -d dobjobs -c "GRANT SELECT ON ALL TABLES IN SCHEMA public to pgusername"
+```
+
 install node modules: ``` npm install ```
 
 run app: ``` npm start ```
@@ -84,7 +91,7 @@ run app: ``` npm start ```
 I run the app on the server using forever with this command:
 
 ```
-forever start -a --uid "dobjobs" -c "node --harmony_destructuring" /srv/DOB-Jobs/server/app.js
+forever start -a --uid "dobjobs" /srv/DOB-Jobs/server/app.js
 ```
 
 ## data source:
