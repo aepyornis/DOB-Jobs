@@ -224,10 +224,10 @@ function downloadCSV (req, res) {
       return col.data;
   });
   // write columnNames
-  res.write(columnNames.join(',') + '\n');
+  res.write(columnNames.join('|') + '\n');
   // generate SQL
   var sql = sql_query_builder(req.query, false)[0];
-  // Streaming query from postgres -> responce
+  // Streaming query from postgres -> response
   pg.connect(function(err, client, done) {
     if(err) throw err;
     var query = new QueryStream(sql.text, sql.values);
@@ -249,7 +249,7 @@ function downloadCSV (req, res) {
               return row[name];
           }
        });
-      var csv = arr.join(',') + '\n';
+      var csv = arr.join('|') + '\n';
       this.queue(csv);
     }
 }
