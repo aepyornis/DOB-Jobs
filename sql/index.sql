@@ -1,12 +1,8 @@
 -- create pg_trgm extension
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
--- multi-column index
-create index on dobjobs (lat_coord, lng_coord);
--- lat
-create index on dobjobs (lat_coord);
--- lng
-create index on dobjobs (lng_coord);
+-- bbl
+create index on dobjobs (bbl);
 
 -- Latest Action Date 
 create index on dobjobs (LatestActionDate DESC NULLS LAST);
@@ -35,5 +31,3 @@ create index on dobjobs USING gin (ownername gin_trgm_ops);
 create index on dobjobs USING gin (JobDescription gin_trgm_ops);
 --applicant name
 create index on dobjobs USING gin (applicantname gin_trgm_ops);
-
-

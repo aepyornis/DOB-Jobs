@@ -29,3 +29,10 @@ where
 
 
 COMMIT;
+
+-- multi-column index
+create index on dobjobs (lat_coord, lng_coord);
+-- lat
+create index on dobjobs (lat_coord);
+-- lng
+create index on dobjobs (lng_coord);
